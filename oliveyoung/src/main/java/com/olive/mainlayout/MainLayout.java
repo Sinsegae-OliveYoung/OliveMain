@@ -16,6 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
 import com.olive.store.StorePage;
@@ -61,7 +62,12 @@ public class MainLayout extends JFrame {
 
 		p_title = new JPanel();
 		// Config 가서 이미지 경로 설정해주셔야 합니다
-		img = new ImageIcon(new ImageIcon(Config.LOGO_PATH).getImage().getScaledInstance(180, 20, Image.SCALE_SMOOTH));
+		//img = new ImageIcon(new ImageIcon(Config.LOGO_PATH).getImage().getScaledInstance(180, 20, Image.SCALE_SMOOTH));
+		img = new ImageIcon (
+						new ImageIcon(getClass().getResource(Config.LOGO_PATH))  // 앞에 '/' 필수!
+								.getImage()
+								.getScaledInstance(180, 20, Image.SCALE_SMOOTH)
+			); 
 		bt_title = new JButton(img);
 
 		p_menu = new JPanel();
@@ -186,8 +192,13 @@ public class MainLayout extends JFrame {
 				      /*--------------
 				       *  개인 테스트용
 				       * -------------*/
-				      if (source == bt_sh)
+				      if (source == bt_sh) { // 재고 페이지 진입 (승연)
+				    	  showPage(1);				    	  
+				    	  System.out.println("go to stock");
+				      } else if (source == bt_io) { // 입출고 페이지 진입 (민지)
 				    	  showPage(0);
+				    	  System.out.println("go to inbound / outbound");
+				      }
 				}
 			
 			});
@@ -222,10 +233,14 @@ public class MainLayout extends JFrame {
 		/*-------------------------------------------------
 		 * 개인 테스트용  --> 이거 사용해서 테스트 하심 돼요
 		 *------------------------------------------------- */
-		pages = new Page[1];
+		pages = new Page[2];
 		
-		pages[0] = new StorePage(this);
-		p_content.add(pages[0]);
+		pages[0] = new BoundPage(this);
+		pages[1] = new StorePage(this);
+		
+		for (int i = 0; i < pages.length; i++) {
+			p_content.add(pages[i]);
+		}
 	}
 	
 	public void showPage(int target) {
