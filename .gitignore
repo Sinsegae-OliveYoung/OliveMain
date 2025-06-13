@@ -1,0 +1,56 @@
+# --- Java 기본 ---
+*.class
+*.jar
+*.war
+*.ear
+
+# --- STS / Eclipse 관련 ---
+.metadata/
+*.log
+tmp/
+*.tmp
+*.bak
+*.swp
+
+.settings/
+.project
+*.prefs
+.classpath
+
+# --- Maven ---
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# --- Gradle (만약 사용하는 경우) ---
+.build/
+.gradle/
+build/
+
+# --- IntelliJ IDEA 사용 시 ---
+*.iml
+.idea/
+out/
+
+# --- OS 별 불필요 파일 ---
+.DS_Store
+Thumbs.db
+
+# --- 환경설정 / 로컬 전용 파일 ---
+.env
+*.local
+*.key
+*.pem
+
+# --- VS Code 사용 시 ---
+.vscode/
+
+# --- 로그 파일 ---
+*.log
+
+# --- 빌드 툴 자동 생성 파일 ---
+bin/
+gen/
