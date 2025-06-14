@@ -52,19 +52,29 @@ INSERT INTO outbound_approve (ob_id, user_id, app_id, oa_date) VALUES
 ;
 select * from outbound_approve
 ;
--- ★ stock  재고 ---------------------------------
+-- ★ stock  재고 (branch_id fk 업데이트) ---------------------------------
 CREATE TABLE stock (
     st_id INT PRIMARY KEY AUTO_INCREMENT,
     option_id INT NOT NULL,
+    br_id INT NOT NULL,
     st_quantity INT NOT NULL,
     st_update DATE NOT NULL,
-    FOREIGN KEY (option_id) REFERENCES product_option(option_id)
+    FOREIGN KEY (option_id) REFERENCES product_option(option_id),
+    FOREIGN KEY (br_id) REFERENCES branch(br_id)
 );
 
-INSERT INTO stock (option_id, st_quantity, st_update) VALUES
-(1, 130, '2025-05-09'),
-(1, 100, '2025-05-09'),
-(2, 50, '2025-05-09')
+INSERT INTO stock (option_id, br_id, st_quantity, st_update) VALUES
+(1, 1, 130, '2025-05-14'),
+(1, 1, 100, '2025-05-20'),
+(2, 1, 50, '2025-05-28'),
+(3, 1, 70, '2025-06-12'),
+(2, 2, 30, '2025-06-14'),
+(4, 1, 7, '2025-03-28'),
+(5, 1, 5, '2025-04-12'),
+(6, 2, 3, '2025-02-14'),
+(4, 2, 20, '2024-03-28'),
+(4, 3, 20, '2023-04-28'),
+(4, 3, 20, '2022-05-28')
 ;
 
 select * from stock

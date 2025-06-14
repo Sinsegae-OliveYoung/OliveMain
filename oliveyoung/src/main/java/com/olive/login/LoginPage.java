@@ -45,7 +45,7 @@ public class LoginPage extends JFrame {
 		// create
 		p_bg = new JPanel();
 		p_login = new JPanel();
-		img = img_title.getImage("logo2.png", 300, 35);
+		img = img_title.getImage("images/logo2.png", 300, 35);
 		
 		p_title = new JPanel() {
 			protected void paintComponent(Graphics g) {

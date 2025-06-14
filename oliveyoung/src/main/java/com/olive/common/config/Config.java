@@ -12,7 +12,7 @@ public class Config {
 	public static final String user = "olive";
 	public static final String pass = "1234";
 	
-	public static final String LOGO_PATH = "C:/github/lecture_workspace/java_workspace/TeamProject_1/logo2.png";
+	public static final String LOGO_PATH = "images/logo2.png";
 	
 	/*--------------------------------------------
 	 *  페이지 정의

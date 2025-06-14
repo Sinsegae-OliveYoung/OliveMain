@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
+import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
 
 
@@ -186,7 +187,7 @@ public class MainLayout extends JFrame {
 				      /*--------------
 				       *  개인 테스트용
 				       * -------------*/
-				      if (source == bt_sh)
+				      if (source == bt_st)
 				    	  showPage(0);
 				}
 			
@@ -224,7 +225,7 @@ public class MainLayout extends JFrame {
 		 *------------------------------------------------- */
 		pages = new Page[1];
 		
-		pages[0] = new StorePage(this);
+		pages[0] = new StockPage(this);
 		p_content.add(pages[0]);
 	}
 	
