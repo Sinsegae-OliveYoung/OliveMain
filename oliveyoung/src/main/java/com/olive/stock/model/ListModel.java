@@ -6,11 +6,12 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.olive.common.model.Category;
 import com.olive.common.model.Stock;
 import com.olive.common.repository.StockDAO;
 
 
-public class ListNowModel extends AbstractTableModel {
+public class ListModel extends AbstractTableModel {
 
     StockDAO stockDAO;
     List<Stock> list;
@@ -18,7 +19,7 @@ public class ListNowModel extends AbstractTableModel {
     String[] column = {
         "상품옵션코드", "카테고리코드", "상세카테고리코드",
         "상품명", "브랜드", "가격",
-        "재고수량", "최근수정일"
+        "재고수량", "입고일"
     };
 //    String[] column = {
 //    		"option_code", "ct_code", "cd_dt_code",
@@ -26,9 +27,20 @@ public class ListNowModel extends AbstractTableModel {
 //    		"st_quantity", "st_update"
 //    };
 
-    public ListNowModel() {
+    public ListModel(String str) {
         stockDAO = new StockDAO();
-        list = stockDAO.listNow();
+        if(str.equals("now")) {
+        	list = stockDAO.listNow();             	
+        } else if(str.equals("countAlert")) {
+        	list = stockDAO.listCountAlert();
+        } else if(str.equals("oldAlert")) {
+        	list = stockDAO.listOldAlert();
+        }
+    }
+    
+    public ListModel(Category category) {
+    	stockDAO = new StockDAO();
+    	list = stockDAO.listCat(category);
     }
 
     public int getRowCount() {
