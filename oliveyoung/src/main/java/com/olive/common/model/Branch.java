@@ -6,7 +6,8 @@ public class Branch {
 	private String br_name;
 	private String br_address;
 	private String br_tel;
-//	private User user;
+	private User user;
+	
 	public int getBr_id() {
 		return br_id;
 	}
@@ -31,10 +32,10 @@ public class Branch {
 	public void setBr_tel(String br_tel) {
 		this.br_tel = br_tel;
 	}
-//	public User getUser() {
-//		return user;
-//	}
-//	public void setUser(User user) {
-//		this.user = user;
-//	}
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
+	}
 }
