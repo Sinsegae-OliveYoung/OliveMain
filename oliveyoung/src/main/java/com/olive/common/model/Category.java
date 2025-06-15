@@ -24,4 +24,9 @@ public class Category {
 	public void setCt_name(String ct_name) {
 		this.ct_name = ct_name;
 	}
+	
+	@Override
+	public String toString() {
+		return ct_code;
+	}
 }
