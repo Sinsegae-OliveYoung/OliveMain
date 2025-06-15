@@ -183,10 +183,10 @@ public class StoreConfigMenu extends Panel {
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
 					if (source == bt_regist)
-						registFrame = new RegistFrame(StoreConfigMenu.this);
+						registFrame = new RegistFrame(storePage, StoreConfigMenu.this);
 					else if (source == bt_edit) {
 						if (selectedBranch != null)
-							editFrame = new EditFrame(StoreConfigMenu.this, selectedBranch);
+							editFrame = new EditFrame(storePage, StoreConfigMenu.this, selectedBranch);
 						else
 							JOptionPane.showMessageDialog(StoreConfigMenu.this, "수정할 지점을 선택해주세요");
 					} else if (source == bt_delete) {
@@ -222,6 +222,9 @@ public class StoreConfigMenu extends Panel {
 			con.commit();
 			JOptionPane.showMessageDialog(this, "지점이 삭제되었습니다");
 			loadData();
+			
+			 ((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
+			 storePage.showPanel(0);
 		} catch (BranchException | UserException e) {
 			try {
 				con.rollback();

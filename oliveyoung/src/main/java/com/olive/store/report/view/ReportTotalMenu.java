@@ -1,5 +1,6 @@
 package com.olive.store.report.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 
 import com.olive.common.config.Config;
@@ -12,6 +13,6 @@ public class ReportTotalMenu extends Panel{
 		super(storePage);
 		
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
-		setBackground(Config.LIGHT_GREEN);
+		setBackground(Color.RED);
 	}
 }
