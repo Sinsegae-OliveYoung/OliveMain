@@ -31,7 +31,7 @@ import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
 import com.olive.store.storeconfig.view.StoreConfigMenu;
 
-public class RegistFrame extends JFrame {
+public class EditFrame extends JFrame {
 	JPanel p_write;
 	JLabel lb_name;
 	JTextField t_name;
@@ -49,10 +49,13 @@ public class RegistFrame extends JFrame {
 	BranchDAO branchDAO;
 	UserDAO userDAO;
 
-	StoreConfigMenu storeConfigMenu;
-
-	public RegistFrame(StoreConfigMenu storeConfigMenu) {
+	private Branch branch;
+	private StoreConfigMenu storeConfigMenu;
+	int br_id;
+	
+	public EditFrame(StoreConfigMenu storeConfigMenu, Branch branch) {
 		this.storeConfigMenu = storeConfigMenu;
+		this.branch = branch;
 
 		// create
 		p_write = new JPanel();
@@ -62,7 +65,7 @@ public class RegistFrame extends JFrame {
 		t_address = new JTextArea();
 		lb_tel = new JLabel("매장 번호  ");
 		t_tel = new JTextField();
-		lb_userNo = new JLabel("담당자  ");
+		lb_userNo = new JLabel("담당자 사원번호  ");
 		cb_userNo = new JComboBox<>();
 
 		p_bt = new JPanel();
@@ -70,7 +73,7 @@ public class RegistFrame extends JFrame {
 
 		branchDAO = new BranchDAO();
 		userDAO = new UserDAO();
-
+		
 		// style
 		Dimension d1 = new Dimension(140, 30);
 		Dimension d2 = new Dimension(180, 30);
@@ -99,7 +102,6 @@ public class RegistFrame extends JFrame {
 		lb_tel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
 		t_tel.setPreferredSize(d2);
-		t_tel.setToolTipText("ex. 010-1234-5678");
 		t_tel.setBackground(Config.LIGHT_GRAY);
 
 		lb_userNo.setPreferredSize(d1);
@@ -107,7 +109,6 @@ public class RegistFrame extends JFrame {
 		lb_userNo.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
 		cb_userNo.setPreferredSize(d2);
-		cb_userNo.setToolTipText("사원 번호 - 담당자 이름");
 		cb_userNo.setUI(new CustomComboBoxUI());
 		cb_userNo.setBackground(Config.LIGHT_GRAY);
 		cb_userNo.setBorder(new LineBorder(Color.GRAY, 1, true));
@@ -138,13 +139,14 @@ public class RegistFrame extends JFrame {
 		add(p_bt);
 
 		getUserNo();
-
+		load();
+		
 		bt_regist.addActionListener(e -> {
 			regist();
 		});
-
+		
 		setBounds(600, 200, 400, 420);
-		setTitle("지점 등록하기");
+		setTitle("지점 수정하기");
 		setVisible(true);
 	}
 
@@ -153,29 +155,38 @@ public class RegistFrame extends JFrame {
 
 		User dummy = new User();
 		cb_userNo.addItem("사원 번호 - 담당자명");
-
+		
 		for (User user : userList)
 			cb_userNo.addItem(user);
 	}
+	
+	// 테이블에서 누른 값 받아오기
+	public void load() {
+			br_id = branch.getBr_id();
+			t_name.setText(branch.getBr_name());
+			t_address.setText(branch.getBr_address());
+			t_tel.setText(branch.getBr_tel());
+			cb_userNo.setSelectedItem(branch.getUser().getUser_no() + " - " + branch.getUser().getUser_name());
+	}
 
-	public void insert() {
+	public void update() {
 		Connection con = dbManager.getConnection();
 		try {
 			con.setAutoCommit(false);
-
+			
 			User user = (User) cb_userNo.getSelectedItem();
-			int userId = user.getUser_id();
-
+			
 			Branch branch = new Branch();
 			branch.setBr_name(t_name.getText());
 			branch.setBr_address(t_address.getText());
 			branch.setBr_tel(t_tel.getText());
+			branch.setBr_id(br_id);
 			branch.setUser(user);
-
-			branchDAO.insert(branch);
-
+			
+			branchDAO.update(branch);
+					
 			con.commit();
-			JOptionPane.showMessageDialog(this, "지점이 등록되었습니다");
+			JOptionPane.showMessageDialog(this, "지점이 수정되었습니다");
 			storeConfigMenu.loadData();
 			dispose();
 		} catch (BranchException | UserException e) {
@@ -184,41 +195,35 @@ public class RegistFrame extends JFrame {
 			} catch (SQLException e1) {
 				e1.printStackTrace();
 			}
+			e.printStackTrace();														
+			JOptionPane.showMessageDialog(this, e.getMessage());	
+		}	catch (SQLException e) {
 			e.printStackTrace();
-			JOptionPane.showMessageDialog(this, e.getMessage());
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
+		}	finally {
 			try {
 				con.setAutoCommit(true);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
 		}
-
+		
 	}
-
+	
 	public void regist() {
-		if (t_name.getText().length() < 1)
-			JOptionPane.showMessageDialog(this, "지점명을 입력하세요");
-		else if (t_address.getText().length() < 1)
-			JOptionPane.showMessageDialog(this, "매장 주소를 입력하세요");
-		else if (t_tel.getText().length() < 1)
-			JOptionPane.showMessageDialog(this, "매장 번호를 입력하세요");
-		else if (cb_userNo.getSelectedIndex() < 1)
-			JOptionPane.showMessageDialog(this, "담당자를 선택하세요");
-		else {
-			for (int i = 0; i < storeConfigMenu.storeConfigModel.getRowCount(); i++)
-				if (t_name.getText().equals(storeConfigMenu.storeConfigModel.getValueAt(i, 1).toString())) {
-					JOptionPane.showMessageDialog(this, "이미 해당 지점이 존재합니다");
-					return;
-				}
-			insert();
+			if (t_name.getText().length() < 1) 
+				JOptionPane.showMessageDialog(this, "지점명을 입력하세요");
+			else if (t_address.getText().length() < 1) 
+				JOptionPane.showMessageDialog(this, "매장 주소를 입력하세요");
+			else if (t_tel.getText().length() < 1)
+				JOptionPane.showMessageDialog(this, "매장 번호를 입력하세요");
+			else if (cb_userNo.getSelectedIndex() < 1)
+				JOptionPane.showMessageDialog(this, "담당자를 선택하세요");
+			else
+				update();
 		}
-	}
-
+	
+	// ComboBox ui
 	class CustomComboBoxUI extends BasicComboBoxUI {
-		@Override
 		protected JButton createArrowButton() {
 			JButton button = new JButton("▼");
 			button.setBackground(Config.LIGHT_GREEN);
