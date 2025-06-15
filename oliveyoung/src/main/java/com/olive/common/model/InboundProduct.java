@@ -1,5 +1,8 @@
 package com.olive.common.model;
 
+import com.olive.common.model.Inbound;
+import com.olive.common.model.ProductOption;
+
 public class InboundProduct {
 	
 	private int ib_pd_id;

@@ -28,7 +28,7 @@ public class StockDAO {
 
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT po.option_code, ct.ct_code, cd.ct_dt_code, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
-        sql.append(" po.option_id, br.br_id FROM stock s "); // 예시 필드
+        sql.append(" po.option_id, br.br_id FROM stock s "); 
         sql.append("JOIN product_option po ON s.option_id = po.option_id ");
         sql.append("JOIN product p ON po.product_id = p.product_id ");
         sql.append("JOIN brand b ON p.bd_id = b.bd_id ");

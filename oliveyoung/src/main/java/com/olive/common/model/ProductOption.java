@@ -1,4 +1,4 @@
-package com.olive.common.model;
+ package com.olive.common.model;
 
 public class ProductOption {
 	
