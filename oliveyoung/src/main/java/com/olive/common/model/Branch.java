@@ -37,4 +37,9 @@ public class Branch {
 //	public void setUser(User user) {
 //		this.user = user;
 //	}
+	
+	@Override
+	public String toString() {
+		return br_name;
+	}
 }
