@@ -6,7 +6,7 @@ public class Approval {
 	
 	private int approval_id;
 	//private Ib ib;
-	private User user;
+//	private User user;
 	private Date approval_date;
 	
 	public int getApproval_id() {
@@ -21,12 +21,12 @@ public class Approval {
 //	public void setIb(Ib ib) {
 //		this.ib = ib;
 //	}
-	public User getUser() {
-		return user;
-	} 
-	public void setUser(User user) {
-		this.user = user;
-	}
+//	public User getUser() {
+//		return user;
+//	} 
+//	public void setUser(User user) {
+//		this.user = user;
+//	}
 	public Date getApproval_date() {
 		return approval_date;
 	}

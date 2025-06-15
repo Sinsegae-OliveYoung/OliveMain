@@ -61,10 +61,17 @@ CREATE TABLE stock (
     st_update DATE NOT NULL,
     FOREIGN KEY (option_id) REFERENCES product_option(option_id),
     FOREIGN KEY (br_id) REFERENCES branch(br_id)
+    
+         -- 복합 유니크 제약조건 추가
+    UNIQUE (option_id, br_id)
 );
 
+-- stock 현재 테이블에 유니크 제약조건 설정
+ALTER TABLE stock
+ADD CONSTRAINT uq_option_brand_id UNIQUE (option_id, br_id);
+-----------
+
 INSERT INTO stock (option_id, br_id, st_quantity, st_update) VALUES
-(1, 1, 130, '2025-05-14'),
 (1, 1, 100, '2025-05-20'),
 (2, 1, 50, '2025-05-28'),
 (3, 1, 70, '2025-06-12'),
@@ -73,8 +80,7 @@ INSERT INTO stock (option_id, br_id, st_quantity, st_update) VALUES
 (5, 1, 5, '2025-04-12'),
 (6, 2, 3, '2025-02-14'),
 (4, 2, 20, '2024-03-28'),
-(4, 3, 20, '2023-04-28'),
-(4, 3, 20, '2022-05-28')
+(4, 3, 20, '2023-04-28')
 ;
 
 select * from stock
