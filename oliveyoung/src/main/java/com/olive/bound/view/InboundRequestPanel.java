@@ -29,18 +29,19 @@ public class InboundRequestPanel extends Panel{
 		
 		p_list = new JPanel();
 		la_left = new JLabel("좌측");
-		table = new JTable(inboundModel = new InboundModel());
+		table = new JTable(inboundModel = new InboundModel()); // 입고할 상품 리스트 테이블에 출력
 		scroll = new JScrollPane(table);
 		
 		p_request = new JPanel();
 		la_right = new JLabel("우측");
 		
-		// 스타일
-		Dimension d = new Dimension(540, 730);
+		// 스타일 new Dimension(Config.CONTENT_W, Config.CONTENT_H) // 1100, 740 -> 550, 740
+		
+		Dimension d = new Dimension(Config.CONTENT_W / 2 - 10, Config.CONTENT_H - 10);
 		p_list.setPreferredSize(d);
 		p_list.setBackground(Color.gray);
 		
-		scroll.setPreferredSize(new Dimension(500, 600));
+		scroll.setPreferredSize(new Dimension(540, 700));
 		
 		p_request.setPreferredSize(d);
 		p_request.setBackground(Color.white);
