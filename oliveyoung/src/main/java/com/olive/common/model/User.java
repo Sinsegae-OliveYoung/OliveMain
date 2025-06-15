@@ -55,4 +55,7 @@ public class User {
 		this.hiredate = hiredate;
 	}
 	
+	public String toString() {
+		return user_no + " - " + user_name;
+	}
 }

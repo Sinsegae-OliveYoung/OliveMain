@@ -33,6 +33,10 @@ public class StoreConfigModel extends AbstractTableModel {
 		return column[col];
 	}
 	
+	public Branch getBranchAt(int row) {
+	    return list.get(row);
+	}
+	
 	public Object getValueAt(int row, int col) {
 		Branch branch = list.get(row);
 		String value = null;

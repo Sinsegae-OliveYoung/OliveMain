@@ -29,7 +29,7 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("insert into branch(br_name, br_address, br_tel, user_id) values(?, ?, ?, ?");
+		sql.append("insert into branch(br_name, br_address, br_tel, user_id) values(?, ?, ?, ?)");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -49,6 +49,60 @@ public class BranchDAO {
 		}
 	}
 
+	// 한 개의 레코드 수정
+	public void update(Branch branch) throws BranchException {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("update branch set br_name = ?, br_address = ?, br_tel = ?, user_id = ? where br_id = ?");
+		
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setString(1, branch.getBr_name());
+			pstmt.setString(2, branch.getBr_address());
+			pstmt.setString(3, branch.getBr_tel());
+			pstmt.setInt(4, branch.getUser().getUser_id());
+			pstmt.setInt(5, branch.getBr_id());	
+			
+			int result = pstmt.executeUpdate();
+			if(result < 1)
+				throw new BranchException("지점 수정에 실패하였습니다");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new BranchException("지점 수정에 실패하였습니다", e);
+		} finally {
+			dbManager.release(pstmt);
+		}
+	}
+
+	// 한 개의 레코드 삭제
+	public void delete(Branch branch) throws BranchException {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("delete from branch where br_id = ?");
+		
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setInt(1, branch.getBr_id());	
+			
+			int result = pstmt.executeUpdate();
+			if(result < 1)
+				throw new BranchException("지점 삭제에 실패하였습니다");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new BranchException("지점 삭제에 실패하였습니다", e);
+		} finally {
+			dbManager.release(pstmt);
+		}
+	}
+
 	// 모든 지점의 정보 가져오기
 	public List selectBranch() {
 		Connection con = null;
@@ -59,7 +113,7 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id");
+		sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			rs = pstmt.executeQuery();
