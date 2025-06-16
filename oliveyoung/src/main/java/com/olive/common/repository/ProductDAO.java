@@ -27,31 +27,7 @@ public class ProductDAO {
         List<Stock> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-//        sql.append("select  c.ct_name");
-//		sql.append(" ,cd.ct_dt_name");
-//		sql.append(" ,b.bd_name");
-//		sql.append(" ,p.product_name");
-//		sql.append(" ,po.option_code");
-//		sql.append(" ,po.option_no");
-//		sql.append(" ,po.price");
-//		sql.append(" ,s.st_quantity");
-//		sql.append(" ,br.br_name");
-//		
-//		sql.append(" ,s.st_id");
-//		sql.append(" ,c.ct_code");
-//		sql.append(" ,cd.ct_dt_code");
-//		sql.append(" ,po.option_id");
-//		sql.append(" ,br.br_id");
-//		
-//		sql.append(" from	product p");
-//		sql.append(" inner join product_option po on p.product_id = po.product_id");
-//		sql.append(" inner join category c on p.ct_id = c.ct_id");
-//		sql.append(" inner join category_detail cd on p.ct_dt_id = cd.ct_dt_id and c.ct_id = cd.ct_id");
-//		sql.append(" inner join brand b ON p.bd_id = b.bd_id");
-//		sql.append(" inner join stock s on s.option_id = po.option_id");
-//		sql.append(" inner join branch br on s.option_id = po.option_id");
-//		sql.append(" and br.br_id = s.br_id");
-//		sql.append(" where s.br_id = 1");
+
         sql.append("SELECT "
                 + "c.ct_name, "
                 + "cd.ct_dt_name, "
