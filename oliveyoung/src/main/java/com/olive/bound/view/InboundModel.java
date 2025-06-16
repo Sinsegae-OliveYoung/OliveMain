@@ -69,9 +69,9 @@ public class InboundModel extends AbstractTableModel{
             case 3: //제품명
             	value = stock.getProductOption().getProduct().getProduct_name();
                 break;
-
             case 4: //호수
-            	value = Integer.toString(stock.getProductOption().getOption_no());
+//            	value = Integer.toString(stock.getProductOption().getOption_no());
+            	value = stock.getProductOption().getOption_name();
                 break;
             case 5: //가격
             	value = Integer.toString(stock.getProductOption().getPrice());
