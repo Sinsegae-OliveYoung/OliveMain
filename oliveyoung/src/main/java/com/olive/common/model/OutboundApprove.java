@@ -2,6 +2,10 @@ package com.olive.common.model;
 
 import java.sql.Date;
 
+import com.olive.common.model.ApproveState;
+import com.olive.common.model.Outbound;
+import com.olive.common.model.User;
+
 public class OutboundApprove {
 	
 	private int oa_id;
@@ -40,5 +44,4 @@ public class OutboundApprove {
 	public void setOa_date(Date oa_date) {
 		this.oa_date = oa_date;
 	}
-	
 }

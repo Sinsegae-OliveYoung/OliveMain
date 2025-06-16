@@ -8,7 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.olive.common.exception.UserException;
-import com.olive.common.model.Branch;import com.olive.common.model.Role;
+import com.olive.common.model.Branch;
+import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
 

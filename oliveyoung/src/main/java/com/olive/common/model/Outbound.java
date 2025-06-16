@@ -2,6 +2,10 @@ package com.olive.common.model;
 
 import java.sql.Date;
 
+
+import com.olive.common.model.BoundState;
+import com.olive.common.model.User;
+
 public class Outbound {
 	
 	private int ob_id;
@@ -40,5 +44,4 @@ public class Outbound {
 	public void setBoundState(BoundState boundState) {
 		this.boundState = boundState;
 	}
-	
 }

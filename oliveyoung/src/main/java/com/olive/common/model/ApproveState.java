@@ -17,5 +17,6 @@ public class ApproveState {
 	public void setApp_name(String app_name) {
 		this.app_name = app_name;
 	}
-	
+
 }
+

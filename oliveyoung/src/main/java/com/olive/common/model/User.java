@@ -2,7 +2,6 @@ package com.olive.common.model;
 
 import java.sql.Date;
 
-
 public class User {
 	private int user_id;
 	private int user_no;

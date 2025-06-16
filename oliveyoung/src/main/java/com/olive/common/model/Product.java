@@ -38,5 +38,4 @@ public class Product {
 	public void setBrand(Brand brand) {
 		this.brand = brand;
 	}
-	
 }

@@ -10,4 +10,8 @@ public class UserException extends RuntimeException{
 	public UserException (String msg, Throwable e) {
 		super(msg, e);
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> develop

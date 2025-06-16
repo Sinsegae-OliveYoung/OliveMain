@@ -31,5 +31,4 @@ public class OutboundProduct {
 	public void setOb_pd_count(int ob_pd_count) {
 		this.ob_pd_count = ob_pd_count;
 	}
-	
 }

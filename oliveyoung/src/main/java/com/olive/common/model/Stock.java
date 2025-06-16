@@ -40,6 +40,4 @@ public class Stock {
 	public void setBranch(Branch branch) {
 		this.branch = branch;
 	}
-	
-	
 }

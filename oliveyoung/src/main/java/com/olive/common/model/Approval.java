@@ -5,6 +5,7 @@ import java.sql.Date;
 public class Approval {
 	
 	private int approval_id;
+
 	private Inbound inbound;
 	private User user;
 	private Date approval_date;
@@ -15,7 +16,7 @@ public class Approval {
 	public void setApproval_id(int approval_id) {
 		this.approval_id = approval_id;
 	}
-	
+
 	public Inbound getInbound() {
 		return inbound;
 	}

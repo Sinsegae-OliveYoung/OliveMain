@@ -28,7 +28,7 @@ public class StockDAO {
 
         StringBuffer sql = new StringBuffer();
         sql.append("SELECT po.option_code, ct.ct_code, cd.ct_dt_code, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
-        sql.append(" po.option_id, br.br_id FROM stock s "); // 예시 필드
+        sql.append(" po.option_id, br.br_id FROM stock s "); 
         sql.append("JOIN product_option po ON s.option_id = po.option_id ");
         sql.append("JOIN product p ON po.product_id = p.product_id ");
         sql.append("JOIN brand b ON p.bd_id = b.bd_id ");
@@ -36,7 +36,9 @@ public class StockDAO {
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
         sql.append("order by s.st_update ");
-        
+
+        // 현재 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+      
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());

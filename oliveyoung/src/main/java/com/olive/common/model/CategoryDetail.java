@@ -1,4 +1,3 @@
-
 package com.olive.common.model;
 
 public class CategoryDetail {

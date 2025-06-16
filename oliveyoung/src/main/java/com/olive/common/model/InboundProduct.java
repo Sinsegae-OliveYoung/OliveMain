@@ -1,5 +1,8 @@
 package com.olive.common.model;
 
+import com.olive.common.model.Inbound;
+import com.olive.common.model.ProductOption;
+
 public class InboundProduct {
 	
 	private int ib_pd_id;
@@ -31,5 +34,4 @@ public class InboundProduct {
 	public void setIb_pd_count(int ib_pd_count) {
 		this.ib_pd_count = ib_pd_count;
 	}
-
 }
