@@ -8,16 +8,16 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -26,17 +26,18 @@ import javax.swing.table.JTableHeader;
 import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
-import com.olive.common.model.InboundProduct;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
-import com.olive.common.repository.InboundDAO;
 import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
 import com.toedter.calendar.JDateChooser;
 
 public class InboundRequestPanel extends Panel{
+	// NORTH
+	JPanel p_north;
+	
 	// CENTER
 	JPanel p_center;
 	
@@ -55,10 +56,12 @@ public class InboundRequestPanel extends Panel{
 	
 	// BOTTOM
 	JPanel p_bottom;
-	JDateChooser dateChooser;
-	
-	
 	JComboBox<Branch> cb_branch;
+	JDateChooser dateChooser;
+	JLabel la_date;
+	JButton bt_save;
+	
+	
 	ProductDAO productDAO;
 	BranchDAO branchDAO;
 	InboundModel inboundModel;
@@ -73,15 +76,23 @@ public class InboundRequestPanel extends Panel{
         Color bgColor = new Color(245, 248, 250);
         Color comboColor = new Color(100, 149, 237);
         Font defaultFont = new Font("SansSerif", Font.PLAIN, 13);
-        
-        // 중앙 패널
-        p_center = new JPanel();
+
+        // 상단 패널
+        p_north = new JPanel(new BorderLayout());
         
         // 좌측 상단 패널
-		p_list = new JPanel();
-		la_left = new JLabel("상품 목록");
-		la_left.setFont(new Font("SansSerif", Font.BOLD, 22));
-		la_left.setHorizontalAlignment(SwingConstants.LEFT);
+        p_list = new JPanel();
+        la_left = new JLabel("상품 목록");
+        la_left.setFont(new Font("SansSerif", Font.BOLD, 22));
+        
+        // 우측 패널
+        p_request = new JPanel();
+        la_right = new JLabel("입고 물품 목록");
+        la_right.setFont(new Font("SansSerif", Font.BOLD, 22));        
+        
+        
+        // 중앙 패널
+        p_center = new JPanel(new BorderLayout());
 		
 		// 좌측 중앙 - 테이블
 		table = new JTable(new InboundModel("now")); // 입고할 상품 리스트 테이블에 출력		
@@ -122,12 +133,6 @@ public class InboundRequestPanel extends Panel{
         
         
         
-		
-		// 우측 패널
-		p_request = new JPanel();
-		la_right = new JLabel("입고 물품 목록");
-		la_right.setFont(new Font("SansSerif", Font.BOLD, 22));
-		la_right.setHorizontalAlignment(SwingConstants.LEFT);
 		
 		requestModel = new InboundRequestModel();
 		table_re = new JTable(requestModel); // 입고 요청서 테이블
@@ -205,7 +210,7 @@ public class InboundRequestPanel extends Panel{
         comboPanel.add(cb_branch);	
 
         // 신규 추가: 하단 버튼들
-        JLabel la_date = new JLabel("입고일:");
+        la_date = new JLabel("입고일:");
         dateChooser = new JDateChooser();
         dateChooser.setPreferredSize(new Dimension(120, 25));
         dateChooser.setDate(new java.util.Date());
@@ -214,7 +219,9 @@ public class InboundRequestPanel extends Panel{
 //        JComboBox<User> cb_approver = new JComboBox<>();
 //        loadApproverList(cb_approver);
 //
-        JButton bt_save = new JButton("저장");
+        bt_save = new JButton("저장");
+        bt_save.setPreferredSize(new Dimension(80, 30));
+        bt_save.setBackground(Config.LIGHT_GRAY);
 //
 //        // 저장 버튼 클릭 이벤트
 //        bt_save.addActionListener(new ActionListener() {
@@ -240,43 +247,66 @@ public class InboundRequestPanel extends Panel{
         
         
 		
-		// 스타일 
+		// 스타일
+        
 		//new Dimension(Config.CONTENT_W, Config.CONTENT_H) // 1100, 740 -> 550, 740
 //		p_center.setPreferredSize(new Dimension(1100, 300));
-		p_center.setBackground(Config.LIGHT_GRAY);
+        p_north.setPreferredSize(new Dimension(Config.CONTENT_W , 50));
+        p_north.setBackground(Config.WHITE);
+        
+//        la_left.setPreferredSize(new Dimension(400, 50));
+//        la_right.setPreferredSize(new Dimension(400, 50));
+        
+		p_center.setBackground(Config.WHITE);
 		
 		Dimension d = new Dimension(Config.CONTENT_W / 2 - 10, 620);
 		p_list.setPreferredSize(d);
-		p_list.setBackground(Config.LIGHT_GRAY);
+		p_list.setBackground(Config.WHITE);
 		
 		scroll.setPreferredSize(new Dimension(540, 550));
-		scroll.setBackground(Config.LIGHT_GRAY);
+		scroll.getViewport().setBackground(Config.WHITE);
 		
 		p_request.setPreferredSize(d);
-		p_request.setBackground(Config.LIGHT_GRAY);
+		p_request.setBackground(Config.WHITE);
 		
 		scroll_re.setPreferredSize(new Dimension(540, 550));
-		scroll_re.setBackground(Config.LIGHT_GRAY);
+		scroll_re.getViewport().setBackground(Config.WHITE);
 
-		la_left.setPreferredSize(new Dimension(400, 50));
-		la_right.setPreferredSize(new Dimension(400, 50));
 		
 		p_bottom.setPreferredSize(new Dimension(Config.CONTENT_W , 50));
-		p_bottom.setBackground(Config.LIGHT_GRAY);
+		p_bottom.setBackground(Config.WHITE);
 		
 		// 조립
-		p_list.add(la_left);
+		
+		la_left.setBorder(BorderFactory.createEmptyBorder(0, 200, 0, 0));   // 왼쪽 padding
+		la_right.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 200));  // 오른쪽 padding
+
+		p_north.setLayout(new BorderLayout());
+		p_north.add(la_left, BorderLayout.WEST);
+		p_north.add(la_right, BorderLayout.EAST);
+		
+//		p_list.add(la_left);
 		p_list.add(scroll);
 		
-		p_request.add(la_right);
+//		p_request.add(la_right);
 		p_request.add(scroll_re);
 		
-		p_center.add(p_list);
-		p_center.add(p_request);
+//		p_center.add(p_list);
+//		p_center.add(p_request);
+		// SplitPane 생성
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scroll, scroll_re);
+        splitPane.setDividerLocation(500); // 초기 분할 위치 (px)
+        splitPane.setResizeWeight(0.5); // 크기 조절 시 왼쪽:오른쪽 비율
+        splitPane.setContinuousLayout(true);
+        splitPane.setOneTouchExpandable(true); // 화살표로 접었다 펼 수 있게
+
+        // 중앙 패널에 SplitPane 추가       
+        p_center.add(splitPane, BorderLayout.CENTER);
 		
 		p_bottom.add(comboPanel, BorderLayout.WEST);
 		
-		add(p_center);
+		add(p_north, BorderLayout.NORTH);
+		add(p_center, BorderLayout.CENTER);
 		add(p_bottom, BorderLayout.SOUTH);
 		
 		// 콤보박스 이벤트 연결
@@ -304,7 +334,7 @@ public class InboundRequestPanel extends Panel{
         });
 		
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H-70));
-		setBackground(Config.LIGHT_GRAY);
+		setBackground(Config.WHITE);
 		
 		loadCategories();
 	}

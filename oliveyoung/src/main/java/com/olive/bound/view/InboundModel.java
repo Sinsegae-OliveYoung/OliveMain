@@ -17,16 +17,14 @@ public class InboundModel extends AbstractTableModel{
 	
 	public InboundModel (String str) {
 		productDAO = new ProductDAO();
-		// list = productDAO.selectAll();
 		
+		// 화면 첫 로딩 시 보이는 테이블 내용 -> 로그인한 계정의 소속지점.
 		if(str.equals("now")) {
         	list = productDAO.selectNow();             	
         } 
-//		else if(str.equals("newBranch")) {
-//        	list = productDAO.listNewBranch();
-//        }
 	}
 	
+	// 콤보 박스 선택시 지점 변경 -> 테이블 값 변경 br_id = branch
 	public InboundModel(Branch branch) {
 		productDAO = new ProductDAO();
     	list = productDAO.listNewBranch(branch);

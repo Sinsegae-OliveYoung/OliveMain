@@ -7,20 +7,22 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.olive.common.model.Bound;
+import com.olive.common.model.BoundProduct;
 import com.olive.common.model.BoundState;
-import com.olive.common.model.Inbound;
-import com.olive.common.model.InboundProduct;
+import com.olive.common.model.Branch;
+import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
 
 public class InboundDAO {
 
     DBManager dbManager = DBManager.getInstance();
     
-    public List<Inbound> selectInbound(Inbound inbo) {
+    public List<Bound> selectInbound() {
     	Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<Inbound> list = new ArrayList<>();
+        List<Bound> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
         
@@ -31,14 +33,14 @@ public class InboundDAO {
         		+ "	   ,bo.bo_state_id"
         		+ "	   ,bo.bo_state_name"
         		+ "	   ,br.br_name"
-        		+ "from 	bound bd"
-        		+ "inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
-        		+ "inner join user u			on u.user_id = bd.user_id"
-        		+ "inner join branch br 		on br.br_id  = bd.br_id"
-        		+ "where	1 = 1"
-        		+ "and 	bd.bound_flag = \"in\""
-        		+ "and		bd.br_id in (1, 2, 3, 4, 5)"
-        		+ "order by bd.request_date desc")
+        		+ " from 	bound bd"
+        		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
+        		+ " inner join user u			on u.user_id = bd.user_id"
+        		+ " inner join branch br 		on br.br_id  = bd.br_id"
+        		+ " where	1 = 1"
+        		+ " and 	bd.bound_flag = \"in\""
+        		+ " and		bd.br_id in (1, 2, 3, 4, 5)"
+        		+ " order by bd.request_date desc")
         ;
         
         try {
@@ -47,22 +49,26 @@ public class InboundDAO {
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
+            	// User 객체 생성
+            	User user = new User();
+            	user.setUser_name(rs.getString("user_name"));
+            	
+            	// Branch 객체 생성
+            	Branch branch = new Branch();
+            	branch.setBr_name(rs.getString("br_name"));
+            	
             	// BoundState 객체 생성
             	BoundState boundState = new BoundState();
             	boundState.setBo_state_name(rs.getString("bo_state_name"));
             	
                 // Inbound 객체 생성
-                Inbound inbound = new Inbound();
-                inbound.setIb_id(rs.getInt("ib_id"));
-                inbound.setIb_date(rs.getDate("ib_date"));
-                inbound.setBoundState(boundState);
-                
-                // InboundProduct 객체 생성
-                InboundProduct inboundProduct = new InboundProduct();
-//                inboundProduct.setIb_pd_id(rs.getInt("ib_pd_id"));
-                inboundProduct.setInbound(inbound);
+            	Bound bound = new Bound();
+            	bound.setRequest_date(rs.getDate("request_date"));
+            	bound.setUser(user);
+            	bound.setBranch(branch);
+            	bound.setBoundState(boundState);
 
-                list.add(inbound);
+                list.add(bound);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -73,7 +79,69 @@ public class InboundDAO {
         return list;
     }
 
-    public void insertInbound(int user_id, java.sql.Date ib_date, String comment, List<InboundProduct> products) {
+    
+    public List<Bound> selectInbound(Bound inbo) {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<Bound> list = new ArrayList<>();
+
+        StringBuffer sql = new StringBuffer();
+        
+        sql.append("select"
+        		+ "		bd.request_date"
+        		+ "	   ,bd.user_id"
+        		+ "	   ,u.user_name"
+        		+ "	   ,bo.bo_state_id"
+        		+ "	   ,bo.bo_state_name"
+        		+ "	   ,br.br_name"
+        		+ " from 	bound bd"
+        		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
+        		+ " inner join user u			on u.user_id = bd.user_id"
+        		+ " inner join branch br 		on br.br_id  = bd.br_id"
+        		+ " where	1 = 1"
+        		+ " and 	bd.bound_flag = \"in\""
+        		+ " and		bd.br_id in (1, 2, 3, 4, 5)"
+        		+ " order by bd.request_date desc")
+        ;
+        
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+            	// User 객체 생성
+            	User user = new User();
+            	user.setUser_name(rs.getString("user_name"));
+            	
+            	// Branch 객체 생성
+            	Branch branch = new Branch();
+            	branch.setBr_name(rs.getString("br_name"));
+            	
+            	// BoundState 객체 생성
+            	BoundState boundState = new BoundState();
+            	boundState.setBo_state_name(rs.getString("bo_state_name"));
+            	
+                // Inbound 객체 생성
+            	Bound bound = new Bound();
+            	bound.setRequest_date(rs.getDate("request_date"));
+            	bound.setUser(user);
+            	bound.setBranch(branch);
+            	bound.setBoundState(boundState);
+
+                list.add(bound);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt, rs);
+        }
+
+        return list;
+    }
+
+    public void insertInbound(int user_id, java.sql.Date ib_date, String comment, List<BoundProduct> products) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -102,10 +170,10 @@ public class InboundDAO {
 
             // inbound_product insert
             pstmt = con.prepareStatement(inboundProductSql);
-            for (InboundProduct inboundProduct : products) {
+            for (BoundProduct boundProduct : products) {
                 pstmt.setInt(1, ib_id);
-                pstmt.setInt(2, inboundProduct.getProductOption().getOption_id());
-                pstmt.setInt(3, inboundProduct.getIb_pd_count());
+                pstmt.setInt(2, boundProduct.getProductOption().getOption_id());
+                pstmt.setInt(3, boundProduct.getB_count());
                 pstmt.addBatch();
             }
             pstmt.executeBatch();

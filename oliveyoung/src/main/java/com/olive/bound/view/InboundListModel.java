@@ -1,35 +1,31 @@
 package com.olive.bound.view;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.olive.common.model.Inbound;
-import com.olive.common.model.Stock;
+import com.olive.common.model.Bound;
 import com.olive.common.repository.InboundDAO;
 
 public class InboundListModel extends AbstractTableModel{
 	InboundDAO inboundDAO;
-	List<Inbound> list;
+	List<Bound> list;
 	
 	String[] column = {"날짜", "작성자", "입고상태"};
 	
+	// 첫 화면 조회 -> 추후 로그인한 계정에 따른 지점 선택 추가
 	public InboundListModel (String str) {
 		inboundDAO = new InboundDAO();
-		// list = productDAO.selectAll();
 		
 		if(str.equals("now")) {
-//        	list = inboundDAO.selectInbound();             	
+        	list = inboundDAO.selectInbound();             	
         } 
-//		else if(str.equals("newBranch")) {
-//        	list = productDAO.listNewBranch();
-//        }
 	}
 	
-	public InboundListModel(Inbound inbound) {
+	// 지점 변경에 따른 테이블 조회 변화
+	public InboundListModel(Bound bound) {
 		inboundDAO = new InboundDAO();
-    	list = inboundDAO.selectInbound(inbound);
+    	list = inboundDAO.selectInbound(bound);
     }
 
 	@Override
@@ -46,27 +42,27 @@ public class InboundListModel extends AbstractTableModel{
 		return column[col];
 	}
 	
-	public Inbound getStock(int row) {
+	public Bound getStock(int row) {
 	    return list.get(row);
 	}
 
 	@Override
 	public Object getValueAt(int row, int col) {
-		Inbound inbound = list.get(row);
+		Bound bound = list.get(row);
 		
         String value = null;
 
         switch (col) {      
             case 0: 
-                value = Integer.toString(inbound.getIb_id());
+                value = bound.getUser().getUser_name();
                 break;
             case 1: 
-            	value = inbound.getIb_date().toString();
+            	value = bound.getUser().getUser_name();
                 break;
             case 2: 
-            	value = inbound.getBoundState().getBo_state_name();
+            	value = bound.getBoundState().getBo_state_name();
                 break;
-
+            default: return "";
         }
 
         return value;

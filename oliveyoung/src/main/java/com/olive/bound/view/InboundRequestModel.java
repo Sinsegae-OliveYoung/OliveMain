@@ -7,6 +7,7 @@ import com.olive.common.model.Stock;
 
 public class InboundRequestModel extends AbstractTableModel {
 
+	// # 입고 요청서 - 상품 추가 테이블
     private List<RequestItem> requestList = new ArrayList<>();
     private String[] column = {"제품명", "제품코드", "요청수량"};
 

@@ -27,7 +27,7 @@ public class StockDAO {
         List<Stock> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT po.option_code, ct.ct_code, cd.ct_dt_code, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
+        sql.append("SELECT po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
         sql.append(" po.option_id, br.br_id FROM stock s "); 
         sql.append("JOIN product_option po ON s.option_id = po.option_id ");
         sql.append("JOIN product p ON po.product_id = p.product_id ");
@@ -35,10 +35,11 @@ public class StockDAO {
         sql.append("JOIN branch br ON s.br_id = br.br_id ");
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
+        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
         sql.append("order by s.st_update ");
 
         // 현재 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
-      
+
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());
@@ -53,11 +54,11 @@ public class StockDAO {
 
                 // Category 객체 생성
                 Category category = new Category();
-                category.setCt_code(rs.getString("ct_code"));
+                category.setCt_name(rs.getString("ct_name"));
 
                 // CategoryDetail 객체 생성 및 연결
                 CategoryDetail categoryDetail = new CategoryDetail();
-                categoryDetail.setCt_dt_code(rs.getString("ct_dt_code"));
+                categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
                 categoryDetail.setCategory(category);
 
                 // Brand 객체 생성
@@ -103,7 +104,7 @@ public class StockDAO {
         List<Stock> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT po.option_code, ct.ct_code, cd.ct_dt_code, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
+        sql.append("SELECT po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
         sql.append(" po.option_id, br.br_id FROM stock s "); // 예시 필드
         sql.append("JOIN product_option po ON s.option_id = po.option_id ");
         sql.append("JOIN product p ON po.product_id = p.product_id ");
@@ -111,7 +112,8 @@ public class StockDAO {
         sql.append("JOIN branch br ON s.br_id = br.br_id ");
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
-        sql.append("where ct.ct_name = ?");
+        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+        sql.append("and ct.ct_name = ?");
         sql.append("order by s.st_update ");
         
         try {
@@ -133,7 +135,7 @@ public class StockDAO {
 
                 // CategoryDetail 객체 생성 및 연결
                 CategoryDetail categoryDetail = new CategoryDetail();
-                categoryDetail.setCt_dt_code(rs.getString("ct_dt_code"));
+                categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
                 categoryDetail.setCategory(category);
 
                 // Brand 객체 생성
@@ -179,7 +181,7 @@ public class StockDAO {
         List<Stock> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT po.option_code, ct.ct_code, cd.ct_dt_code, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
+        sql.append("SELECT po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
         sql.append(" po.option_id, br.br_id FROM stock s "); // 예시 필드
         sql.append("JOIN product_option po ON s.option_id = po.option_id ");
         sql.append("JOIN product p ON po.product_id = p.product_id ");
@@ -187,7 +189,8 @@ public class StockDAO {
         sql.append("JOIN branch br ON s.br_id = br.br_id ");
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
-        sql.append("where s.st_quantity between 1 and 10 ");
+        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+        sql.append("and s.st_quantity between 1 and 30 ");
         sql.append("order by s.st_update ");
         
         try {
@@ -202,14 +205,14 @@ public class StockDAO {
                 stock.setSt_quantity(rs.getInt("st_quantity"));
                 stock.setSt_update(rs.getDate("st_update"));
 
-                // Category 객체 생성
-                Category category = new Category();
-                category.setCt_code(rs.getString("ct_code"));
+            	// Category
+				Category category = new Category();
+				category.setCt_name(rs.getString("ct_name"));
 
-                // CategoryDetail 객체 생성 및 연결
-                CategoryDetail categoryDetail = new CategoryDetail();
-                categoryDetail.setCt_dt_code(rs.getString("ct_dt_code"));
-                categoryDetail.setCategory(category);
+				// CategoryDetail
+				CategoryDetail categoryDetail = new CategoryDetail();
+				categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
+				categoryDetail.setCategory(category);
 
                 // Brand 객체 생성
                 Brand brand = new Brand();
@@ -254,7 +257,7 @@ public class StockDAO {
         List<Stock> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT po.option_code, ct.ct_code, cd.ct_dt_code, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
+        sql.append("SELECT po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
         sql.append(" po.option_id, br.br_id FROM stock s "); 
         sql.append("JOIN product_option po ON s.option_id = po.option_id ");
         sql.append("JOIN product p ON po.product_id = p.product_id ");
@@ -262,7 +265,8 @@ public class StockDAO {
         sql.append("JOIN branch br ON s.br_id = br.br_id ");
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
-        sql.append("where s.st_update < DATE_SUB(CURDATE(), INTERVAL 1 YEAR) ");
+        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+        sql.append("and s.st_update < DATE_SUB(CURDATE(), INTERVAL 1 YEAR) ");
         sql.append("order by s.st_update ");
         
         try {
@@ -279,11 +283,11 @@ public class StockDAO {
 
                 // Category 객체 생성
                 Category category = new Category();
-                category.setCt_code(rs.getString("ct_code"));
+                category.setCt_name(rs.getString("ct_name"));
 
                 // CategoryDetail 객체 생성 및 연결
                 CategoryDetail categoryDetail = new CategoryDetail();
-                categoryDetail.setCt_dt_code(rs.getString("ct_dt_code"));
+                categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
                 categoryDetail.setCategory(category);
 
                 // Brand 객체 생성
