@@ -117,7 +117,7 @@ public class StockCatPanel extends StockPanel {
 
         Category dummy = new Category();
         dummy.setCt_id(0);
-        dummy.setCt_code("카테고리를 선택하세요");
+        dummy.setCt_name("카테고리를 선택하세요");
         cb_category.addItem(dummy);
         
         for (Category category : cateList) {

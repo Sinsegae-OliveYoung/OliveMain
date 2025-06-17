@@ -35,7 +35,7 @@ public class StockOBPanel extends StockPanel{
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        JLabel titleLabel = new JLabel("현재 수량 확인");
+        JLabel titleLabel = new JLabel("재고 출고 기록");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         topPanel.add(titleLabel, BorderLayout.WEST);

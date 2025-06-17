@@ -27,6 +27,6 @@ public class Category {
 	
 	@Override
 	public String toString() {
-		return ct_code;
+		return ct_name;
 	}
 }
