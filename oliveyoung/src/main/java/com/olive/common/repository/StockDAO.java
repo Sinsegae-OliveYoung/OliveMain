@@ -112,7 +112,7 @@ public class StockDAO {
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
         sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
-        sql.append("where ct.ct_name = ?");
+        sql.append("and ct.ct_name = ?");
         sql.append("order by s.st_update ");
         
         try {
@@ -189,7 +189,7 @@ public class StockDAO {
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
         sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
-        sql.append("where s.st_quantity between 1 and 30 ");
+        sql.append("and s.st_quantity between 1 and 30 ");
         sql.append("order by s.st_update ");
         
         try {
@@ -265,7 +265,7 @@ public class StockDAO {
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
         sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
-        sql.append("where s.st_update < DATE_SUB(CURDATE(), INTERVAL 1 YEAR) ");
+        sql.append("and s.st_update < DATE_SUB(CURDATE(), INTERVAL 1 YEAR) ");
         sql.append("order by s.st_update ");
         
         try {
