@@ -19,14 +19,14 @@ import com.olive.common.config.Config;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
-import com.olive.stock.model.StockIBModel;
+import com.olive.stock.model.StockModel;
 import com.olive.stock.model.ListModel;
 import com.olive.store.StorePage;
 
 public class StockIBPanel extends StockPanel{
 	
 	JTable table;
-    StockIBModel model;
+    StockModel model;
 
     public StockIBPanel(StockPage stockPage) {
         super(stockPage);
@@ -67,7 +67,7 @@ public class StockIBPanel extends StockPanel{
         topPanel.add(buttonPanel, BorderLayout.EAST);
 
         // 테이블 생성
-        model = new StockIBModel();
+        model = new StockModel("in");
         table = new JTable(model);
 
         // 💡 테이블 스타일 적용
