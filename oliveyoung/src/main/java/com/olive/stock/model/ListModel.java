@@ -17,7 +17,7 @@ public class ListModel extends AbstractTableModel {
     List<Stock> list;
 
     String[] column = {
-        "상품옵션코드", "카테고리코드", "상세카테고리코드",
+        "상품옵션코드", "카테고리명", "상세카테고리명",
         "상품명", "브랜드", "가격",
         "재고수량", "입고일"
     };
@@ -69,13 +69,13 @@ public class ListModel extends AbstractTableModel {
                              .getProduct()
                              .getCategory_detail()
                              .getCategory()
-                             .getCt_code();
+                             .getCt_name();
                 break;
             case 2:
                 value = stock.getProductOption()
                              .getProduct()
                              .getCategory_detail()
-                             .getCt_dt_code();
+                             .getCt_dt_name();
                 break;
             case 3:
                 value = stock.getProductOption()

@@ -11,18 +11,26 @@ import com.olive.common.model.StockHistory;
 import com.olive.common.repository.StockDAO;
 import com.olive.common.repository.StockLogDAO;
 
-public class StockIBModel extends AbstractTableModel{
+public class StockModel extends AbstractTableModel{
     StockLogDAO stockLogDAO;
     List<StockHistory> list;
 
     String[] column = {
-        "상품옵션코드", "카테고리코드", "상세카테고리코드",
-        "상품명", "브랜드", "가격",
-        "입고수량", "입고일", "관리자", "결재승인날짜"
-    };
-    public StockIBModel() {
+    	    "옵션 코드",       // po.option_code
+    	    "카테고리명",   // ct.ct_name
+    	    "상세카테고리명", // cd.ct_dt_name
+    	    "상품명",         // p.product_name
+    	    "브랜드명",       // b.bd_name
+    	    "가격",           // po.price
+    	    "수량",           // bp.b_count
+    	    "요청일",         // bd.request_date
+    	    "승인자",      // u.approval_id
+    	    "승인일"          // bd.approve_date
+    	};
+
+    public StockModel(String str) {
     	stockLogDAO = new StockLogDAO();
-    	list = stockLogDAO.listIB();
+    	list = stockLogDAO.listBound(str);  	
     }
 
     public int getRowCount() {
@@ -51,13 +59,13 @@ public class StockIBModel extends AbstractTableModel{
                              .getProduct()
                              .getCategory_detail()
                              .getCategory()
-                             .getCt_code();
+                             .getCt_name();
                 break;
             case 2:
                 value = his.getProductOption()
                              .getProduct()
                              .getCategory_detail()
-                             .getCt_dt_code();
+                             .getCt_dt_name();
                 break;
             case 3:
                 value = his.getProductOption()
@@ -74,7 +82,7 @@ public class StockIBModel extends AbstractTableModel{
                 value = Integer.toString(his.getProductOption().getPrice());
                 break;
             case 6:
-                value = Integer.toString(his.getQuantity());
+            	value = Integer.toString(his.getQuantity());
                 break;
             case 7:
             	SimpleDateFormat sdf_req = new SimpleDateFormat("yyyy-MM-dd");
