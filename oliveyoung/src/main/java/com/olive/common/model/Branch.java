@@ -38,4 +38,8 @@ public class Branch {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	
+	public String toString() {
+		return this.br_name;
+	}
 }
