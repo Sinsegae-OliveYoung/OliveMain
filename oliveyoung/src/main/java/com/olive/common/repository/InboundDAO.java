@@ -23,7 +23,23 @@ public class InboundDAO {
         List<Inbound> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-        sql.append("select  i.ib_date, i.ib_id, bo.bo_state_name from inbound i inner join Bound_state bo on bo.bo_state_id = i.bo_state_id");
+        
+        sql.append("select"
+        		+ "		bd.request_date"
+        		+ "	   ,bd.user_id"
+        		+ "	   ,u.user_name"
+        		+ "	   ,bo.bo_state_id"
+        		+ "	   ,bo.bo_state_name"
+        		+ "	   ,br.br_name"
+        		+ "from 	bound bd"
+        		+ "inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
+        		+ "inner join user u			on u.user_id = bd.user_id"
+        		+ "inner join branch br 		on br.br_id  = bd.br_id"
+        		+ "where	1 = 1"
+        		+ "and 	bd.bound_flag = \"in\""
+        		+ "and		bd.br_id in (1, 2, 3, 4, 5)"
+        		+ "order by bd.request_date desc")
+        ;
         
         try {
             con = dbManager.getConnection();
@@ -45,41 +61,6 @@ public class InboundDAO {
                 InboundProduct inboundProduct = new InboundProduct();
 //                inboundProduct.setIb_pd_id(rs.getInt("ib_pd_id"));
                 inboundProduct.setInbound(inbound);
-
-                // Category 객체 생성
-//                Category category = new Category();
-//                category.setCt_code(rs.getString("ct_code"));
-//                category.setCt_name(rs.getString("ct_name"));
-//
-//                // CategoryDetail 객체 생성 및 연결
-//                CategoryDetail categoryDetail = new CategoryDetail();
-//                categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
-//                categoryDetail.setCategory(category);
-//
-//                // Brand 객체 생성
-//                Brand brand = new Brand();
-//                brand.setBd_name(rs.getString("bd_name")); 
-//
-//                // Product 객체 생성 및 연결
-//                Product product = new Product();
-//                product.setProduct_name(rs.getString("product_name"));
-//                product.setCategory(category);
-//                product.setCategory_detail(categoryDetail);
-//                product.setBrand(brand);
-//
-//                // ProductOption 객체 생성 및 연결
-//                ProductOption productOption = new ProductOption();
-//                productOption.setOption_id(rs.getInt("option_id"));
-//                productOption.setOption_code(rs.getString("option_code"));
-//                productOption.setOption_no(rs.getInt("option_no"));
-//                productOption.setPrice(rs.getInt("price"));
-//                productOption.setProduct(product);
-//
-//                // Branch 객체 생성 및 연결
-//                Branch branch = new Branch();
-//                branch.setBr_id(rs.getInt("br_id"));
-
-
 
                 list.add(inbound);
             }
