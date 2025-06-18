@@ -11,6 +11,8 @@ import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.BoundState;
 import com.olive.common.model.Branch;
+import com.olive.common.model.Product;
+import com.olive.common.model.ProductOption;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
 
@@ -18,11 +20,11 @@ public class InboundDAO {
 
     DBManager dbManager = DBManager.getInstance();
     
-    public List<Bound> selectInbound() {
+    public List<BoundProduct> selectInbound() {
     	Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<Bound> list = new ArrayList<>();
+        List<BoundProduct> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
         
@@ -33,6 +35,8 @@ public class InboundDAO {
         		+ "	   ,bo.bo_state_id"
         		+ "	   ,bo.bo_state_name"
         		+ "	   ,br.br_name"
+        		+ "	   ,bd.bound_id"
+        		+ "	   ,bd.comment"
         		+ " from 	bound bd"
         		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
         		+ " inner join user u			on u.user_id = bd.user_id"
@@ -63,12 +67,17 @@ public class InboundDAO {
             	
                 // Inbound 객체 생성
             	Bound bound = new Bound();
+            	bound.setBound_id(rs.getInt("bound_id"));
             	bound.setRequest_date(rs.getDate("request_date"));
+            	bound.setComment(rs.getString("comment"));
             	bound.setUser(user);
             	bound.setBranch(branch);
             	bound.setBoundState(boundState);
+            	
+            	BoundProduct boundProduct = new BoundProduct();
+            	boundProduct.setBound(bound);
 
-                list.add(bound);
+                list.add(boundProduct);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -80,11 +89,11 @@ public class InboundDAO {
     }
 
     
-    public List<Bound> selectInbound(Bound inbo) {
+    public List<BoundProduct> selectInbound(BoundProduct inbo) {
     	Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
-        List<Bound> list = new ArrayList<>();
+        List<BoundProduct> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
         
@@ -95,6 +104,8 @@ public class InboundDAO {
         		+ "	   ,bo.bo_state_id"
         		+ "	   ,bo.bo_state_name"
         		+ "	   ,br.br_name"
+        		+ "	   ,bd.bound_id"
+        		+ "	   ,bd.comment"
         		+ " from 	bound bd"
         		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
         		+ " inner join user u			on u.user_id = bd.user_id"
@@ -125,12 +136,17 @@ public class InboundDAO {
             	
                 // Inbound 객체 생성
             	Bound bound = new Bound();
+            	bound.setBound_id(rs.getInt("bound_id"));
             	bound.setRequest_date(rs.getDate("request_date"));
+            	bound.setComment(rs.getString("comment"));
             	bound.setUser(user);
             	bound.setBranch(branch);
             	bound.setBoundState(boundState);
+            	
+            	BoundProduct boundProduct = new BoundProduct();
+            	boundProduct.setBound(bound);
 
-                list.add(bound);
+                list.add(boundProduct);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -186,5 +202,79 @@ public class InboundDAO {
             dbManager.release(pstmt, rs);
             try { if (con != null) con.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
         }
+    }
+    
+    public List<BoundProduct> selectBoundProductListByBoundId(int boundId) {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<BoundProduct> list = new ArrayList<>();
+
+        StringBuffer sql = new StringBuffer();
+
+        sql.append("SELECT bp.b_pd_id"
+        		+ ", bp.b_count"
+        		+ ", po.option_no"
+        		+ ", po.option_code"
+        		+ ", po.price"
+        		+ ", po.option_name"
+        		+ ", p.product_id"
+        		+ ", p.product_name"
+        		+ ", b.bound_id"
+        		+ ", b.request_date"
+        		+ ", b.comment "
+        		+ "FROM bound_product bp "
+        		+ "JOIN product_option po ON bp.option_id = po.option_id "
+        		+ "JOIN product p ON po.product_id = p.product_id "
+        		+ "JOIN bound b ON bp.bound_id = b.bound_id "
+        		+ "WHERE bp.bound_id = ?"
+        );
+        
+        
+        try {
+        	con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, boundId);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                // Product 생성
+                Product product = new Product();
+                product.setProduct_id(rs.getInt("product_id"));
+                product.setProduct_name(rs.getString("product_name"));
+                // 필요한 필드 추가
+
+                // ProductOption 생성
+                ProductOption option = new ProductOption();
+                option.setOption_no(rs.getInt("option_no"));
+                option.setOption_code(rs.getString("option_code"));
+                option.setOption_name(rs.getString("option_name"));
+                option.setPrice(rs.getInt("price"));
+                option.setProduct(product);
+
+                // Bound 생성 (필요한 정보만)
+                Bound bound = new Bound();
+                bound.setBound_id(rs.getInt("bound_id"));
+                bound.setRequest_date(rs.getDate("request_date"));
+                bound.setComment(rs.getString("comment"));
+
+                // BoundProduct 생성
+                BoundProduct bp = new BoundProduct();
+                bp.setB_pd_id(rs.getInt("b_pd_id"));
+                bp.setB_count(rs.getInt("b_count"));
+                bp.setProductOption(option);
+                bp.setBound(bound);
+
+                list.add(bp);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt, rs);
+        }
+
+        return list;
     }
 }

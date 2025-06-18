@@ -5,11 +5,12 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import com.olive.common.model.Bound;
+import com.olive.common.model.BoundProduct;
 import com.olive.common.repository.InboundDAO;
 
 public class InboundListModel extends AbstractTableModel{
 	InboundDAO inboundDAO;
-	List<Bound> list;
+	List<BoundProduct> list;
 	
 	String[] column = {"날짜", "작성자", "입고상태"};
 	
@@ -23,9 +24,9 @@ public class InboundListModel extends AbstractTableModel{
 	}
 	
 	// 지점 변경에 따른 테이블 조회 변화
-	public InboundListModel(Bound bound) {
+	public InboundListModel(BoundProduct boundproduct) {
 		inboundDAO = new InboundDAO();
-    	list = inboundDAO.selectInbound(bound);
+    	list = inboundDAO.selectInbound(boundproduct);
     }
 
 	@Override
@@ -42,25 +43,25 @@ public class InboundListModel extends AbstractTableModel{
 		return column[col];
 	}
 	
-	public Bound getStock(int row) {
+	public BoundProduct getStock(int row) {
 	    return list.get(row);
 	}
 
 	@Override
 	public Object getValueAt(int row, int col) {
-		Bound bound = list.get(row);
+		BoundProduct boundproduct = list.get(row);
 		
         String value = null;
 
         switch (col) {      
             case 0: 
-            	value = bound.getRequest_date().toString();
+            	value = boundproduct.getBound().getRequest_date().toString();
                 break;
             case 1: 
-            	value = bound.getUser().getUser_name();
+            	value = boundproduct.getBound().getUser().getUser_name();
                 break;
             case 2: 
-            	value = bound.getBoundState().getBo_state_name();
+            	value = boundproduct.getBound().getBoundState().getBo_state_name();
                 break;
             default: return "";
         }
@@ -71,7 +72,7 @@ public class InboundListModel extends AbstractTableModel{
 	
 	
 	
-	public Bound getBoundAt(int row) {
+	public BoundProduct getBoundAt(int row) {
 	    return list.get(row);  // list는 Bound 객체 리스트
 	}
 }

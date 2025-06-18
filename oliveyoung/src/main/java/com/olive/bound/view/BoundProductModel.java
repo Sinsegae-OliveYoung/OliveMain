@@ -2,10 +2,12 @@ package com.olive.bound.view;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
+
 import com.olive.common.model.Stock;
 
-public class InboundRequestModel extends AbstractTableModel {
+public class BoundProductModel extends AbstractTableModel {
 
 	// # 입고 요청서 - 상품 추가 테이블
     private List<RequestItem> requestList = new ArrayList<>();

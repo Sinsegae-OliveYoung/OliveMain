@@ -65,7 +65,7 @@ public class InboundRequestPanel extends Panel{
 	ProductDAO productDAO;
 	BranchDAO branchDAO;
 	InboundModel inboundModel;
-	InboundRequestModel requestModel;
+	BoundProductModel boundProductModel;
 	DefaultTableCellRenderer centerRenderer;
 	
 	public InboundRequestPanel(BoundPage boundPage) {
@@ -134,15 +134,15 @@ public class InboundRequestPanel extends Panel{
         
         
 		
-		requestModel = new InboundRequestModel();
-		table_re = new JTable(requestModel); // 입고 요청서 테이블
+        boundProductModel = new BoundProductModel();
+		table_re = new JTable(boundProductModel); // 입고 요청서 테이블
 		
 		// 테이블 헤더 클릭 이벤트 추가
-		JTableHeader header_re = table.getTableHeader();
-		header.addMouseListener(new java.awt.event.MouseAdapter() {
+		JTableHeader header_re = table_re.getTableHeader();
+		header_re.addMouseListener(new java.awt.event.MouseAdapter() {
 		    @Override
 		    public void mouseClicked(java.awt.event.MouseEvent e) {
-		        int columnIndex = header.columnAtPoint(e.getPoint());
+		        int columnIndex = header_re.columnAtPoint(e.getPoint());
 		        String columnName = table_re.getColumnName(columnIndex);
 		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
 		        
@@ -180,7 +180,7 @@ public class InboundRequestPanel extends Panel{
                     Stock selectedStock = model.list.get(row);
 
                     // 선택된 상품을 입고요청 모델에 추가
-                    requestModel.addStock(selectedStock);
+                    boundProductModel.addStock(selectedStock);
                 }
             }
         });
@@ -377,7 +377,7 @@ public class InboundRequestPanel extends Panel{
             JOptionPane.showMessageDialog(this, "결재자를 선택하세요");
             return;
         }
-        if (requestModel.getRowCount() == 0) {
+        if (boundProductModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "입고 요청할 상품이 없습니다");
             return;
         }

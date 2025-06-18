@@ -5,11 +5,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -21,10 +20,12 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
+import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.repository.InboundDAO;
 import com.olive.common.view.Panel;
@@ -44,18 +45,25 @@ public class InboundShowPanel2 extends Panel{
 	JPanel p_center;
 	
 	// 좌측 요청서 목록
-	JPanel p_list;
+	JPanel p_left;
 	JTable table_list;
+	JScrollPane scroll_list;
 	
 	// 우측 요청서 상세 조회
-	JScrollPane scroll_list;
 	JPanel p_detail;
 	JDateChooser dateChooser;
+	JLabel la_branch;
+    JLabel la_appuser;
+    JLabel la_date;
+    JTextField t_memo;
+    JTable table_detail;
+    JScrollPane scrollPane;
 	
 
 	Bound bound;
 	InboundListModel model;
-    InboundDAO inboundDAO;
+	BoundShowModel model_detail;
+    InboundDAO inboundDAO = new InboundDAO();
 
     public InboundShowPanel2(BoundPage boundPage) {
         super(boundPage);
@@ -77,7 +85,7 @@ public class InboundShowPanel2 extends Panel{
         rightButtonPanel.setBackground(Config.WHITE);
 
         // 제목 라벨
-        titleLabel = new JLabel("입고요청서 List2");
+        titleLabel = new JLabel("입고요청서 List");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         titleLabel.setForeground(new Color(40, 40, 40));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
@@ -95,14 +103,14 @@ public class InboundShowPanel2 extends Panel{
         // 상단 패널에 요소 부착
         rightButtonPanel.add(bt_save);
         rightButtonPanel.add(bt_delete);
+        rightButtonPanel.setBorder(new EmptyBorder(0, 0, 0, 40));
 
         topPanel.add(titleLabel, BorderLayout.WEST);
         topPanel.add(rightButtonPanel, BorderLayout.EAST);
 
         
         // 중앙 패널
-        p_center = new JPanel();
-        p_center.setPreferredSize(new Dimension(Config.CONTENT_W-200, Config.CONTENT_H-200));
+        p_center = new JPanel(new BorderLayout());
         
         // 리스트 테이블 생성
         bound = new Bound();
@@ -127,33 +135,105 @@ public class InboundShowPanel2 extends Panel{
 
         scroll_list = new JScrollPane(table_list);
         scroll_list.getViewport().setBackground(Config.WHITE);
+        scroll_list.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 120, Config.CONTENT_H - 160));
+        
+        p_left = new JPanel();
+        p_left.setBorder(new EmptyBorder(0, 20, 0, 0)); // 패딩
+        p_left.setBackground(Config.WHITE);
+        p_left.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 100, Config.CONTENT_H - 160));
+        p_left.add(scroll_list);
+        
+        p_center.add(p_left, BorderLayout.WEST);
+        
+        
+        
+        
+        
+        
+        
+        // 오른쪽 패널
+        p_detail = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
+        p_detail.setBackground(Config.WHITE); 
+        p_detail.setBorder(new EmptyBorder(0, 20, 20, 20)); // 패딩
 
-        
-        
-     // 중앙 패널을 BorderLayout 유지
-        p_center = new JPanel(new BorderLayout());
+        // 지점 선택
+        cb_branch = new JComboBox<>();
+        cb_branch.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        la_branch = new JLabel("지점 : "); 
+        la_branch.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_branch);
+        p_detail.add(cb_branch);
 
-        // 왼쪽 스크롤 패널 (JTable)
-        scroll_list = new JScrollPane(table_list);
-        scroll_list.setPreferredSize(new Dimension(600, 0)); // 고정 너비 설정
+        // 결재자 선택
+        cb_appuser = new JComboBox<>();
+        cb_appuser.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        la_appuser = new JLabel("결재자 : ");
+        la_appuser.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_appuser);
+        p_detail.add(cb_appuser);
 
-        // 오른쪽 상세 패널 생성
-        createDetailPanel(); // 아래 별도 메서드
+        // 요청일
+        dateChooser = new JDateChooser();
+        dateChooser.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        la_date = new JLabel("요청일 : ");
+        la_date.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_date);
+        p_detail.add(dateChooser);
 
-        // 좌측: 테이블, 우측: 입력 상세
-        p_center.add(scroll_list, BorderLayout.WEST);
-        p_center.add(p_detail, BorderLayout.CENTER);
+        // 메모
+        t_memo = new JTextField();
+        t_memo.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        JLabel la_memo = new JLabel("메모:");
+        la_memo.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_memo);
+        p_detail.add(t_memo);
         
         
         
+        // 상품, 상품코드, 요청수량 table
+        
+        model_detail = new BoundShowModel();
+        table_detail = new JTable(model_detail);
+        
+        // 테이블 헤더 클릭 이벤트 추가
+ 		JTableHeader header_re = table_detail.getTableHeader();
+ 		header_re.addMouseListener(new java.awt.event.MouseAdapter() {
+ 		    @Override
+ 		    public void mouseClicked(java.awt.event.MouseEvent e) {
+ 		        int columnIndex = header_re.columnAtPoint(e.getPoint());
+ 		        String columnName = table_detail.getColumnName(columnIndex);
+ 		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+ 		        
+ 		        // 예: 제품명 컬럼 클릭시만 처리
+ 		        if ("상품명".equals(columnName)) {
+ 		            javax.swing.JOptionPane.showMessageDialog(null, "상품명 컬럼 클릭됨");
+ 		        }
+ 		    }
+ 		});
+ 		
+ 		// 테이블 헤더 스타일
+ 		table_detail.setRowHeight(25);
+ 		table_detail.setFont(new Font("SansSerif", Font.PLAIN, 13));
+ 		table_detail.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+ 		table_detail.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
+ 		table_detail.getTableHeader().setForeground(Color.DARK_GRAY);
+        
+        scrollPane = new JScrollPane(table_detail);
+        scrollPane.getViewport().setBackground(Config.WHITE);
+        
+        scrollPane.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 10, Config.CONTENT_H / 2 + 20));
+        p_detail.add(scrollPane); // 패널에 추가      
         
         
         
+        p_center.add(p_detail);
         
+        // 전체 레이아웃 구성
+        add(topPanel, BorderLayout.NORTH);
+//        add(Box.createHorizontalStrut(10));
+        add(p_center, BorderLayout.CENTER);
         
-        
-        
-        
+                
         
         
      // JTable 클릭 이벤트 처리
@@ -162,7 +242,7 @@ public class InboundShowPanel2 extends Panel{
             public void mouseClicked(MouseEvent e) {
                 int row = table_list.getSelectedRow();
                 if (row != -1) {
-                    Bound selected = model.getBoundAt(row);
+                    BoundProduct selected = model.getBoundAt(row);
                     showDetail(selected);
                 }
             }
@@ -171,63 +251,18 @@ public class InboundShowPanel2 extends Panel{
     }
     
     
-    private void showDetail(Bound bound) {
-        // 예시: 콤보박스와 날짜, 메모 텍스트 필드 등에 값 설정
+    private void showDetail(BoundProduct boundProduct) {
+        Bound bound = boundProduct.getBound();
+
         cb_branch.setSelectedItem(bound.getBranch());
         cb_appuser.setSelectedItem(bound.getUser());
         dateChooser.setDate(bound.getRequest_date());
+        t_memo.setText(bound.getComment());
         
-        // 메모 등 추가 텍스트 필드가 있다면 여기에 설정
-        // 예: t_memo.setText(bound.getMemo());
+        System.out.println(bound.getComment());
 
-        // 상품 리스트가 있다면 table_detail에 바인딩 필요
+        // DAO에서 해당 bound_id의 상세 상품 리스트 조회
+        List<BoundProduct> boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
+        model_detail.setBoundProductList(boundProductList);
     }
-
-    
-    private void createDetailPanel() {
-        p_detail = new JPanel(new GridBagLayout());
-        p_detail.setBackground(Config.WHITE);
-        p_detail.setBorder(new EmptyBorder(20, 20, 20, 20));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 5, 10, 5); // 위아래 여백
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-
-        // 지점 선택
-        p_detail.add(new JLabel("지점:"), gbc);
-        gbc.gridx = 1;
-        cb_branch = new JComboBox<>();
-        cb_branch.setPreferredSize(new Dimension(200, 30));
-        p_detail.add(cb_branch, gbc);
-
-        // 다음 행
-        gbc.gridy++;
-        gbc.gridx = 0;
-        p_detail.add(new JLabel("결재자:"), gbc);
-        gbc.gridx = 1;
-        cb_appuser = new JComboBox<>();
-        cb_appuser.setPreferredSize(new Dimension(200, 30));
-        p_detail.add(cb_appuser, gbc);
-
-        // 요청일
-        gbc.gridy++;
-        gbc.gridx = 0;
-        p_detail.add(new JLabel("요청일:"), gbc);
-        gbc.gridx = 1;
-        dateChooser = new JDateChooser();
-        dateChooser.setPreferredSize(new Dimension(200, 30));
-        p_detail.add(dateChooser, gbc);
-
-        // 메모
-        gbc.gridy++;
-        gbc.gridx = 0;
-        p_detail.add(new JLabel("메모:"), gbc);
-        gbc.gridx = 1;
-        JTextField t_memo = new JTextField();
-        t_memo.setPreferredSize(new Dimension(200, 30));
-        p_detail.add(t_memo, gbc);
-    }
-
 }
