@@ -39,7 +39,7 @@ public class MemberDAO {
 		sql.append(" and m.br_id = b.br_id");
 		sql.append(" and u.role_id = r.role_id");
 		sql.append(" where m.br_id in (");
-		sql.append(" select m.br_id from member where m.user_id = ?)");
+		sql.append(" select br_id from member where user_id = ?)");
 		params.add(filter.getUser_id());
 		
 		// 조건이 선택되었다면 sql where절에 추가  
