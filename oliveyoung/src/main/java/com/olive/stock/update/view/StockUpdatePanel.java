@@ -14,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 
 import com.olive.common.config.Config;
 import com.olive.stock.StockConfig;
@@ -42,8 +43,9 @@ public class StockUpdatePanel extends StockPanel{
 	        topPanel.setBackground(StockConfig.bgColor);
 
 	        // 테이블 생성
-	        model = new ListModel("now");
+	        model = new ListModel("update");
 	        table = new JTable(model);
+	        
 
 	        // 💡 테이블 스타일 적용
 	        table.setRowHeight(25);
