@@ -1,6 +1,7 @@
 package com.olive.stock.model;
 
 import java.text.SimpleDateFormat;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -14,7 +15,8 @@ import com.olive.common.repository.StockLogDAO;
 public class StockModel extends AbstractTableModel{
     StockLogDAO stockLogDAO;
     List<StockHistory> list;
-
+    String status = null;
+    
     String[] column = {
     	    "옵션 코드",       // po.option_code
     	    "카테고리명",   // ct.ct_name
@@ -23,14 +25,21 @@ public class StockModel extends AbstractTableModel{
     	    "브랜드명",       // b.bd_name
     	    "가격",           // po.price
     	    "수량",           // bp.b_count
-    	    "요청일",         // bd.request_date
+    	    "입/출고 날짜",         // bd.request_date
     	    "승인자",      // u.approval_id
     	    "승인일"          // bd.approve_date
     	};
 
     public StockModel(String str) {
     	stockLogDAO = new StockLogDAO();
+    	status = str;
     	list = stockLogDAO.listBound(str);  	
+    }
+    
+    public void reload() {
+    	stockLogDAO = new StockLogDAO();
+     	list = stockLogDAO.listBound(status);  	
+     	fireTableDataChanged();
     }
 
     public int getRowCount() {
@@ -98,5 +107,15 @@ public class StockModel extends AbstractTableModel{
         }
 
         return value;
+    }
+    
+    public void sortByDateAsc() {
+        list.sort(Comparator.comparing(StockHistory::getRequestDate));
+        fireTableDataChanged();
+    }
+
+    public void sortByDateDesc() {
+        list.sort(Comparator.comparing(StockHistory::getRequestDate).reversed());
+        fireTableDataChanged();
     }
 }

@@ -15,4 +15,8 @@ public class StockPanel extends JPanel{
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 		setVisible(false);
 	}
+	
+	 public void refresh() {
+        // 업데이트시 모든 패널에서 overide하여 데이터 갱신
+    }
 }

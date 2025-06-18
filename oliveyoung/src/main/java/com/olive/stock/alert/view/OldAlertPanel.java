@@ -27,6 +27,12 @@ public class OldAlertPanel extends StockPanel{
 	
 	  JTable table;
 	    ListModel model;
+	    
+	    @Override
+	    public void refresh() {
+	        model.reload();     // ListModel에서 최신 데이터 로드
+	        table.updateUI();   // 테이블 UI 갱신
+	    }
 
 	    public OldAlertPanel(StockPage stockPage) {
 	        super(stockPage);

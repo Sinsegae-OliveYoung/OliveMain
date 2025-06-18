@@ -21,12 +21,19 @@ import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
 import com.olive.stock.model.ListModel;
+import com.olive.stock.model.UpdateModel;
 import com.olive.store.StorePage;
 
 public class StockUpdatePanel extends StockPanel{
 	
 	   JTable table;
-	    ListModel model;
+	    UpdateModel model;
+	    
+	    @Override
+	    public void refresh() {
+	        model.reload();     // ListModel에서 최신 데이터 로드
+	        table.updateUI();   // 테이블 UI 갱신
+	    }
 
 	    public StockUpdatePanel(StockPage stockPage) {
 	        super(stockPage);
@@ -43,7 +50,7 @@ public class StockUpdatePanel extends StockPanel{
 	        topPanel.setBackground(StockConfig.bgColor);
 
 	        // 테이블 생성
-	        model = new ListModel("update");
+	        model = new UpdateModel(stockPage);
 	        table = new JTable(model);
 	        
 

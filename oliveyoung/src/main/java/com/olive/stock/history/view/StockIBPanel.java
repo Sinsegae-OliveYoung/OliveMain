@@ -91,15 +91,15 @@ public class StockIBPanel extends StockPanel{
         add(topPanel, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
         
-        // 정렬 기능 구현
-//        btnDateAsc.addActionListener(e -> {
-//            model.sortByDateAsc();
-//            table.updateUI();
-//        });
-//
-//        btnDateDesc.addActionListener(e -> {
-//            model.sortByDateDesc();
-//            table.updateUI();
-//        });
+        //버튼 기능 구현
+        btnDateAsc.addActionListener(e -> {
+            model.sortByDateAsc();
+            table.updateUI();
+        });
+
+        btnDateDesc.addActionListener(e -> {
+            model.sortByDateDesc();
+            table.updateUI();
+        });
     }
 }

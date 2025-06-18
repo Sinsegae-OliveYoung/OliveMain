@@ -21,6 +21,29 @@ public class StockCatPanel extends StockPanel {
     ListModel model;
     JComboBox<Category> cb_category;
     CategoryDAO categoryDAO;
+    
+    @Override
+    public void refresh() {
+        Category selected = (Category) cb_category.getSelectedItem();
+        ListModel newModel;
+
+        if (selected != null && selected.getCt_id() != 0) {
+            newModel = new ListModel(selected);
+        } else {
+            newModel = new ListModel("now");
+        }
+
+        table.setModel(newModel);
+
+        // 렌더러 재적용
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        table.updateUI();
+    }
 
     public StockCatPanel(StockPage stockPage) {
         super(stockPage);

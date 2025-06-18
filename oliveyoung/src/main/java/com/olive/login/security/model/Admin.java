@@ -26,4 +26,3 @@ public class Admin {
 		this.pwd = pwd;
 	}
 }
-}

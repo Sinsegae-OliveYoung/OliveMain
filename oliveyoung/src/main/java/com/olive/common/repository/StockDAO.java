@@ -324,4 +324,36 @@ public class StockDAO {
 
         return list;
     }
+    
+    public void updateProductQuantity(int st_id, int st_quantity) {
+    	  Connection con = null;
+          PreparedStatement pstmt = null;
+
+          StringBuffer sql = new StringBuffer();
+          sql.append("UPDATE stock set st_quantity = ? where st_id = ?");
+          
+          try {
+              con = dbManager.getConnection();
+              pstmt = con.prepareStatement(sql.toString());
+              pstmt.setInt(1, st_quantity);
+              pstmt.setInt(2, st_id);
+              pstmt.execute();
+              
+          } catch ( SQLException e) {
+        	  e.printStackTrace();
+          } finally {
+        	  dbManager.release(pstmt);
+          }
+    }
 }
+
+
+
+
+
+
+
+
+
+
+

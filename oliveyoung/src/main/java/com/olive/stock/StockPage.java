@@ -52,7 +52,13 @@ public class StockPage extends Page {
 	JPanel p_content;
 	
 	StockPanel[] panels;			// 하위 메뉴 패널들을 담을 배열
-	
+
+	private boolean isDataDirty = false;
+
+	public void setDataDirty(boolean isDataDirty) {
+		this.isDataDirty = isDataDirty;
+	}
+
 	public StockPage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
@@ -219,8 +225,16 @@ public class StockPage extends Page {
 	}
 	
 	public void showPanel(int target) {
-			for (int i = 0; i < panels.length; i++)
-				panels[i].setVisible((i == target) ? true : false);
+		 if (isDataDirty) {
+	        for (StockPanel panel : panels) {
+	            panel.refresh(); // refresh()가 오버라이딩된 패널만 동작
+	          
+	        }
+	        isDataDirty = false;
+	    }
+		
+		for (int i = 0; i < panels.length; i++)
+			panels[i].setVisible((i == target) ? true : false);
 	}
 	
 }

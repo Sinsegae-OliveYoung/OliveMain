@@ -15,6 +15,7 @@ public class ListModel extends AbstractTableModel {
 
     StockDAO stockDAO;
     List<Stock> list;
+    String status = null;
 
     String[] column = {
         "상품옵션코드", "카테고리명", "상세카테고리명",
@@ -29,6 +30,7 @@ public class ListModel extends AbstractTableModel {
 
     public ListModel(String str) {
         stockDAO = new StockDAO();
+        status = str;
         if(str.equals("now")) {
         	list = stockDAO.listNow();             	
         } else if(str.equals("countAlert")) {
@@ -53,6 +55,17 @@ public class ListModel extends AbstractTableModel {
 
     public String getColumnName(int col) {
         return column[col];
+    }
+    
+    public void reload() {
+    	 if(status.equals("now")) {
+         	list = stockDAO.listNow();             	
+         } else if(status.equals("countAlert")) {
+         	list = stockDAO.listCountAlert();
+         } else if(status.equals("oldAlert")) {
+         	list = stockDAO.listOldAlert();
+         }
+        fireTableDataChanged();
     }
 
     public Object getValueAt(int row, int col) {
