@@ -20,6 +20,41 @@ import com.olive.common.util.DBManager;
 
 public class BranchDAO {
 	DBManager dbManager = DBManager.getInstance();
+
+	public List selectAll() {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList list = new ArrayList<>();
+		
+		try {
+			con = dbManager.getConnection();
+			StringBuffer sql = new StringBuffer();
+			
+			sql.append("SELECT * FROM branch");
+			
+			pstmt=con.prepareStatement(sql.toString());
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				Branch branch = new Branch();
+				branch.setBr_id(rs.getInt("br_id"));
+				branch.setBr_name(rs.getString("br_name"));
+//				branch.setBr_address(rs.getString("br_address"));
+//				branch.setBr_tel(rs.getString("br_address"));
+//				branch.setBr_tel(rs.getString("br_tel"));
+//				branch(setUser(user));
+				
+				list.add(branch);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
+		}
+		
+		return list;
+	};
 	
 	// 한 개의 레코드 삽입
 	public void insert(Branch branch) throws BranchException {
@@ -29,7 +64,9 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("insert into branch(br_name, br_address, br_tel, user_id) values(?, ?, ?, ?)");
+		sql.append("INSERT INTO"
+				+ " branch(br_name, br_address, br_tel, user_id)"
+				+ " values(?, ?, ?, ?)");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -57,7 +94,12 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("update branch set br_name = ?, br_address = ?, br_tel = ?, user_id = ? where br_id = ?");
+		sql.append("UPDATE branch"
+				+ " SET br_name = ?,"
+				+ " br_address = ?,"
+				+ " br_tel = ?,"
+				+ " user_id = ?"
+				+ " WHERE br_id = ?");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -86,7 +128,9 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("delete from branch where br_id = ?");
+		sql.append("DELETE"
+				+ " FROM branch"
+				+ " WHERE br_id = ?");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -104,43 +148,51 @@ public class BranchDAO {
 	}
 
 	// 모든 지점의 정보 가져오기
-	public List selectBranch() {
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		ArrayList<Branch> list = new ArrayList();
-		
-		con = dbManager.getConnection();
-		
-		StringBuffer sql = new StringBuffer();
-		sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
-		try {
-			pstmt = con.prepareStatement(sql.toString());
-			rs = pstmt.executeQuery();
-			list = new ArrayList();
+		public List selectBranch() {
+			Connection con = null;
+			PreparedStatement pstmt = null;
+			ResultSet rs = null;
+			ArrayList<Branch> list = new ArrayList();
 			
-			while (rs.next()) {
-				Branch branch = new Branch();
-				branch.setBr_id(rs.getInt("등록 번호"));
-				branch.setBr_name(rs.getString("지점명"));
-				branch.setBr_address(rs.getString("주소"));
-				branch.setBr_tel(rs.getString("연락처"));
+			con = dbManager.getConnection();
+			
+			StringBuffer sql = new StringBuffer();
+//			sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
+			sql.append("SELECT br_id AS '등록 번호',"
+					+ " br_name AS '지점명',"
+					+ " user_name AS '담당자',"
+					+ " br_address AS '주소',"
+					+ " br_tel AS '연락처'"
+					+ " FROM user u INNER JOIN branch b"
+					+ " ON u.user_id = b.user_id"
+					+ " ORDER BY br_id");
+			try {
+				pstmt = con.prepareStatement(sql.toString());
+				rs = pstmt.executeQuery();
+				list = new ArrayList();
 				
-				// 사원 (User) 카테고리
-				User user = new User();
-				user.setUser_name(rs.getString("담당자"));
-				branch.setUser(user);
-				
-				list.add(branch);
+				while (rs.next()) {
+					Branch branch = new Branch();
+					branch.setBr_id(rs.getInt("등록 번호"));
+					branch.setBr_name(rs.getString("지점명"));
+					branch.setBr_address(rs.getString("주소"));
+					branch.setBr_tel(rs.getString("연락처"));
+					
+					// 사원 (User) 카테고리
+					User user = new User();
+					user.setUser_name(rs.getString("담당자"));
+					branch.setUser(user);
+					
+					list.add(branch);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			} finally {
+				dbManager.release(pstmt, rs);
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			dbManager.release(pstmt, rs);
+			return list;
 		}
-		return list;
-	}
-	
+		
 	// 한 지점의 상품 재고 페이지 출력
 	public List selectBranchStock(String br_name) {
 		Connection con = null;
@@ -207,7 +259,14 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select br_name as '지점명', br_address as '매장 주소', br_tel as '매장 전화', user_name as '담당자', tel as '연락처', email as '이메일' from user u inner join branch b on u.user_id=b.user_id and br_name=?");
+		sql.append("SELECT br_name AS '지점명',"
+				+ " br_address AS '매장 주소',"
+				+ " br_tel AS '매장 전화',"
+				+ " user_name AS '담당자',"
+				+ " tel AS '연락처',"
+				+ " email AS '이메일'"
+				+ " FROM user u INNER JOIN branch b"
+				+ " ON u.user_id=b.user_id AND br_name=?");
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, br_name);

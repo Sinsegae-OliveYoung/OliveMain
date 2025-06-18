@@ -119,11 +119,6 @@ public class StoresMenu extends Panel {
 		scroll.getViewport().setBackground(Config.WHITE);
 		scroll.setPreferredSize(new Dimension(Config.CONTENT_W - 100, 490));
 
-		/*  레이아웃 갱신 */
-		// table.revalidate();
-		// table.repaint();
-		
-		
 		// assemble
 		p_title.add(lb_title);
 		add(p_title);

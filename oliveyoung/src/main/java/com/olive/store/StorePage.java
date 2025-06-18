@@ -49,7 +49,8 @@ public class StorePage extends Page {
 	public StorePage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
-
+		setBackground(Config.LIGHT_GRAY);
+		
 		// create
 		p_side = new JPanel();
 

@@ -93,19 +93,19 @@ public class StoreConfigMenu extends Panel {
 
 		bt_regist.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
 		bt_regist.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt_regist.setPreferredSize(new Dimension(50, 30));
+		bt_regist.setPreferredSize(Config.BUTTON_SIZE);
 		bt_regist.setBackground(Config.LIGHT_GRAY);
 		bt_regist.setFocusPainted(false);
 
 		bt_edit.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
 		bt_edit.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt_edit.setPreferredSize(new Dimension(50, 30));
+		bt_edit.setPreferredSize(Config.BUTTON_SIZE);
 		bt_edit.setBackground(Config.LIGHT_GRAY);
 		bt_edit.setFocusPainted(false);
 
 		bt_delete.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
 		bt_delete.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt_delete.setPreferredSize(new Dimension(50, 30));
+		bt_delete.setPreferredSize(Config.BUTTON_SIZE);
 		bt_delete.setBackground(Config.LIGHT_GRAY);
 		bt_delete.setFocusPainted(false);
 

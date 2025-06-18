@@ -3,7 +3,7 @@ package com.olive.common.model;
 public class Member {
 
 	private int mem_id;
-	private Brand brand;
+	private Branch branch;
 	private User user;
 	
 	public int getMem_id() {
@@ -12,11 +12,11 @@ public class Member {
 	public void setMem_id(int mem_id) {
 		this.mem_id = mem_id;
 	}
-	public Brand getBrand() {
-		return brand;
+	public Branch getBranch() {
+		return branch;
 	}
-	public void setBrand(Brand brand) {
-		this.brand = brand;
+	public void setBranch(Branch branch) {
+		this.branch = branch;
 	}
 	public User getUser() {
 		return user;
