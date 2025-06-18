@@ -29,6 +29,7 @@ import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
+import com.olive.store.StorePage;
 import com.olive.store.storeconfig.view.StoreConfigMenu;
 
 public class EditFrame extends JFrame {
@@ -49,11 +50,13 @@ public class EditFrame extends JFrame {
 	BranchDAO branchDAO;
 	UserDAO userDAO;
 
-	private Branch branch;
+	private StorePage storePage;
 	private StoreConfigMenu storeConfigMenu;
+	private Branch branch;
 	int br_id;
 	
-	public EditFrame(StoreConfigMenu storeConfigMenu, Branch branch) {
+	public EditFrame(StorePage storePage, StoreConfigMenu storeConfigMenu, Branch branch) {
+		this.storePage = storePage;
 		this.storeConfigMenu = storeConfigMenu;
 		this.branch = branch;
 
@@ -116,7 +119,7 @@ public class EditFrame extends JFrame {
 		p_bt.setBackground(Config.WHITE);
 		p_bt.setPreferredSize(new Dimension(330, 80));
 
-		bt_regist.setPreferredSize(new Dimension(80, 30));
+		bt_regist.setPreferredSize(Config.BUTTON_SIZE);
 		bt_regist.setBackground(Config.LIGHT_GREEN);
 		bt_regist.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
 
@@ -157,7 +160,7 @@ public class EditFrame extends JFrame {
 		cb_userNo.addItem("사원 번호 - 담당자명");
 		
 		for (User user : userList)
-			cb_userNo.addItem(user);
+			cb_userNo.addItem(user.getUser_no() + " - " + user.getUser_name().toString());
 	}
 	
 	// 테이블에서 누른 값 받아오기
@@ -188,6 +191,8 @@ public class EditFrame extends JFrame {
 			con.commit();
 			JOptionPane.showMessageDialog(this, "지점이 수정되었습니다");
 			storeConfigMenu.loadData();
+			 ((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
+			storePage.showPanel(0);
 			dispose();
 		} catch (BranchException | UserException e) {
 			try {

@@ -45,6 +45,7 @@ public class StoresModel extends AbstractTableModel {
 		case 4: value = Integer.toString(stock.getSt_quantity()); break;
 		case 5: value = stock.getSt_update().toString(); break;
 		}
+		System.out.println(value);
 		return value;
 	}
 	

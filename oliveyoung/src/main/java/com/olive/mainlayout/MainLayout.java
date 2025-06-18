@@ -8,17 +8,21 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.Page;
+import com.olive.login.LoginPage;
+import com.olive.login.security.model.Admin;
 import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
 
@@ -37,7 +41,6 @@ public class MainLayout extends JFrame {
 	JPanel p_navi;
 
 	JPanel p_title;
-	// ImageIcon img;
 	Image img;
 	ImageUtil img_title = new ImageUtil();
 	JButton bt_title;
@@ -57,16 +60,24 @@ public class MainLayout extends JFrame {
 	JPanel p_content;
 
 	Page[] pages; // 페이지 담을 배열
+	
+	List<Admin> list;
+	public String uName, uRoleName, uBrName;
+	public int uNo, uRoleId, uBrId;
 
-	public MainLayout() {
+	public MainLayout(List<Admin> list) {
+		this.list = list;
+		uName = list.get(0).getUser().getUser_name();
+		uRoleName = list.get(0).getUser().getRole().getRole_name();
+		uBrName = list.get(0).getUser().getRole().getMember().getBranch().getBr_name();
+		uNo = list.get(0).getUser().getUser_no();
+		uRoleId = list.get(0).getUser().getRole().getRole_id();
+		uBrId = list.get(0).getUser().getRole().getMember().getBranch().getBr_id();
+		
 		// create
 		p_navi = new JPanel();
 
 		p_title = new JPanel();
-		// img = new ImageIcon(new
-		// ImageIcon(Config.LOGO_PATH).getImage().getScaledInstance(180, 20,
-		// Image.SCALE_SMOOTH));
-		// bt_title = new JButton(img);
 		img = img_title.getImage("images/logo2.png", 180, 20);
 		bt_title = new JButton() {
 			protected void paintComponent(Graphics g) {
@@ -84,7 +95,11 @@ public class MainLayout extends JFrame {
 		bt_ma = new JButton("관리");
 
 		p_my = new JPanel();
-		lb_me = new JLabel("ooo지점 oo님");
+		
+		if (list.size() == 1)
+			lb_me = new JLabel(uBrName + " " +  uName + " " + uRoleName + "님 :)");
+		else
+			lb_me = new JLabel(uName + " " + uRoleName + "님 :)");
 		bt_lo = new JButton("로그아웃");
 
 		p_content = new JPanel();
@@ -95,14 +110,14 @@ public class MainLayout extends JFrame {
 		p_navi.setLayout(new BorderLayout());
 
 		p_title.setOpaque(false); // 배경 투명
-		p_title.setBorder(BorderFactory.createEmptyBorder(15, 15, 0, 0));
+		p_title.setBorder(BorderFactory.createEmptyBorder(17, 15, 0, 0));
 
 		bt_title.setPreferredSize(new Dimension(180, 20));
 		bt_title.setBackground(Config.GREEN);
 		bt_title.setFocusPainted(false);
 		bt_title.setBorder(null);
 
-		p_menu.setBorder(BorderFactory.createEmptyBorder(11, 0, 0, 260));
+		p_menu.setBorder(BorderFactory.createEmptyBorder(14, 0, 0, 200));
 		p_menu.setOpaque(false);
 
 		bt_pd.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
@@ -142,7 +157,7 @@ public class MainLayout extends JFrame {
 		bt_ma.setBorder(null);
 
 		p_my.setOpaque(false);
-		p_my.setBorder(BorderFactory.createEmptyBorder(15, 0, 0, 10));
+		p_my.setBorder(BorderFactory.createEmptyBorder(17, 0, 0, 10));
 
 		lb_me.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
 		lb_me.setHorizontalAlignment(JLabel.RIGHT);
@@ -153,6 +168,8 @@ public class MainLayout extends JFrame {
 		bt_lo.setFocusPainted(false);
 		bt_lo.setBorder(null);
 
+		p_content.setBackground(Config.GREEN);
+		
 		// assemble
 		p_title.add(bt_title);
 		p_navi.add(p_title, BorderLayout.WEST);
@@ -210,11 +227,21 @@ public class MainLayout extends JFrame {
 					/*--------------
 					 *  개인 테스트용
 					 * -------------*/
-					if (source == bt_sh) {
-						showPage(0);
-						((StorePage) pages[0]).showPanel(0);
-					} else if (source == bt_st)
+					if (source == bt_sh) 
+						if (uRoleId == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
+						else {
+							showPage(0);
+							((StorePage) pages[0]).showPanel(0);
+						}
+					else if (source == bt_st)
 						showPage(1);
+					else if (source == bt_lo)
+						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION))
+								== JOptionPane.OK_OPTION) {
+							list.clear();
+							new LoginPage();
+							dispose();
+						}
 				}
 
 			});
@@ -259,9 +286,5 @@ public class MainLayout extends JFrame {
 		// 로그인 검증 추가해야 함
 		for (int i = 0; i < pages.length; i++)
 			pages[i].setVisible((i == target) ? true : false);
-	}
-
-	public static void main(String[] args) {
-		new MainLayout();
 	}
 }
