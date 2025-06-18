@@ -16,8 +16,8 @@ import javax.swing.JPanel;
 
 import com.olive.bound.view.InboundRequestPanel;
 import com.olive.bound.view.InboundShowPanel;
+import com.olive.bound.view.InboundShowPanel2;
 import com.olive.bound.view.OutboundRequestPanel;
-import com.olive.bound.view.OutboundShowPanel;
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
@@ -154,7 +154,8 @@ public class BoundPage extends Page {
 		panels[0] = new InboundRequestPanel(this);		// 입고 요청서
 		panels[1] = new InboundShowPanel(this);			// 입고 요청 내역 조회
 		panels[2] = new OutboundRequestPanel(this);	// 출고 요청서
-		panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회
+		//panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회
+		panels[3] = new InboundShowPanel2(this);
 		
 		for (int i = 0; i < panels.length; i++)
 			p_content.add(panels[i]);

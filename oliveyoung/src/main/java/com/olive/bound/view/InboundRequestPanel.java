@@ -212,7 +212,7 @@ public class InboundRequestPanel extends Panel{
         // 신규 추가: 하단 버튼들
         la_date = new JLabel("입고일:");
         dateChooser = new JDateChooser();
-        dateChooser.setPreferredSize(new Dimension(120, 25));
+        dateChooser.setPreferredSize(new Dimension(120, 30));
         dateChooser.setDate(new java.util.Date());
 
 //        JLabel la_approver = new JLabel("결재자:");

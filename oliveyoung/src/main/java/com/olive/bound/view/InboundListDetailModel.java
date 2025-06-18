@@ -7,14 +7,14 @@ import javax.swing.table.AbstractTableModel;
 import com.olive.common.model.Bound;
 import com.olive.common.repository.InboundDAO;
 
-public class InboundListModel extends AbstractTableModel{
+public class InboundListDetailModel extends AbstractTableModel{
 	InboundDAO inboundDAO;
 	List<Bound> list;
 	
 	String[] column = {"날짜", "작성자", "입고상태"};
 	
 	// 첫 화면 조회 -> 추후 로그인한 계정에 따른 지점 선택 추가
-	public InboundListModel (String str) {
+	public InboundListDetailModel (String str) {
 		inboundDAO = new InboundDAO();
 		
 		if(str.equals("now")) {
@@ -23,7 +23,7 @@ public class InboundListModel extends AbstractTableModel{
 	}
 	
 	// 지점 변경에 따른 테이블 조회 변화
-	public InboundListModel(Bound bound) {
+	public InboundListDetailModel(Bound bound) {
 		inboundDAO = new InboundDAO();
     	list = inboundDAO.selectInbound(bound);
     }
@@ -67,11 +67,4 @@ public class InboundListModel extends AbstractTableModel{
 
         return value;
     }
-	
-	
-	
-	
-	public Bound getBoundAt(int row) {
-	    return list.get(row);  // list는 Bound 객체 리스트
-	}
 }
