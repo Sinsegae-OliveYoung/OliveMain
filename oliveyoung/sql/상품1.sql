@@ -152,8 +152,16 @@ CREATE TABLE product_option (
     price INT NOT NULL,
     option_active ENUM('y', 'n') NOT NULL,
     FOREIGN KEY (product_id) REFERENCES product(product_id)
+    
+      -- 복합 유니크 제약조건 추가
+    UNIQUE (product_id, option_no)
 )
 ;
+
+---- 현재 product_option 테이블에서 unique 제약조건 설정
+ALTER TABLE product_option
+ADD CONSTRAINT uq_product_option_no UNIQUE (product_id, option_no);
+-----
 
 drop table product_option
 ;

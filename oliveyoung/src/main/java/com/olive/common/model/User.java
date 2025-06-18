@@ -9,7 +9,6 @@ public class User {
 	private String tel;
 	private String email;
 	private Date hiredate;
-	
 	private Role role;
 
 	public int getUser_id() {
