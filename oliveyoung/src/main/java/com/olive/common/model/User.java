@@ -55,6 +55,7 @@ public class User {
 	}
 	
 	public String toString() {
-		return user_no + " - " + user_name;
+		return user_name;
 	}
+
 }
