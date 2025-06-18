@@ -14,6 +14,7 @@ import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
+import com.olive.common.model.Role;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
@@ -292,6 +293,69 @@ public class BranchDAO {
 		} finally {
 			dbManager.release(pstmt, rs);
 		}
+		return list;
+	}
+	
+	
+	// 로그인한 user가 관리하는 branch 목록 반환
+	public List<Branch> getBranchList(int user_id){
+		System.out.println("BranchDAO.getBranchList()");
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<Branch> list = new ArrayList();
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select b.br_id, br_name, br_address, br_tel");
+		sql.append(", u.user_id, user_name, tel, hiredate, email");
+		sql.append(", r.role_id, role_name, role_code");
+		sql.append(" from branch b");
+		sql.append(" inner join member m");
+		sql.append(" join user u");
+		sql.append(" join role r");
+		sql.append(" on b.br_id = m.br_id");
+		sql.append(" and u.user_id = m.user_id");
+		sql.append(" and u.role_id = r.role_id");
+		sql.append(" where m.user_id = ?");
+	
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setInt(1, user_id);  
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				
+				Role role = new Role();
+				role.setRole_id(rs.getInt("r.role_id"));
+				role.setRole_code(rs.getString("r.role_code"));
+				role.setRole_name(rs.getString("r.role_name"));
+				
+				User user = new User();
+				user.setUser_id(rs.getInt("u.user_id"));
+				user.setUser_name(rs.getString("user_name"));
+				user.setTel(rs.getString("tel"));
+				user.setHiredate(rs.getDate("hiredate"));
+				user.setEmail(rs.getString("email"));
+				user.setRole(role);
+				
+				Branch branch = new Branch();
+				branch.setBr_id(rs.getInt("b.br_id"));
+				branch.setBr_name(rs.getString("br_name"));
+				branch.setBr_address(rs.getString("br_address"));
+				branch.setBr_tel(rs.getString("br_tel"));
+				branch.setUser(user);
+				
+				list.add(branch);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
+		}
+		
 		return list;
 	}
 }
