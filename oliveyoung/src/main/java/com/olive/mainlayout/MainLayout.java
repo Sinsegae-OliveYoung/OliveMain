@@ -23,6 +23,7 @@ import com.olive.common.util.ImageUtil;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
 import com.olive.login.security.model.Admin;
+import com.olive.manage.ManagePage;
 import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
 
@@ -235,6 +236,8 @@ public class MainLayout extends JFrame {
 						}
 					else if (source == bt_st)
 						showPage(1);
+					else if (source == bt_ma)
+						showPage(2);
 					else if (source == bt_lo)
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION))
 								== JOptionPane.OK_OPTION) {
@@ -246,7 +249,7 @@ public class MainLayout extends JFrame {
 
 			});
 		}
-		showPage(-1);
+		showPage(0);
 
 		
 		getContentPane().setBackground(Config.WHITE);
@@ -274,12 +277,15 @@ public class MainLayout extends JFrame {
 		/*-------------------------------------------------
 		 * 개인 테스트용  --> 이거 사용해서 테스트 하심 돼요
 		 *------------------------------------------------- */
-		pages = new Page[2];
+		pages = new Page[3];
 
 		pages[0] = new StorePage(this);
 		p_content.add(pages[0]);
 		pages[1] = new StockPage(this);
 		p_content.add(pages[1]);
+		pages[2] = new ManagePage(this);
+		p_content.add(pages[2]);
+		
 	}
 
 	public void showPage(int target) {
