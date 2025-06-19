@@ -37,8 +37,9 @@ public class StockDAO {
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
         sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
         sql.append("order by s.st_update ");
-        
-        
+
+        // 현재 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());

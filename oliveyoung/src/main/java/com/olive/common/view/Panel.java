@@ -5,13 +5,14 @@ import java.awt.Dimension;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
-import com.olive.store.StorePage;
+import com.olive.mainlayout.MainLayout;
 
 public class Panel extends JPanel{
-	protected StorePage storePage;
+	protected MainLayout mainLayout;
 	
-	public Panel(StorePage storePage) {
-		this.storePage = storePage;
+	// 입출고 사이드바 패널
+	public Panel(MainLayout mainLayout) {
+		this.mainLayout = mainLayout;
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 		setVisible(false);
 	}

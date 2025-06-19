@@ -31,4 +31,9 @@ public class CategoryDetail {
 	public void setCategory(Category category) {
 		this.category = category;
 	}
+	
+	@Override
+	public String toString() {
+		return ct_dt_name;
+	}
 }

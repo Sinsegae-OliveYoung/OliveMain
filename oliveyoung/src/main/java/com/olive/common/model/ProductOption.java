@@ -1,4 +1,4 @@
- package com.olive.common.model;
+package com.olive.common.model;
 
 public class ProductOption {
 	
@@ -52,5 +52,4 @@ public class ProductOption {
 	public void setProduct(Product product) {
 		this.product = product;
 	}
-
 }
