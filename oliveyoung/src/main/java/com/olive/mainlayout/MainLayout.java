@@ -8,7 +8,6 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -20,10 +19,12 @@ import javax.swing.JPanel;
 
 import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
+import com.olive.common.model.User;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
-import com.olive.login.security.model.Admin;
+import com.olive.product.ProductPage;
 import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
 
@@ -62,19 +63,12 @@ public class MainLayout extends JFrame {
 
 	Page[] pages; // 페이지 담을 배열
 	
-	List<Admin> list;
-	public String uName, uRoleName, uBrName;
-	public int uNo, uRoleId, uBrId;
+	public User user;
+	BranchDAO branchDAO;
 
-	public MainLayout(List<Admin> list) {
-		this.list = list;
-		uName = list.get(0).getUser().getUser_name();
-		uRoleName = list.get(0).getUser().getRole().getRole_name();
-		uBrName = list.get(0).getUser().getRole().getMember().getBranch().getBr_name();
-		uNo = list.get(0).getUser().getUser_no();
-		uRoleId = list.get(0).getUser().getRole().getRole_id();
-		uBrId = list.get(0).getUser().getRole().getMember().getBranch().getBr_id();
-		
+	public MainLayout(User user) {
+		this.user = user;
+
 		// create
 		p_navi = new JPanel();
 
@@ -97,11 +91,12 @@ public class MainLayout extends JFrame {
 
 		p_my = new JPanel();
 		
-		if (list.size() == 1)
-			lb_me = new JLabel(uBrName + " " +  uName + " " + uRoleName + "님 :)");
+		
+		if (user.getRole().getRole_id() == 1)
+			lb_me = new JLabel(user.getUser_name() + " " + user.getRole().getRole_name() + "님 :)");
 		else
-			lb_me = new JLabel(uName + " " + uRoleName + "님 :)");
-		bt_lo = new JButton("로그아웃");
+			lb_me = new JLabel(branchDAO.getBranchList(user.getUser_id())+ " " +user.getRole().getRole_name() + "님 :)");
+ 		bt_lo = new JButton("로그아웃");
 
 		p_content = new JPanel();
 
@@ -200,39 +195,16 @@ public class MainLayout extends JFrame {
 		// listener
 		for (JButton btn : new JButton[] { bt_pd, bt_title, bt_io, bt_st, bt_cl, bt_sh, bt_ma, bt_lo }) {
 			btn.addMouseListener(new MouseAdapter() {
-				public void mouseEntered(MouseEvent e) {btn.setForeground(Color.WHITE);}
-				public void mouseExited(MouseEvent e) {btn.setForeground(Color.BLACK);}
+				public void mouseEntered(MouseEvent e) {
+					btn.setForeground(Color.WHITE);
+				}
+
+				public void mouseExited(MouseEvent e) {
+					btn.setForeground(Color.BLACK);
+				}
+
 				public void mouseClicked(MouseEvent e) {
-				      JButton source = (JButton) e.getSource();
-				      
-				      /*--------------
-				       *  병합용
-				       * -------------*/
-				     /* if (source == bt_title)
-				    	  showPage(Config.MAIN_PAGE);
-				      else if (source == bt_io)
-				    	  showPage(Config.BOUND_PAGE);
-				      else if (source == bt_st)
-				    	  showPage(Config.STOCK_PAGE);
-				      else if (source == bt_cl)
-				    	  showPage(Config.SCHEDULE_PAGE);
-				      else if (source == bt_sh)
-				    	  showPage(Config.STORE_PAGE);
-				      else if (source == bt_co)
-				    	  showPage(Config.CONFIG_PAGE);
-				      else if (source == bt_lo)
-				    	  showPage(new LoginPage());*/
-				      
-				      /*--------------
-				       *  개인 테스트용
-				       * -------------*/
-				      if (source == bt_sh) { // 재고 페이지 진입 (승연)
-				    	  showPage(1);				    	  
-				    	  System.out.println("go to stock");
-				      } else if (source == bt_io) { // 입출고 페이지 진입 (민지)
-				    	  showPage(0);
-				    	  System.out.println("go to inbound / outbound");
-				      }
+					JButton source = (JButton) e.getSource();
 
 					/*--------------
 					 *  병합용
@@ -251,18 +223,22 @@ public class MainLayout extends JFrame {
 					/*--------------
 					 *  개인 테스트용
 					 * -------------*/
-					if (source == bt_sh) 
-						if (uRoleId == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
+					if (source == bt_pd) 
+						if (user.getRole().getRole_id() == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
 						else {
 							showPage(0);
 							((StorePage) pages[0]).showPanel(0);
 						}
-					else if (source == bt_st)
+					else if (source == bt_io) {
 						showPage(1);
+						System.out.println("go to inbound / outbound");
+					}
+					else if (source == bt_st) {
+						showPage(2);						
+					}
 					else if (source == bt_lo)
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION))
 								== JOptionPane.OK_OPTION) {
-							list.clear();
 							new LoginPage();
 							dispose();
 						}
@@ -298,14 +274,14 @@ public class MainLayout extends JFrame {
 		/*-------------------------------------------------
 		 * 개인 테스트용  --> 이거 사용해서 테스트 하심 돼요
 		 *------------------------------------------------- */
-		pages = new Page[2];
-		
-		pages[0] = new BoundPage(this);
-		pages[1] = new StorePage(this);
-		
-		for (int i = 0; i < pages.length; i++) {
-			p_content.add(pages[i]);
-		}
+		pages = new Page[3];
+
+		pages[0] = new ProductPage(this);
+		p_content.add(pages[0]);
+		pages[1] = new BoundPage(this);
+		p_content.add(pages[1]);
+		pages[2] = new StockPage(this);
+		p_content.add(pages[2]);
 	}
 
 	public void showPage(int target) {

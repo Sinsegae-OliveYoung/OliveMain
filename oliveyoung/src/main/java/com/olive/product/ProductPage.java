@@ -1,4 +1,4 @@
-package com.olive.bound;
+package com.olive.product;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -22,10 +21,9 @@ import com.olive.bound.view.OutboundRequestPanel;
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
-import com.olive.login.security.model.Admin;
 import com.olive.mainlayout.MainLayout;
 
-public class BoundPage extends Page {
+public class ProductPage extends Page {
 	
 	JPanel p_side;			// 사이드 바
 	
@@ -41,20 +39,20 @@ public class BoundPage extends Page {
 	
 	Panel[] panels;			// 하위 메뉴 패널들을 담을 배열
 	
-	public BoundPage(MainLayout mainLayout) {
+	public ProductPage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
 			
 		// create
 		p_side = new JPanel();
 		
-		la_menu1 = new JLabel("입고 관리");
-		bt_menu1 = new JButton("  입고 등록");
-		bt_menu2 = new JButton("  입고 내역 조회");
+		la_menu1 = new JLabel("상품 관리");
+		bt_menu1 = new JButton("  -");
+		bt_menu2 = new JButton("  -");
 		
 		la_menu2 = new JLabel("출고 관리");
-		bt_menu3 = new JButton("  출고 등록");
-		bt_menu4 = new JButton("  출고 내역 관리");
+		bt_menu3 = new JButton("  -");
+		bt_menu4 = new JButton("  -");
 		
 		p_content = new JPanel();
 		
@@ -153,14 +151,14 @@ public class BoundPage extends Page {
 		
 		panels = new Panel[4];
 
-		panels[0] = new InboundRequestPanel(this);		// 입고 요청서
-		panels[1] = new InboundShowPanel(this);			// 입고 요청 내역 조회
-		panels[2] = new OutboundRequestPanel(this);	// 출고 요청서
+		panels[0] = new InboundRequestPanel(null);		// 입고 요청서
+		panels[1] = new InboundShowPanel(null);			// 입고 요청 내역 조회
+		panels[2] = new OutboundRequestPanel(null);	// 출고 요청서
 		//panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회
-		panels[3] = new InboundShowPanel2(this);
+		panels[3] = new InboundShowPanel2(null);
 		
-		for (int i = 0; i < panels.length; i++)
-			p_content.add(panels[i]);
+//		for (int i = 0; i < panels.length; i++)
+//			p_content.add(panels[i]);
 	}
 	
 	public void showPanel(int target) {

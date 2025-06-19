@@ -10,7 +10,14 @@ public class User {
 	private String email;
 	private Date hiredate;
 	private Role role;
+	private String pwd;
 
+	public String getPwd() {
+		return pwd;
+	}
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
 	public int getUser_id() {
 		return user_id;
 	}

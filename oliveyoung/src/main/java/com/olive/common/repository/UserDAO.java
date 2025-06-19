@@ -9,14 +9,17 @@ import java.util.List;
 
 import com.olive.common.exception.UserException;
 import com.olive.common.model.Branch;
+import com.olive.common.model.Member;
 import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
+import com.olive.common.util.StringUtil;
+import com.olive.login.security.model.Admin;
 
 public class UserDAO {
 	DBManager dbManager = DBManager.getInstance();
 	
-	// 한 개의 레코드 삽입
+	// 한 건의 사원 데이터 삽입
 	public void insert(User user) throws UserException {
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -24,7 +27,7 @@ public class UserDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("insert into user(user_no, user_name, role_id, tel, email, hiredate) values(?, ?, ?, ?, ?, ?)");
+		sql.append("insert into user(user_no, user_name, role_id, tel, email, hiredate, pwd) values(?, ?, ?, ?, ?, ?, ?)");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -34,6 +37,7 @@ public class UserDAO {
 			pstmt.setString(4, user.getTel());
 			pstmt.setString(5, user.getEmail());
 			pstmt.setDate(6, user.getHiredate());
+			pstmt.setString(7, user.getPwd());
 			
 			int result = pstmt.executeUpdate();
 			if(result < 1)
@@ -46,12 +50,12 @@ public class UserDAO {
 		}
 	}
 
-	// 유저 모든 정보 가져오기 (지점 정보 제외)
-	public List selectAll() {
+	// 모든 사원 데이터 가져오기
+	public List<User> selectAll() {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		ArrayList<User> list = new ArrayList();
+		List<User> list = new ArrayList();
 		
 		con = dbManager.getConnection();
 		
@@ -88,57 +92,81 @@ public class UserDAO {
 		return list;
 	}
 	
-	// 한 유저의 정보 가져오기 user_no 이용
-	public List select(int user_no) {
+	// 한 건의 사원 데이터 수정
+	public void update() {
+	}
+
+	// 한 건의 사원 데이터 삭제
+	public void delete() {
+	}
+	
+	// 로그인 체크 (
+	public User checkLogin(int id, String pwd) {
+		System.out.println("여기");
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		ArrayList<User> list = new ArrayList();
 		
-		con = dbManager.getConnection();
+		User user = null;
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select user_no as '사원 번호', user_name as '이름', br_name as '소속 지점', role_name a '직급', role_code as '직급 코드', tel as '연락처', email as '이메일', hiredate as '입사일' from role r inner join user u inner join branch b on r.role_id = u.role_id and u.user_id = b.user_id and user_no = ?");
+		sql.append("SELECT"
+			    + " u.user_id,"
+			    + " u.user_no,"
+			    + " u.user_name,"
+			    + " u.tel,"
+			    + " u.pwd,"
+			    + " u.email,"
+			    + " u.hiredate,"
+			    + " u.role_id,"
+			    + " r.role_code AS role_code,"
+			    + " r.role_name AS role_name"
+			    + " FROM user u"
+			    + " INNER JOIN role r ON u.role_id = r.role_id"
+			    + " WHERE u.user_no=? AND u.pwd=?");
 		
 		try {
+			con = dbManager.getConnection();
 			pstmt = con.prepareStatement(sql.toString());
-			pstmt.setInt(1, user_no);
+			pstmt.setInt(1, id);
+			pstmt.setString(2, StringUtil.getSecuredPass(pwd));
 			rs = pstmt.executeQuery();
-			list = new ArrayList();
 			
 			while (rs.next()) {
-				User user = new User();
-				user.setUser_no(rs.getInt("user_no"));
-				user.setUser_name(rs.getString("user_name"));
-				user.setTel(rs.getString("tel"));
-				user.setEmail(rs.getString("email"));
-				user.setHiredate(rs.getDate("hiredate"));
-				
-				// 직무 (Role) 카테고리
+				// 새로운 유저 객체에
 				Role role = new Role();
-				role.setRole_code(rs.getString("role_code"));
-				role.setRole_name(rs.getString("role_name"));
-				user.setRole(role);
-				
-				// 지점 (Branch) 카테고리
-				Branch branch = new Branch();
-				branch.setBr_name(rs.getString("br_name"));
 
-				list.add(user);
+				role.setRole_code(rs.getString("role_code"));   // 테이블명 제거
+				role.setRole_id(rs.getInt("role_id"));          // 이건 OK
+				role.setRole_name(rs.getString("role_name"));   // 테이블명 제거
+				
+				user = new User();
+				user.setUser_name(rs.getString("u.user_name"));		// 해당되는 pk 담기
+				user.setUser_id(rs.getInt("u.user_id"));		// 해당되는 pk 담기
+				user.setUser_no(rs.getInt("u.user_no"));	// 해당되는 사원번호(아이디) 담기
+				user.setPwd(rs.getString("pwd"));			// 해당되는 비밀번호(패스워드) 담기
+				user.setRole(role);
+
+				System.out.println(user.getRole().getRole_id());
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			dbManager.release(pstmt, rs);
-		}
-		return list;
+			if (rs != null)
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}		// 넘겨받은 아이디와 패스워드의 값에 해당되는 유저 반환
+		System.out.println(user);
+		return user;
 	}
 	
-	// 한 개의 레코드 수정
-	public void update() {
-	}
-
-	// 한 개의 레코드 삭제
-	public void delete() {
-	}
 }

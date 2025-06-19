@@ -44,8 +44,8 @@ public class InboundDAO {
         		+ " where	1 = 1"
         		+ " and 	bd.bound_flag = \"in\""
         		+ " and		bd.br_id in (1, 2, 3, 4, 5)"
-        		+ " order by bd.request_date desc")
-        ;
+        		+ " order by bd.request_date desc"
+        );
         
         try {
             con = dbManager.getConnection();
@@ -212,22 +212,23 @@ public class InboundDAO {
 
         StringBuffer sql = new StringBuffer();
 
-        sql.append("SELECT bp.b_pd_id"
-        		+ ", bp.b_count"
-        		+ ", po.option_no"
-        		+ ", po.option_code"
-        		+ ", po.price"
-        		+ ", po.option_name"
-        		+ ", p.product_id"
-        		+ ", p.product_name"
-        		+ ", b.bound_id"
-        		+ ", b.request_date"
-        		+ ", b.comment "
-        		+ "FROM bound_product bp "
-        		+ "JOIN product_option po ON bp.option_id = po.option_id "
-        		+ "JOIN product p ON po.product_id = p.product_id "
-        		+ "JOIN bound b ON bp.bound_id = b.bound_id "
-        		+ "WHERE bp.bound_id = ?"
+        sql.append("SELECT "
+        		+ "		  bp.b_pd_id"
+        		+ "		, bp.b_count"
+        		+ "		, po.option_no"
+        		+ "		, po.option_code"
+        		+ "		, po.price"
+        		+ "		, po.option_name"
+        		+ "		, p.product_id"
+        		+ "		, p.product_name"
+        		+ "		, b.bound_id"
+        		+ "		, b.request_date"
+        		+ "		, b.comment "
+        		+ "FROM   bound_product bp "
+        		+ "JOIN   product_option po ON bp.option_id = po.option_id "
+        		+ "JOIN   product p ON po.product_id = p.product_id "
+        		+ "JOIN   bound b ON bp.bound_id = b.bound_id "
+        		+ "WHERE  bp.bound_id = ?"
         );
         
         
