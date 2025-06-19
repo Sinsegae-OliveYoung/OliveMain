@@ -8,10 +8,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,15 +23,10 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import com.olive.common.config.Config;
-import com.olive.common.model.Branch;
-import com.olive.common.model.Member;
-import com.olive.common.model.Role;
 import com.olive.common.model.User;
+import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.ImageUtil;
-import com.olive.common.util.StringUtil;
-import com.olive.login.security.model.Admin;
-import com.olive.login.security.repository.AdminDAO;
 import com.olive.mainlayout.MainLayout;
 
 public class LoginPage extends JFrame {
@@ -58,7 +49,8 @@ public class LoginPage extends JFrame {
 
 	DBManager dbManager = DBManager.getInstance();
 	MainLayout mainLayout;
-	public Admin admin = new Admin();
+	UserDAO dao = new UserDAO();
+	public User user;
 
 	public LoginPage() {
 
@@ -134,11 +126,11 @@ public class LoginPage extends JFrame {
 		p_login.add(Box.createVerticalStrut(30));
 
 		p_login.add(bt_login);
-		
+
 		// 리스너 연결
-		t_pwd.addActionListener(e->nullCheck());
-		bt_login.addActionListener(e->nullCheck());
-		
+		t_pwd.addActionListener(e -> nullCheck());
+		bt_login.addActionListener(e -> nullCheck());
+
 		p_bg.add(p_login);
 		add(p_bg);
 
@@ -157,127 +149,33 @@ public class LoginPage extends JFrame {
 		else
 			loginCheck();
 	}
-	
+
+	// 로그인 정보가 맞는지 확인하는 메서드
 	public void loginCheck() {
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-
-		String id = t_id.getText();
-		String pwd = new String(t_pwd.getPassword());
-		StringBuffer sql = new StringBuffer();
-		sql.append("SELECT"
-				+ "    a.admin_id,"
-				+ "    a.user_no,"
-				+ "    a.pwd,"
-				+ "    u.user_id,"
-				+ "    u.user_no AS u_user_no,"
-				+ "    u.user_name,"
-				+ "    u.tel,"
-				+ "    u.email,"
-				+ "    u.hiredate,"
-				+ "    u.role_id,"
-				+ "    r.role_code,"
-				+ "    r.role_name,"
-				+ "    m.mem_id,"
-				+ "    m.br_id AS m_br_id,"
-				+ "    b.br_id,"
-				+ "    b.br_name,"
-				+ "    b.br_address,"
-				+ "    b.br_tel"
-				+ " FROM admin a"
-				+ " INNER JOIN user u ON a.user_no = u.user_no"
-				+ " INNER JOIN role r ON u.role_id = r.role_id"
-				+ " INNER JOIN member m ON u.user_id = m.user_id"
-				+ " INNER JOIN branch b ON m.br_id = b.br_id"
-				+ " WHERE a.user_no=?"
-				+ " AND a.pwd=?");
-
-		try {
-			con = dbManager.getConnection();
-			pstmt = con.prepareStatement(sql.toString());
-			pstmt.setString(1, id);
-			pstmt.setString(2, StringUtil.getSecuredPass(pwd));			
-			rs = pstmt.executeQuery();
-
-			List<Admin> list = new ArrayList();
-
-			while (rs.next()) {
-				// 1. User 생성 및 값 설정
-				User user = new User();
-				user.setUser_id(rs.getInt("user_id"));
-				user.setUser_no(rs.getInt("user_no"));
-				user.setUser_name(rs.getString("user_name"));
-				user.setTel(rs.getString("tel"));
-				user.setEmail(rs.getString("email"));
-				user.setHiredate(rs.getDate("hiredate"));
-
-				// 2. Branch 생성 및 값 설정
-				Branch branch = new Branch();
-				branch.setBr_id(rs.getInt("br_id"));
-				branch.setBr_name(rs.getString("br_name"));
-				branch.setBr_address(rs.getString("br_address"));
-				branch.setBr_tel(rs.getString("br_tel"));
-
-				// branch → user 참조
-				branch.setUser(user);
-
-				// 3. Member 생성 및 값 설정
-				Member member = new Member();
-				member.setMem_id(rs.getInt("mem_id"));
-				member.setUser(user);     // member → user 참조
-				member.setBranch(branch); // member → branch 참조
-
-				// 4. Role 생성 및 값 설정
-				Role role = new Role();
-				role.setRole_id(rs.getInt("role_id"));
-				role.setRole_code(rs.getString("role_code"));
-				role.setRole_name(rs.getString("role_name"));
-				role.setMember(member);   // role → member 참조
-
-				// user → role 참조 (양방향)
-				user.setRole(role);
-
-				// 5. Admin 생성 및 값 설정
-				Admin admin = new Admin();
-				admin.setAdmin_id(rs.getInt("admin_id"));
-				admin.setPwd(rs.getString("pwd"));
-				admin.setUser(user);      // admin → user 참조
-				
-				list.add(admin);
-			}
-			
-			if (list.size() > 0) {
-				JOptionPane.showMessageDialog(this, "로그인 중...\n여기에 프로그레스바?");
-				// 메인 페이지로 이동
-				mainLayout = new MainLayout(list);
-				dispose();
-			} else {
-				List<Admin> adminList = new AdminDAO().selectAll();
-				Boolean exist = false;
-				for (Admin admin : adminList)
-					if (Integer.toString(admin.getUser().getUser_no()).equals(t_id.getText())) 	// user 정보에 있는 아이디를 입력했을 때
-						exist = true;
-				if (exist)
-					JOptionPane.showMessageDialog(this, "비밀번호를 확인해주세요");
-				else
-					JOptionPane.showMessageDialog(this, "존재하지 않는 아이디입니다");
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			if (rs != null)
-				try {
-					rs.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
-			if (pstmt != null)
-				try {
-					pstmt.close();
-				} catch (SQLException e) {
-					e.printStackTrace();
-				}
+		// 모든 유저 정보에 입력받은 아이디와 패스워드 대입, 해당되는 유저 추출
+		user = dao.checkLogin(Integer.parseInt(t_id.getText()), new String(t_pwd.getPassword()));
+		
+		// 해당되는 유저가 있다면
+		if (user != null) {
+			JOptionPane.showMessageDialog(this, "로그인 중...\n여기에 프로그레스바?");
+			System.out.println(user.getRole().getRole_id());
+			mainLayout = new MainLayout(user); // 메인 페이지로 유저 정보를 갖고 이동
+			dispose(); // 현재 창 닫기
+			// 해당되는 유저가 없다면
+		} else {
+			List<User> userList = dao.selectAll();
+			Boolean exist = false; // 아이디 존재 여부를 결정 짓는 변수
+			// 모든 유저 정보를 가져와서 비교
+			for (User users : userList)
+				// 해당하는 아이디가 있다면
+				if (Integer.toString(users.getUser_no()).equals(t_id.getText()))
+					exist = true; // 아이디 존재 여부 변수 true값으로 변경
+			// 아이디가 존재하면
+			if (exist)
+				JOptionPane.showMessageDialog(this, "비밀번호를 확인해주세요");	// 비밀번호 여부만 묻기
+			// 아이디가 존재하지 않으면
+			else
+				JOptionPane.showMessageDialog(this, "존재하지 않는 아이디입니다");	// 아이디 없다고 반환
 		}
 	}
 

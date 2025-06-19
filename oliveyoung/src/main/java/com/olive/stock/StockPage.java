@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
-import com.olive.common.view.Menu1Panel;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -210,14 +209,14 @@ public class StockPage extends Page {
 		
 		panels = new StockPanel[8];
 
-		panels[0] = new StockNowPanel(this);
-		panels[1] = new StockCatPanel(this);
-		panels[2] = new StockUpdatePanel(this);
-		panels[3] = new StockIBPanel(this);
-		panels[4] = new StockOBPanel(this);
-		panels[5] = new StockFiltPanel(this);
-		panels[6] = new CountAlertPanel(this);
-		panels[7] = new OldAlertPanel(this);
+		panels[0] = new StockNowPanel(mainLayout);
+		panels[1] = new StockCatPanel(mainLayout);
+		panels[2] = new StockUpdatePanel(mainLayout);
+		panels[3] = new StockIBPanel(mainLayout);
+		panels[4] = new StockOBPanel(mainLayout);
+		panels[5] = new StockFiltPanel(mainLayout);
+		panels[6] = new CountAlertPanel(mainLayout);
+		panels[7] = new OldAlertPanel(mainLayout);
 		
 		for(int i=0; i<panels.length; i++) {
 			p_content.add(panels[i]);
@@ -226,12 +225,12 @@ public class StockPage extends Page {
 	
 	public void showPanel(int target) {
 		 if (isDataDirty) {
-	        for (StockPanel panel : panels) {
-	            panel.refresh(); // refresh()가 오버라이딩된 패널만 동작
-	          
-	        }
-	        isDataDirty = false;
-	    }
+		        for (StockPanel panel : panels) {
+		            panel.refresh(); // refresh()가 오버라이딩된 패널만 동작
+		          
+		        }
+		        isDataDirty = false;
+		    }
 		
 		for (int i = 0; i < panels.length; i++)
 			panels[i].setVisible((i == target) ? true : false);

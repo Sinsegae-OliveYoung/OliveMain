@@ -17,6 +17,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.olive.common.config.Config;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
@@ -35,8 +36,8 @@ public class StockUpdatePanel extends StockPanel{
 	        table.updateUI();   // 테이블 UI 갱신
 	    }
 
-	    public StockUpdatePanel(StockPage stockPage) {
-	        super(stockPage);
+	    public StockUpdatePanel(MainLayout mainLayout) {
+	        super(mainLayout);
 	        setLayout(new BorderLayout());
 
 	        // 상단 패널
@@ -50,7 +51,7 @@ public class StockUpdatePanel extends StockPanel{
 	        topPanel.setBackground(StockConfig.bgColor);
 
 	        // 테이블 생성
-	        model = new UpdateModel(stockPage);
+	        model = new UpdateModel(this);
 	        table = new JTable(model);
 	        
 

@@ -16,6 +16,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
@@ -28,8 +29,8 @@ public class StockIBPanel extends StockPanel{
 	JTable table;
     StockModel model;
 
-    public StockIBPanel(StockPage stockPage) {
-        super(stockPage);
+    public StockIBPanel(MainLayout mainLayout) {
+        super(mainLayout);
         setLayout(new BorderLayout());
 
         // 상단 패널

@@ -8,7 +8,6 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,10 +18,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.User;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
-import com.olive.login.security.model.Admin;
 import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
 
@@ -61,19 +61,12 @@ public class MainLayout extends JFrame {
 
 	Page[] pages; // 페이지 담을 배열
 	
-	List<Admin> list;
-	public String uName, uRoleName, uBrName;
-	public int uNo, uRoleId, uBrId;
+	public User user;
+	BranchDAO branchDAO;
 
-	public MainLayout(List<Admin> list) {
-		this.list = list;
-		uName = list.get(0).getUser().getUser_name();
-		uRoleName = list.get(0).getUser().getRole().getRole_name();
-		uBrName = list.get(0).getUser().getRole().getMember().getBranch().getBr_name();
-		uNo = list.get(0).getUser().getUser_no();
-		uRoleId = list.get(0).getUser().getRole().getRole_id();
-		uBrId = list.get(0).getUser().getRole().getMember().getBranch().getBr_id();
-		
+	public MainLayout(User user) {
+		this.user = user;
+
 		// create
 		p_navi = new JPanel();
 
@@ -96,11 +89,12 @@ public class MainLayout extends JFrame {
 
 		p_my = new JPanel();
 		
-		if (list.size() == 1)
-			lb_me = new JLabel(uBrName + " " +  uName + " " + uRoleName + "님 :)");
+		
+		if (user.getRole().getRole_id() == 1)
+			lb_me = new JLabel(user.getUser_name() + " " + user.getRole().getRole_name() + "님 :)");
 		else
-			lb_me = new JLabel(uName + " " + uRoleName + "님 :)");
-		bt_lo = new JButton("로그아웃");
+			lb_me = new JLabel(branchDAO.getBranchList(user.getUser_id())+ " " +user.getRole().getRole_name() + "님 :)");
+ 		bt_lo = new JButton("로그아웃");
 
 		p_content = new JPanel();
 
@@ -228,17 +222,15 @@ public class MainLayout extends JFrame {
 					 *  개인 테스트용
 					 * -------------*/
 					if (source == bt_sh) 
-						if (uRoleId == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
+						if (user.getRole().getRole_id() == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
 						else {
 							showPage(0);
-							((StorePage) pages[0]).showPanel(0);
 						}
 					else if (source == bt_st)
 						showPage(1);
 					else if (source == bt_lo)
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION))
 								== JOptionPane.OK_OPTION) {
-							list.clear();
 							new LoginPage();
 							dispose();
 						}
@@ -276,15 +268,15 @@ public class MainLayout extends JFrame {
 		 *------------------------------------------------- */
 		pages = new Page[2];
 
-		pages[0] = new StorePage(this);
-		p_content.add(pages[0]);
+//		pages[0] = new StorePage(this);
+//		p_content.add(pages[0]);
 		pages[1] = new StockPage(this);
 		p_content.add(pages[1]);
 	}
 
 	public void showPage(int target) {
 		// 로그인 검증 추가해야 함
-		for (int i = 0; i < pages.length; i++)
+		for (int i = 1; i < pages.length; i++)
 			pages[i].setVisible((i == target) ? true : false);
 	}
 }

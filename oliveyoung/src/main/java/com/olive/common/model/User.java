@@ -10,18 +10,13 @@ public class User {
 	private String email;
 	private Date hiredate;
 	private Role role;
-
+	private String pwd;
+	
 	public int getUser_id() {
 		return user_id;
 	}
 	public void setUser_id(int user_id) {
 		this.user_id = user_id;
-	}
-	public Role getRole() {
-		return role;
-	}
-	public void setRole(Role role) {
-		this.role = role;
 	}
 	public int getUser_no() {
 		return user_no;
@@ -53,9 +48,16 @@ public class User {
 	public void setHiredate(Date hiredate) {
 		this.hiredate = hiredate;
 	}
-	
-	public String toString() {
-		return user_name;
+	public Role getRole() {
+		return role;
 	}
-
+	public void setRole(Role role) {
+		this.role = role;
+	}
+	public String getPwd() {
+		return pwd;
+	}
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
 }

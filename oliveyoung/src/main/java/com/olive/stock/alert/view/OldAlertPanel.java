@@ -17,6 +17,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
@@ -34,8 +35,8 @@ public class OldAlertPanel extends StockPanel{
 	        table.updateUI();   // 테이블 UI 갱신
 	    }
 
-	    public OldAlertPanel(StockPage stockPage) {
-	        super(stockPage);
+	    public OldAlertPanel(MainLayout mainLayout) {
+	        super(mainLayout);
 	        setLayout(new BorderLayout());
 
 	        // 상단 패널
@@ -123,5 +124,31 @@ public class OldAlertPanel extends StockPanel{
 	        // 전체 레이아웃 구성
 	        add(topPanel, BorderLayout.NORTH);
 	        add(scroll, BorderLayout.CENTER);
+	        
+	        // 정렬 기능 구현
+	        btnDateAsc.addActionListener(e -> {
+	            model.sortByDateAsc();
+	            table.updateUI();
+	        });
+
+	        btnDateDesc.addActionListener(e -> {
+	            model.sortByDateDesc();
+	            table.updateUI();
+	        });
+
+	        btnQtyDesc.addActionListener(e -> {
+	            model.sortByQuantityDesc();
+	            table.updateUI();
+	        });
+
+	        btnNameAsc.addActionListener(e -> {
+	            model.sortByNameAsc();
+	            table.updateUI();
+	        });
+
+	        btnNameDesc.addActionListener(e -> {
+	            model.sortByNameDesc();
+	            table.updateUI();
+	        });
 	    }
 }

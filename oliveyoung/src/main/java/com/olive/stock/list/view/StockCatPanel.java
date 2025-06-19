@@ -11,6 +11,7 @@ import javax.swing.table.JTableHeader;
 import com.olive.common.config.Config;
 import com.olive.common.model.Category;
 import com.olive.common.repository.CategoryDAO;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
 import com.olive.stock.model.ListModel;
@@ -45,8 +46,8 @@ public class StockCatPanel extends StockPanel {
         table.updateUI();
     }
 
-    public StockCatPanel(StockPage stockPage) {
-        super(stockPage);
+    public StockCatPanel(MainLayout mainLayout) {
+        super(mainLayout);
         setLayout(new BorderLayout());
 
         // 공통 색상 및 폰트

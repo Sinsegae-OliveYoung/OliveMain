@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
@@ -29,10 +30,10 @@ public class StockFiltPanel extends StockPanel{
 	
 	JTable table;
     StockModel model;
-    JComboBox cb_approver;
+    JComboBox cb_startDate;
 
-    public StockFiltPanel(StockPage stockPage) {
-        super(stockPage);
+    public StockFiltPanel(MainLayout mainLayout) {
+        super(mainLayout);
         setLayout(new BorderLayout());
 
         // 상단 패널
@@ -46,19 +47,19 @@ public class StockFiltPanel extends StockPanel{
         topPanel.setBackground(StockConfig.bgColor);
 
         // 시간대 별 ComboBox 구현 
-//        JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-//        comboPanel.setOpaque(false);
-//
-//        cb_approver = new JComboBox<>();
-//        cb_approver.setPreferredSize(new Dimension(200, 30));
-//        cb_approver.setFont(new Font("SansSerif", Font.PLAIN, 14));
-//        cb_approver.setBackground(Config.LIGHT_GREEN);
-//        cb_approver.setForeground(Color.DARK_GRAY);
-//        cb_approver.setFocusable(false);
-//        cb_approver.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-//        comboPanel.add(cb_approver);
-//
-//        topPanel.add(comboPanel, BorderLayout.EAST);
+        JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        comboPanel.setOpaque(false);
+
+        cb_startDate = new JComboBox<>();
+        cb_startDate.setPreferredSize(new Dimension(200, 30));
+        cb_startDate.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        cb_startDate.setBackground(Config.LIGHT_GREEN);
+        cb_startDate.setForeground(Color.DARK_GRAY);
+        cb_startDate.setFocusable(false);
+        cb_startDate.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        comboPanel.add(cb_startDate);
+
+        topPanel.add(comboPanel, BorderLayout.EAST);
 
         // 테이블 생성
         model = new StockModel("in");
