@@ -4,7 +4,14 @@ public class Role {
 	private int role_id;
 	private String role_code;
 	private String role_name;
-
+	private Member member;
+	
+	public Member getMember() {
+		return member;
+	}
+	public void setMember(Member member) {
+		this.member = member;
+	}
 	public int getRole_id() {
 		return role_id;
 	}

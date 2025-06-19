@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -15,6 +17,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.Branch;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -22,179 +26,159 @@ import com.olive.store.report.view.ReportProductMenu;
 import com.olive.store.report.view.ReportStoreMenu;
 import com.olive.store.report.view.ReportTotalMenu;
 import com.olive.store.storeconfig.view.StoreConfigMenu;
-import com.olive.store.stores.view.StoreBongMenu;
-import com.olive.store.stores.view.StoreIncMenu;
-import com.olive.store.stores.view.StoreSamMenu;
-import com.olive.store.stores.view.StoreSinMenu;
-
+import com.olive.store.stores.view.StoresMenu;
 
 public class StorePage extends Page {
-	
-	JPanel p_side;			// 사이드 바
-	
-	JButton mn_store_config;		// 지점 관리
-	JButton mn_store_sin;			// 신세계점
-	JButton mn_store_inc;			// 아이앤씨점
-	JButton mn_store_sam;		// 삼성점
-	JButton mn_store_bong;		// 봉은사점
 
-	JLabel mn_report;				// 보고서
-	JButton mn_report_total;		// 기간별 총 매출
-	JButton mn_report_product;	// 상품별 매출
-	JButton mn_report_store;		// 지점별 매출
-	
+	JPanel p_side; // 사이드 바
+
+	JButton mn_store_config; // 지점 관리
+
+	JLabel mn_report; // 보고서
+	JButton mn_report_total; // 기간별 총 매출
+	JButton mn_report_product; // 상품별 매출
+	JButton mn_report_store; // 지점별 매출
+
 	JPanel p_content;
-	
-	Panel[] panels;			// 하위 메뉴 패널들을 담을 배열
+
+	private List<JButton> storeBranchButtons = new ArrayList<>(); // 메뉴들을 담을 배열
+
+	Panel[] panels; // 하위 메뉴 패널들을 담을 배열
+	int index;
 	
 	public StorePage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
+		setBackground(Config.LIGHT_GRAY);
 		
 		// create
 		p_side = new JPanel();
-		
+
 		mn_store_config = new JButton("지점 관리");
-		mn_store_sin = new JButton("  신세계점");
-		mn_store_inc = new JButton("  아이앤씨점");
-		mn_store_sam = new JButton("  삼성점");
-		mn_store_bong = new JButton("  봉은사점");
-		
+
 		mn_report = new JLabel("보고서");
 		mn_report_total = new JButton("  기간별 총 매출");
-		mn_report_product	 = new JButton("  상품별 매출");
-		mn_report_store	 = new JButton("  지점별 매출");
-		
+		mn_report_product = new JButton("  상품별 매출");
+		mn_report_store = new JButton("  지점별 매출");
+
 		p_content = new JPanel();
-		
+
 		// style
 		p_side.setBackground(Config.LIGHT_GRAY);
 		p_side.setLayout(new BoxLayout(p_side, BoxLayout.Y_AXIS));
-		p_side.setBorder(BorderFactory.createEmptyBorder(0,27,0,0));
+		p_side.setBorder(BorderFactory.createEmptyBorder(0, 27, 0, 0));
 		p_side.setPreferredSize(new Dimension(Config.SIDE_W, Config.SIDE_H));
-		
-		mn_store_config.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
-		mn_store_config.setBackground(Config.LIGHT_GRAY);
-		mn_store_config.setFocusPainted(false);
-		mn_store_config.setBorder(null);
-		
-		mn_store_sin.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		mn_store_sin.setBackground(Config.LIGHT_GRAY);
-		mn_store_sin.setFocusPainted(false);
-		mn_store_sin.setBorder(null);
-
-		mn_store_inc.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		mn_store_inc.setBackground(Config.LIGHT_GRAY);
-		mn_store_inc.setFocusPainted(false);
-		mn_store_inc.setBorder(null);
-		
-		mn_store_sam.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		mn_store_sam.setBackground(Config.LIGHT_GRAY);
-		mn_store_sam.setFocusPainted(false);
-		mn_store_sam.setBorder(null);
-		
-		mn_store_bong.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		mn_store_bong.setBackground(Config.LIGHT_GRAY);
-		mn_store_bong.setFocusPainted(false);
-		mn_store_bong.setBorder(null);
 
 		mn_report.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
-		
-		mn_report_total.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		mn_report_total.setBackground(Config.LIGHT_GRAY);
-		mn_report_total.setFocusPainted(false);
-		mn_report_total.setBorder(null);
-		
-		mn_report_product.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		mn_report_product.setBackground(Config.LIGHT_GRAY);
-		mn_report_product.setFocusPainted(false);
-		mn_report_product.setBorder(null);
-		
-		mn_report_store.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		mn_report_store.setBackground(Config.LIGHT_GRAY);
-		mn_report_store.setFocusPainted(false);
-		mn_report_store.setBorder(null);
-				
+
 		p_content.setBackground(Config.WHITE);
 		p_content.setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
-		
-		// assemble
 
-		p_side.add(Box.createVerticalStrut(25));
-		p_side.add(mn_store_config);	
-		p_side.add(Box.createVerticalStrut(15));
-		p_side.add(mn_store_sin);	
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(mn_store_inc);
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(mn_store_sam);	
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(mn_store_bong);
-		p_side.add(Box.createVerticalStrut(25));
-		p_side.add(mn_report);	
-		p_side.add(Box.createVerticalStrut(15));
-		p_side.add(mn_report_total);	
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(mn_report_product);	
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(mn_report_store);	
-		add(p_side, BorderLayout.WEST);
-		
-		add(p_content, BorderLayout.CENTER);
-		
+		storeBranchButtons.add(mn_store_config);
+		storeBranchButtons.add(mn_report_total);
+		storeBranchButtons.add(mn_report_product);
+		storeBranchButtons.add(mn_report_store);
 
-		// listener
-		for (JButton btn : new JButton[] { mn_store_config, mn_store_sin, mn_store_inc, mn_store_sam, mn_store_bong, mn_report_total, mn_report_product, mn_report_store } ) {
-			btn.addMouseListener(new MouseAdapter() {
-				public void mouseEntered(MouseEvent e) {btn.setForeground(Config.DARK_GREEN);}
-				public void mouseExited(MouseEvent e) {btn.setForeground(Color.BLACK);}
-				public void mouseClicked(MouseEvent e) {
-				      JButton source = (JButton) e.getSource();
-				     if (source == mn_store_config)
-				    	  showPanel(0);
-				      else if (source == mn_store_sin)
-				    	  showPanel(1);
-				      else if (source == mn_store_inc)
-				    	  showPanel(2);
-				      else if (source == mn_store_sam)
-				    	  showPanel(3);
-				      else if (source == mn_store_bong)
-				    	  showPanel(4);
-				      else if (source == mn_report_total)
-				    	  showPanel(5);
-				      else if (source == mn_report_product)
-				    	  showPanel(6);
-				      else if (source == mn_report_store)
-				    	  showPanel(7);
-				}
+		// 고정된 메뉴들 listener, style
+		for (JButton btn : storeBranchButtons) {
+			setButtonStyle(btn);		// 스타일 적용
+			mn_store_config.setFont(new Font("Noto Sans KR", Font.BOLD, 18));	// 크기가 달라 따로 스타일 지정
+			btn.addActionListener(e->{
+			      JButton source = (JButton) e.getSource();
+			      if (source == mn_store_config) showPanel(0);
+			      else if (source == mn_report_total) showPanel(index);
+			      else if (source == mn_report_product) showPanel(index+1);
+			      else if (source == mn_report_store) showPanel(index+2);		
 			});
 		}
-		
-		createPanel();
-		
+
+		// 메뉴 생성하기
+		createMenus();
+
 		setPreferredSize(new Dimension(Config.LAYOUT_W, Config.CONTENT_H));
 	}
 
-	public void createPanel() {
-		
-		panels = new Panel[8];
+	// 메뉴 생성하는 메서드
+	public void createMenus() {
+		List<Branch> branches = new BranchDAO().selectBranch(); // DB에서 지점 목록 가져오기
 
-		panels[0] = new StoreConfigMenu(this);
-		panels[1] = new StoreSinMenu(this);
-		panels[2] = new StoreIncMenu(this);
-		panels[3] = new StoreSamMenu(this);
-		panels[4] = new StoreBongMenu(this);
-		panels[5] = new ReportTotalMenu(this);
-		panels[6] = new ReportProductMenu(this);
-		panels[7] = new ReportStoreMenu(this);
+		p_side.removeAll(); // 메뉴 패널 내 자식 요소들 삭제
+		storeBranchButtons.clear(); // 모든 버튼 리스트에서 제거
+
+		// 보고서 메뉴 assemble
+		p_side.add(Box.createVerticalStrut(25));
+		p_side.add(mn_store_config);
+
+		// 지점 메뉴들 (재)생성 및 추가
+		index = 1; // panels[0]은 보고서라 1부터 시작
+		for (Branch branch : branches) {
+			JButton branchBtn = new JButton("  " + branch.getBr_name());
+			setButtonStyle(branchBtn);	// 스타일
+			
+			final int panelIndex = index++; // panel 배열의 인덱스 고정
+			branchBtn.addActionListener(e -> showPanel(panelIndex));
+			storeBranchButtons.add(branchBtn); // 리스트에 추가
+			
+			p_side.add(Box.createVerticalStrut(10));
+			p_side.add(branchBtn);
+		}
+
+		p_side.add(Box.createVerticalStrut(25));
+		p_side.add(mn_report);
+		p_side.add(Box.createVerticalStrut(15));
+		p_side.add(mn_report_total);
+		p_side.add(Box.createVerticalStrut(10));
+		p_side.add(mn_report_product);
+		p_side.add(Box.createVerticalStrut(10));
+		p_side.add(mn_report_store);
+		add(p_side, BorderLayout.WEST);
+
+		add(p_content, BorderLayout.CENTER);
+
+		createPanels(branches);
 		
-		for (int i = 0; i < panels.length; i++)
-			p_content.add(panels[i]);
+		// 테이블 재생성
+		revalidate();
+		repaint();
 	}
-	
+
+	// 버튼 스타일
+	private void setButtonStyle(JButton btn) {
+		btn.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
+		btn.setBackground(Config.LIGHT_GRAY);
+		btn.setFocusPainted(false);
+		btn.setBorder(null);
+
+		btn.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) { btn.setForeground(Config.DARK_GREEN); }
+			public void mouseExited(MouseEvent e) { btn.setForeground(Color.BLACK); }
+		});
+	}
+
+	// 메뉴에 해당되는 각 패널 생성
+	public void createPanels(List<Branch> branches) {
+		panels = new Panel[1 + branches.size() + 3]; // 지점 관리 + 지점 수 + 3개 보고서 메뉴
+
+		panels[0] = new StoreConfigMenu(this); // 지점 관리
+		
+		int n = 1;
+		for (Branch branch : branches) {
+			panels[n++] = new StoresMenu(this, branch.getBr_name());
+		}
+
+		// 각 보고서 메뉴
+		panels[n++] = new ReportTotalMenu(this);
+		panels[n++] = new ReportProductMenu(this);
+		panels[n++] = new ReportStoreMenu(this);
+
+		p_content.removeAll();		// p_content 자식요소 제거
+		for (Panel panel : panels)
+			p_content.add(panel);
+	}
+
 	public void showPanel(int target) {
-			for (int i = 0; i < panels.length; i++)
-				panels[i].setVisible((i == target) ? true : false);
+		for (int i = 0; i < panels.length; i++)
+			panels[i].setVisible((i == target) ? true : false);
 	}
-	
+
 }

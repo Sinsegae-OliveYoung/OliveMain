@@ -14,6 +14,7 @@ import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
+import com.olive.common.model.Role;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
@@ -30,8 +31,8 @@ public class BranchDAO {
 		try {
 			con = dbManager.getConnection();
 			StringBuffer sql = new StringBuffer();
-			
-			sql.append("select * from branch");
+
+			sql.append("SELECT * FROM branch");
 			
 			pstmt=con.prepareStatement(sql.toString());
 			rs = pstmt.executeQuery();
@@ -64,7 +65,9 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("insert into branch(br_name, br_address, br_tel, user_id) values(?, ?, ?, ?)");
+		sql.append("INSERT INTO"
+				+ " branch(br_name, br_address, br_tel, user_id)"
+				+ " values(?, ?, ?, ?)");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -92,7 +95,12 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("update branch set br_name = ?, br_address = ?, br_tel = ?, user_id = ? where br_id = ?");
+		sql.append("UPDATE branch"
+				+ " SET br_name = ?,"
+				+ " br_address = ?,"
+				+ " br_tel = ?,"
+				+ " user_id = ?"
+				+ " WHERE br_id = ?");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -121,7 +129,9 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("delete from branch where br_id = ?");
+		sql.append("DELETE"
+				+ " FROM branch"
+				+ " WHERE br_id = ?");
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -148,7 +158,17 @@ public class BranchDAO {
 			con = dbManager.getConnection();
 			
 			StringBuffer sql = new StringBuffer();
-			sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
+
+//			sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
+			sql.append("SELECT br_id AS '등록 번호',"
+					+ " br_name AS '지점명',"
+					+ " user_name AS '담당자',"
+					+ " br_address AS '주소',"
+					+ " br_tel AS '연락처'"
+					+ " FROM user u INNER JOIN branch b"
+					+ " ON u.user_id = b.user_id"
+					+ " ORDER BY br_id");
+			
 			try {
 				pstmt = con.prepareStatement(sql.toString());
 				rs = pstmt.executeQuery();
@@ -242,7 +262,14 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select br_name as '지점명', br_address as '매장 주소', br_tel as '매장 전화', user_name as '담당자', tel as '연락처', email as '이메일' from user u inner join branch b on u.user_id=b.user_id and br_name=?");
+		sql.append("SELECT br_name AS '지점명',"
+				+ " br_address AS '매장 주소',"
+				+ " br_tel AS '매장 전화',"
+				+ " user_name AS '담당자',"
+				+ " tel AS '연락처',"
+				+ " email AS '이메일'"
+				+ " FROM user u INNER JOIN branch b"
+				+ " ON u.user_id=b.user_id AND br_name=?");
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, br_name);
@@ -268,6 +295,69 @@ public class BranchDAO {
 		} finally {
 			dbManager.release(pstmt, rs);
 		}
+		return list;
+	}
+	
+	
+	// 로그인한 user가 관리하는 branch 목록 반환
+	public List<Branch> getBranchList(int user_id){
+		System.out.println("BranchDAO.getBranchList()");
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<Branch> list = new ArrayList();
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select b.br_id, br_name, br_address, br_tel");
+		sql.append(", u.user_id, user_name, tel, hiredate, email");
+		sql.append(", r.role_id, role_name, role_code");
+		sql.append(" from branch b");
+		sql.append(" inner join member m");
+		sql.append(" join user u");
+		sql.append(" join role r");
+		sql.append(" on b.br_id = m.br_id");
+		sql.append(" and u.user_id = m.user_id");
+		sql.append(" and u.role_id = r.role_id");
+		sql.append(" where m.user_id = ?");
+	
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setInt(1, user_id);  
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				
+				Role role = new Role();
+				role.setRole_id(rs.getInt("r.role_id"));
+				role.setRole_code(rs.getString("r.role_code"));
+				role.setRole_name(rs.getString("r.role_name"));
+				
+				User user = new User();
+				user.setUser_id(rs.getInt("u.user_id"));
+				user.setUser_name(rs.getString("user_name"));
+				user.setTel(rs.getString("tel"));
+				user.setHiredate(rs.getDate("hiredate"));
+				user.setEmail(rs.getString("email"));
+				user.setRole(role);
+				
+				Branch branch = new Branch();
+				branch.setBr_id(rs.getInt("b.br_id"));
+				branch.setBr_name(rs.getString("br_name"));
+				branch.setBr_address(rs.getString("br_address"));
+				branch.setBr_tel(rs.getString("br_tel"));
+				branch.setUser(user);
+				
+				list.add(branch);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
+		}
+		
 		return list;
 	}
 }

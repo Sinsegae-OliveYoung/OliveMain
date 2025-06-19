@@ -1,6 +1,8 @@
 package com.olive.common.config;
 
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 
 /*-------------------------------------------
  * 상수 정의 클래스
@@ -50,5 +52,11 @@ public class Config {
 	public static final Color LIGHT_GRAY = new Color(242, 242, 242);
 	public static final Color WHITE = new Color(252,252,252);
 	public static final Color PINK = new Color(255,120,120);
+
+	
+	/*--------------------------------------------
+	 *  크기 선언
+	 ---------------------------------------------*/
+	public static final Dimension BUTTON_SIZE = new Dimension(80, 30);
 	
 }
