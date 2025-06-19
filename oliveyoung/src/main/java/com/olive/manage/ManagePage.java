@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
+import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
 
 //슬라이드 기능 (접었다 폈다)
@@ -27,7 +28,7 @@ public class ManagePage extends Page{
 	JLabel la_approval;
 	JButton bt_approval_list;
 	JPanel p_content;
-	ManagePanel[] panels;
+	Panel[] panels;
 
 	public ManagePage(MainLayout mainLayout) {
 		super(mainLayout);
@@ -77,10 +78,8 @@ public class ManagePage extends Page{
 		p_side.add(bt_approval_list);
 		
 		add(p_side, BorderLayout.WEST);
-		
 		add(p_content, BorderLayout.CENTER);
 	
-
 		// listener
 		for (JButton btn : new JButton[] { bt_user_list, bt_approval_list} ) {
 			btn.addMouseListener(new MouseAdapter() {
@@ -109,22 +108,19 @@ public class ManagePage extends Page{
 	
 		createPanel();
 		showPanel(-1);
-		
-		setPreferredSize(new Dimension(Config.LAYOUT_W, Config.CONTENT_H));
-	
 	}
 	
 	public void createPanel() {
 		
-		panels = new UserListPanel[1];
+		//panels = new UserListPanel[1];
 		
-		panels[0] = new UserListPanel(mainLayout);
+		//panels[0] = new UserListPanel(mainLayout);
 		//panels[1] = new Menu2Panel(this);
 		//panels[2] = new Menu3Panel(this);
 		//panels[3] = new Menu4Panel(this);
 		
 		//for (int i = 0; i < panels.length; i++)
-		p_content.add(panels[0]);
+		//p_content.add(panels[0]);
 	}
 	
 	public void showPanel(int target) {
