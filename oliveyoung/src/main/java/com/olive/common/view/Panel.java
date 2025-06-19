@@ -4,25 +4,15 @@ import java.awt.Dimension;
 
 import javax.swing.JPanel;
 
-import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
-import com.olive.store.StorePage;
+import com.olive.mainlayout.MainLayout;
 
 public class Panel extends JPanel{
-	protected StorePage storePage;
-	
-	protected BoundPage boundPage;
-	
-	// 재고 사이드바 패널
-	public Panel(StorePage storePage) {
-		this.storePage = storePage;
-		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
-		setVisible(false);
-	}
+	protected MainLayout mainLayout;
 	
 	// 입출고 사이드바 패널
-	public Panel(BoundPage boundPage) {
-		this.boundPage = boundPage;
+	public Panel(MainLayout mainLayout) {
+		this.mainLayout = mainLayout;
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 		setVisible(false);
 	}

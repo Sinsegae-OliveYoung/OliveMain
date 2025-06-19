@@ -16,7 +16,7 @@ import javax.swing.JPanel;
 
 import com.olive.bound.view.InboundRequestPanel;
 import com.olive.bound.view.InboundShowPanel;
-import com.olive.bound.view.InboundShowPanel2;
+import com.olive.bound.view.InboundShowPanel;
 import com.olive.bound.view.OutboundRequestPanel;
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
@@ -155,7 +155,7 @@ public class ProductPage extends Page {
 		panels[1] = new InboundShowPanel(null);			// 입고 요청 내역 조회
 		panels[2] = new OutboundRequestPanel(null);	// 출고 요청서
 		//panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회
-		panels[3] = new InboundShowPanel2(null);
+		panels[3] = new InboundShowPanel(null);
 		
 //		for (int i = 0; i < panels.length; i++)
 //			p_content.add(panels[i]);

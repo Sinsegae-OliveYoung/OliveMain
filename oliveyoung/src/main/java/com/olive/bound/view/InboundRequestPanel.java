@@ -23,7 +23,6 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
-import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Stock;
@@ -32,6 +31,7 @@ import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
+import com.olive.mainlayout.MainLayout;
 import com.toedter.calendar.JDateChooser;
 
 public class InboundRequestPanel extends Panel{
@@ -68,8 +68,8 @@ public class InboundRequestPanel extends Panel{
 	BoundProductModel boundProductModel;
 	DefaultTableCellRenderer centerRenderer;
 	
-	public InboundRequestPanel(BoundPage boundPage) {
-		super(boundPage);
+	public InboundRequestPanel(MainLayout mainLayout) {
+		super(mainLayout);
 		setLayout(new BorderLayout());
 		
 		// 공통 색상 및 폰트
@@ -212,7 +212,7 @@ public class InboundRequestPanel extends Panel{
         // 신규 추가: 하단 버튼들
         la_date = new JLabel("입고일:");
         dateChooser = new JDateChooser();
-        dateChooser.setPreferredSize(new Dimension(120, 30));
+        dateChooser.setPreferredSize(new Dimension(200, 30));
         dateChooser.setDate(new java.util.Date());
 
 //        JLabel la_approver = new JLabel("결재자:");

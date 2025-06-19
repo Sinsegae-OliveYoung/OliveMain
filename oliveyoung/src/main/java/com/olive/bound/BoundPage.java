@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,12 +16,10 @@ import javax.swing.JPanel;
 
 import com.olive.bound.view.InboundRequestPanel;
 import com.olive.bound.view.InboundShowPanel;
-import com.olive.bound.view.InboundShowPanel2;
 import com.olive.bound.view.OutboundRequestPanel;
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
-import com.olive.login.security.model.Admin;
 import com.olive.mainlayout.MainLayout;
 
 public class BoundPage extends Page {
@@ -153,11 +150,11 @@ public class BoundPage extends Page {
 		
 		panels = new Panel[4];
 
-		panels[0] = new InboundRequestPanel(this);		// 입고 요청서
-		panels[1] = new InboundShowPanel(this);			// 입고 요청 내역 조회
-		panels[2] = new OutboundRequestPanel(this);	// 출고 요청서
+		panels[0] = new InboundRequestPanel(mainLayout);		// 입고 요청서
+		panels[1] = new InboundShowPanel(mainLayout);			// 입고 요청 내역 조회
+		panels[2] = new OutboundRequestPanel(mainLayout);	// 출고 요청서
 		//panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회
-		panels[3] = new InboundShowPanel2(this);
+		panels[3] = new InboundShowPanel(mainLayout);
 		
 		for (int i = 0; i < panels.length; i++)
 			p_content.add(panels[i]);
