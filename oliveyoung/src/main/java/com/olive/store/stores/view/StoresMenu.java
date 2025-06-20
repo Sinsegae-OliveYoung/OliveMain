@@ -20,7 +20,7 @@ import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.view.Panel;
-import com.olive.store.StorePage;
+import com.olive.mainlayout.MainLayout;
 
 public class StoresMenu extends Panel {
 
@@ -38,8 +38,8 @@ public class StoresMenu extends Panel {
 	BranchDAO branchDAO;
 	List<Branch> list;
 
-	public StoresMenu(StorePage storePage, String storeName) {
-		super(storePage);
+	public StoresMenu(MainLayout mainLayout, String storeName) {
+		super(mainLayout);
 
 		// create
 		p_title = new JPanel();
