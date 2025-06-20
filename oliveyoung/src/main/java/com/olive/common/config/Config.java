@@ -26,9 +26,9 @@ public class Config {
 	public static final int PRODUCT_PAGE = 1;
 	public static final int BOUND_PAGE = 2;
 	public static final int STOCK_PAGE = 3;
-	public static final int SCHEDULE_PAGE = 4;
-	public static final int STORE_PAGE = 5;
-	public static final int MANAGE_PAGE = 6;
+	public static final int STORE_PAGE = 4;
+	public static final int MANAGE_PAGE = 5;
+	public static final int SCHEDULE_PAGE = 6;
 	
 	/*--------------------------------------------
 	 *  메인 레이아웃 설정

@@ -19,11 +19,14 @@ import javax.swing.JPanel;
 
 import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
+import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.ImageUtil;
+import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
+import com.olive.manage.ManagePage;
 import com.olive.product.ProductPage;
 import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
@@ -69,6 +72,8 @@ public class MainLayout extends JFrame {
 	public MainLayout(User user) {
 		this.user = user;
 
+		branchDAO = new BranchDAO();
+		
 		// create
 		p_navi = new JPanel();
 
@@ -92,10 +97,7 @@ public class MainLayout extends JFrame {
 		p_my = new JPanel();
 		
 		
-		if (user.getRole().getRole_id() == 1)
-			lb_me = new JLabel(user.getUser_name() + " " + user.getRole().getRole_name() + "님 :)");
-		else
-			lb_me = new JLabel(branchDAO.getBranchList(user.getUser_id())+ " " +user.getRole().getRole_name() + "님 :)");
+		lb_me = new JLabel(setProfile());			
  		bt_lo = new JButton("로그아웃");
 
 		p_content = new JPanel();
@@ -192,6 +194,7 @@ public class MainLayout extends JFrame {
 		add(p_content, BorderLayout.CENTER);
 
 		createPage();
+		
 		// listener
 		for (JButton btn : new JButton[] { bt_pd, bt_title, bt_io, bt_st, bt_cl, bt_sh, bt_ma, bt_lo }) {
 			btn.addMouseListener(new MouseAdapter() {
@@ -206,87 +209,64 @@ public class MainLayout extends JFrame {
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
 
-					/*--------------
-					 *  병합용
-					 * -------------*/
-					/*
-					 * if (source == bt_title) showPage(Config.MAIN_PAGE); else if (source == bt_pd)
-					 * showPage(Config.PRODUCT_PAGE); else if (source == bt_io)
-					 * showPage(Config.BOUND_PAGE); else if (source == bt_st)
-					 * showPage(Config.STOCK_PAGE); else if (source == bt_cl)
-					 * showPage(Config.SCHEDULE_PAGE); else if (source == bt_sh)
-					 * showPage(Config.STORE_PAGE); else if (source == bt_ma)
-					 * showPage(Config.MANAGE_PAGE); else if (source == bt_lo) showPage(new
-					 * LoginPage());
-					 */
-
-					/*--------------
-					 *  개인 테스트용
-					 * -------------*/
-					if (source == bt_pd) 
-						if (user.getRole().getRole_id() == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
-						else {
-							showPage(0);
-							((StorePage) pages[0]).showPanel(0);
-						}
-					else if (source == bt_io) {
-						showPage(1);
-						System.out.println("go to inbound / outbound");
-					}
-					else if (source == bt_st) {
-						showPage(2);						
-					}
-					else if (source == bt_lo)
-						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION))
-								== JOptionPane.OK_OPTION) {
-							new LoginPage();
+					
+					if (source == bt_title) showPage(Config.MAIN_PAGE); 
+					else if (source == bt_pd) showPage(Config.PRODUCT_PAGE); 
+					else if (source == bt_io) showPage(Config.BOUND_PAGE); 
+					else if (source == bt_st) showPage(Config.STOCK_PAGE);
+					else if (source == bt_sh) showPage(Config.STORE_PAGE);
+					else if (source == bt_ma) showPage(Config.MANAGE_PAGE);
+					else if (source == bt_lo) {
+						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
+							setVisible(false);
 							dispose();
+							new LoginPage();
 						}
+					}
 				}
-
 			});
 		}
-		showPage(-1);
-
+		
+		showPage(Config.MAIN_PAGE);
 		
 		getContentPane().setBackground(Config.WHITE);
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
+		setLocationRelativeTo(null); 
 		setVisible(true);
 	}
 
 	public void createPage() {
-
-		/*-------------------------------------------------
-		 * 병합용 
-		 *------------------------------------------------- */
-		/*
-		 * pages = new Page[7];
-		 * 
-		 * pages[Config.MAIN_PAGE] = new MainPage(this); pages[Config.PRODUCT_PAGE] =
-		 * new ProductPage(this); pages[Config.BOUND_PAGE] = new BoundPage(this);
-		 * pages[Config.STOCK_PAGE] = new StockPage(this); pages[Config.SCHEDULE_PAGE] =
-		 * new SchedulePage(this); pages[Config.STORE_PAGE] = new StorePage(this);
-		 * pages[Config.MANAGE_PAGE] = new ManagePage(this);
-		 * 
-		 * for (int i = 0; i < pages.length; i++) p_content.add(pages[i]);
-		 */
-
-		/*-------------------------------------------------
-		 * 개인 테스트용  --> 이거 사용해서 테스트 하심 돼요
-		 *------------------------------------------------- */
-		pages = new Page[3];
-
-		pages[0] = new ProductPage(this);
-		p_content.add(pages[0]);
-		pages[1] = new BoundPage(this);
-		p_content.add(pages[1]);
-		pages[2] = new StockPage(this);
-		p_content.add(pages[2]);
+		pages = new Page[6];
+		
+		pages[0] = new MainPage(this);    
+		pages[1] = new ProductPage(this);
+		pages[2] = new BoundPage(this);
+		pages[3] = new StockPage(this);
+		pages[4] = new StorePage(this);
+		pages[5] = new ManagePage(this);
+		
+		for(int i = 0; i < pages.length; i++) {
+			p_content.add(pages[i]);
+		}
 	}
 
 	public void showPage(int target) {
-		// 로그인 검증 추가해야 함
 		for (int i = 0; i < pages.length; i++)
 			pages[i].setVisible((i == target) ? true : false);
+	}
+	
+	public String setProfile() {
+		String profile = null;
+		
+		profile = user.getUser_name()  
+				+ " "
+				+ user.getRole().getRole_name()
+				+ "님 :)";
+		
+		if (user.getRole().getRole_id() != 1) {
+			profile = branchDAO.getBranchList(user.getUser_id()) + " " + profile;
+		}
+		
+		return profile;
 	}
 }

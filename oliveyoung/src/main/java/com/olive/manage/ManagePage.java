@@ -112,22 +112,18 @@ public class ManagePage extends Page{
 	
 	public void createPanel() {
 		
-		//panels = new UserListPanel[1];
+		panels = new Panel[1];
 		
-		//panels[0] = new UserListPanel(mainLayout);
-		//panels[1] = new Menu2Panel(this);
-		//panels[2] = new Menu3Panel(this);
-		//panels[3] = new Menu4Panel(this);
+		panels[0] = new UserListPanel(mainLayout);
 		
-		//for (int i = 0; i < panels.length; i++)
-		//p_content.add(panels[0]);
+		for (int i = 0; i < panels.length; i++)
+		p_content.add(panels[0]);
 	}
 	
 	public void showPanel(int target) {
 		for (int i = 0; i < panels.length; i++) {
 			panels[i].setVisible((i == target) ? true : false);
 		}
-		
 	}
 	
 }
