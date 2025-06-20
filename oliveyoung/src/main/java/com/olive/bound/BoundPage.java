@@ -161,7 +161,7 @@ public class BoundPage extends Page {
 		
 		panels = new Panel[4];
 
-		panels[0] = new InboundRequestPanel(mainLayout);		// 입고 요청서
+		panels[0] = new InboundRequestPanel(mainLayout, user);		// 입고 요청서
 		panels[1] = new InboundShowPanel(mainLayout);			// 입고 요청 내역 조회
 		panels[2] = new OutboundRequestPanel(mainLayout);	// 출고 요청서
 		//panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회

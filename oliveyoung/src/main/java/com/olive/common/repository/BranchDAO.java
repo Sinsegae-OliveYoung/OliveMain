@@ -301,7 +301,6 @@ public class BranchDAO {
 	
 	// 로그인한 user가 관리하는 branch 목록 반환
 	public List<Branch> getBranchList(int user_id){
-		System.out.println("BranchDAO.getBranchList()");
 		
 		Connection con = null;
 		PreparedStatement pstmt = null;

@@ -157,52 +157,63 @@ public class InboundDAO {
         return list;
     }
 
-    public void insertInbound(int user_id, java.sql.Date ib_date, String comment, List<BoundProduct> products) {
+    public void insertInbound(int user_id, int br_id, java.sql.Date requestDate, String comment, List<BoundProduct> products) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
 
-        String inboundSql = "INSERT INTO inbound (user_id, ib_date, comment, bo_state_id) VALUES (?, ?, ?, 1)";
-        String inboundProductSql = "INSERT INTO inbound_product (ib_id, option_id, ib_pd_count) VALUES (?, ?, ?)";
+        // ✅ 테이블명과 컬럼명 수정
+        String boundSql = "INSERT INTO bound (user_id, request_date, comment, bo_state_id, bound_flag, br_id) VALUES (?, ?, ?, 1, 'in', ?)";
+        String boundProductSql = "INSERT INTO bound_product (bound_id, option_id, b_count) VALUES (?, ?, ?)";
 
         try {
             con = dbManager.getConnection();
             con.setAutoCommit(false); // 트랜잭션 시작
 
-            // inbound insert
-            pstmt = con.prepareStatement(inboundSql, PreparedStatement.RETURN_GENERATED_KEYS);
+            // bound insert
+            pstmt = con.prepareStatement(boundSql, PreparedStatement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, user_id);
-            pstmt.setDate(2, ib_date);
+            pstmt.setDate(2, requestDate);
             pstmt.setString(3, comment);
+            pstmt.setInt(4, br_id);
             pstmt.executeUpdate();
 
             rs = pstmt.getGeneratedKeys();
-            int ib_id = 0;
+            int bound_id = 0;
             if (rs.next()) {
-                ib_id = rs.getInt(1);
+                bound_id = rs.getInt(1);
             }
             rs.close();
             pstmt.close();
 
-            // inbound_product insert
-            pstmt = con.prepareStatement(inboundProductSql);
-            for (BoundProduct boundProduct : products) {
-                pstmt.setInt(1, ib_id);
-                pstmt.setInt(2, boundProduct.getProductOption().getOption_id());
-                pstmt.setInt(3, boundProduct.getB_count());
+            // bound_product insert
+            pstmt = con.prepareStatement(boundProductSql);
+            for (BoundProduct bp : products) {
+                pstmt.setInt(1, bound_id);
+                pstmt.setInt(2, bp.getProductOption().getOption_id());
+                pstmt.setInt(3, bp.getB_count());
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
 
             con.commit();
         } catch (SQLException e) {
-            try { if (con != null) con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            try {
+                if (con != null) con.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.printStackTrace();
         } finally {
             dbManager.release(pstmt, rs);
-            try { if (con != null) con.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+            try {
+                if (con != null) con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
     }
+
     
     public List<BoundProduct> selectBoundProductListByBoundId(int boundId) {
     	Connection con = null;

@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Stock;
 
 public class BoundProductModel extends AbstractTableModel {
@@ -83,5 +84,23 @@ public class BoundProductModel extends AbstractTableModel {
                 // 입력값이 숫자가 아니면 무시
             }
         }
+    }
+    
+    // ✅ 입고 요청 상품을 BoundProduct 리스트로 변환해서 반환
+    public List<BoundProduct> getProductList() {
+        List<BoundProduct> result = new ArrayList<>();
+        for (RequestItem item : requestList) {
+            BoundProduct bp = new BoundProduct();
+            bp.setProductOption(item.stock.getProductOption()); // 옵션 설정
+            bp.setB_count(item.quantity); // 요청 수량 설정
+            result.add(bp);
+        }
+        return result;
+    }
+
+    // ✅ 요청 목록 비우기
+    public void clear() {
+        requestList.clear();
+        fireTableDataChanged();
     }
 }
