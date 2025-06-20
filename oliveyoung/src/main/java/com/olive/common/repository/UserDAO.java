@@ -101,7 +101,7 @@ public class UserDAO {
 	
 	// 로그인 체크 (
 	public User checkLogin(int id, String pwd) {
-		
+
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -163,6 +163,7 @@ public class UserDAO {
 					e.printStackTrace();
 				}
 		}		// 넘겨받은 아이디와 패스워드의 값에 해당되는 유저 반환
+
 		return user;
 	}
 	

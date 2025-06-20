@@ -31,7 +31,7 @@ public class BranchDAO {
 		try {
 			con = dbManager.getConnection();
 			StringBuffer sql = new StringBuffer();
-			
+
 			sql.append("SELECT * FROM branch");
 			
 			pstmt=con.prepareStatement(sql.toString());
@@ -158,6 +158,7 @@ public class BranchDAO {
 			con = dbManager.getConnection();
 			
 			StringBuffer sql = new StringBuffer();
+
 //			sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
 			sql.append("SELECT br_id AS '등록 번호',"
 					+ " br_name AS '지점명',"
@@ -167,6 +168,7 @@ public class BranchDAO {
 					+ " FROM user u INNER JOIN branch b"
 					+ " ON u.user_id = b.user_id"
 					+ " ORDER BY br_id");
+			
 			try {
 				pstmt = con.prepareStatement(sql.toString());
 				rs = pstmt.executeQuery();
@@ -359,19 +361,3 @@ public class BranchDAO {
 		return list;
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

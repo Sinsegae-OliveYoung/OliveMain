@@ -17,12 +17,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
+import com.olive.product.ProductPage;
 import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
 
@@ -221,13 +223,18 @@ public class MainLayout extends JFrame {
 					/*--------------
 					 *  개인 테스트용
 					 * -------------*/
-					if (source == bt_sh) 
+					if (source == bt_st) 
 						if (user.getRole().getRole_id() == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
 						else {
 							showPage(0);
 						}
-					else if (source == bt_st)
+					else if (source == bt_io) {
 						showPage(1);
+						System.out.println("go to inbound / outbound");
+					}
+					else if (source == bt_st) {
+						showPage(2);						
+					}
 					else if (source == bt_lo)
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION))
 								== JOptionPane.OK_OPTION) {
@@ -266,12 +273,14 @@ public class MainLayout extends JFrame {
 		/*-------------------------------------------------
 		 * 개인 테스트용  --> 이거 사용해서 테스트 하심 돼요
 		 *------------------------------------------------- */
-		pages = new Page[1];
+		pages = new Page[3];
 
-//		pages[0] = new StorePage(this);
-//		p_content.add(pages[0]);
-		pages[0] = new StockPage(this);
+		pages[0] = new ProductPage(this);
 		p_content.add(pages[0]);
+		pages[1] = new BoundPage(this);
+		p_content.add(pages[1]);
+		pages[2] = new StockPage(this);
+		p_content.add(pages[2]);
 	}
 
 	public void showPage(int target) {

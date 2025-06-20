@@ -30,9 +30,9 @@ public class Role {
 	public void setRole_name(String role_name) {
 		this.role_name = role_name;
 	}
-	
-	
+
 	public String toString() {
-		return role_name;
+		return this.role_name;
 	}
+	
 }

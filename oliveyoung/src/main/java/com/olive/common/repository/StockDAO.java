@@ -40,7 +40,6 @@ public class StockDAO {
         	    "WHERE br.br_id = 1 " + // 로그인한 유저의 br_id로 대체
         	    "ORDER BY s.st_update");
         
-        
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());

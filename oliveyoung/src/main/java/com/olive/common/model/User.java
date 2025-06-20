@@ -12,6 +12,13 @@ public class User {
 	private Role role;
 	private String pwd;
 	
+
+	public String getPwd() {
+		return pwd;
+	}
+	public void setPwd(String pwd) {
+		this.pwd = pwd;
+	}
 	public int getUser_id() {
 		return user_id;
 	}
@@ -53,11 +60,5 @@ public class User {
 	}
 	public void setRole(Role role) {
 		this.role = role;
-	}
-	public String getPwd() {
-		return pwd;
-	}
-	public void setPwd(String pwd) {
-		this.pwd = pwd;
 	}
 }

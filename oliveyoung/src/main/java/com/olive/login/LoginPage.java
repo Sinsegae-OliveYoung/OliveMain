@@ -27,6 +27,10 @@ import com.olive.common.model.User;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.ImageUtil;
+<<<<<<< HEAD
+=======
+import com.olive.login.security.model.Admin;
+>>>>>>> develop
 import com.olive.mainlayout.MainLayout;
 
 public class LoginPage extends JFrame {
@@ -158,7 +162,6 @@ public class LoginPage extends JFrame {
 		// 해당되는 유저가 있다면
 		if (user != null) {
 			JOptionPane.showMessageDialog(this, "로그인 중...\n여기에 프로그레스바?");
-			System.out.println(user.getRole().getRole_id());
 			mainLayout = new MainLayout(user); // 메인 페이지로 유저 정보를 갖고 이동
 			dispose(); // 현재 창 닫기
 			// 해당되는 유저가 없다면

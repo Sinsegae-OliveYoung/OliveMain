@@ -24,5 +24,4 @@ public class Brand {
 	public void setBd_name(String bd_name) {
 		this.bd_name = bd_name;
 	}
-
 }
