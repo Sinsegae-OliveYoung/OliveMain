@@ -30,6 +30,7 @@ import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.view.Panel;
+import com.olive.mainlayout.MainLayout;
 import com.olive.store.StorePage;
 import com.olive.store.stores.submit.view.EditFrame;
 import com.olive.store.stores.submit.view.RegistFrame;
@@ -55,9 +56,11 @@ public class StoreConfigMenu extends Panel {
 
 	DBManager dbManager = DBManager.getInstance();
 	BranchDAO branchDAO;
+	StorePage storePage;
 	
-	public StoreConfigMenu(StorePage storePage) {
-		super(storePage);
+	public StoreConfigMenu(MainLayout mainLayout, StorePage storePage) {
+		super(mainLayout);
+		this.storePage = storePage;
 
 		// create
 		p_title = new JPanel();

@@ -14,10 +14,12 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
+import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
@@ -44,25 +46,36 @@ public class StorePage extends Page {
 	private List<JButton> storeBranchButtons = new ArrayList<>(); // 메뉴들을 담을 배열
 
 	Panel[] panels; // 하위 메뉴 패널들을 담을 배열
-	int index;
+	int index;			// 선택된
+	MainLayout mainLayout;
+	
+	List<String> brList = new ArrayList();
+	int roleId;
+	String brName;
+	BranchDAO branchDAO = new BranchDAO();
 	
 	public StorePage(MainLayout mainLayout) {
 		super(mainLayout);
+		this.mainLayout = mainLayout;
+		this.roleId = mainLayout.user.getRole().getRole_id();
+		this.brName = (branchDAO.getBranchList(mainLayout.user.getUser_id())).get(0).getBr_name();
 		setLayout(new BorderLayout());
 		setBackground(Config.LIGHT_GRAY);
 		
 		// create
 		p_side = new JPanel();
 
-		mn_store_config = new JButton("지점 관리");
+		mn_store_config = new JButton("지점 관리");			// 1 허용
 
-		mn_report = new JLabel("보고서");
-		mn_report_total = new JButton("  기간별 총 매출");
-		mn_report_product = new JButton("  상품별 매출");
-		mn_report_store = new JButton("  지점별 매출");
+		mn_report = new JLabel("보고서");							
+		mn_report_total = new JButton("  기간별 총 매출");		// 1 - 모든 지점 / 2 - 본인 지점
+		mn_report_product = new JButton("  상품별 매출");		// 1,2 허용
+		mn_report_store = new JButton("  지점별 매출");		// 1 허용
 
 		p_content = new JPanel();
 
+		branchDAO = new BranchDAO();
+		
 		// style
 		p_side.setBackground(Config.LIGHT_GRAY);
 		p_side.setLayout(new BoxLayout(p_side, BoxLayout.Y_AXIS));
@@ -85,10 +98,13 @@ public class StorePage extends Page {
 			mn_store_config.setFont(new Font("Noto Sans KR", Font.BOLD, 18));	// 크기가 달라 따로 스타일 지정
 			btn.addActionListener(e->{
 			      JButton source = (JButton) e.getSource();
-			      if (source == mn_store_config) showPanel(0);
+			      if (source == mn_store_config && roleId == 1) showPanel(0);
 			      else if (source == mn_report_total) showPanel(index);
 			      else if (source == mn_report_product) showPanel(index+1);
-			      else if (source == mn_report_store) showPanel(index+2);		
+			      else if (source == mn_report_store && roleId == 1) showPanel(index+2);
+			      else JOptionPane.showMessageDialog(StorePage.this, "권한이 없습니다");
+			      
+			      
 			});
 		}
 
@@ -116,7 +132,11 @@ public class StorePage extends Page {
 			setButtonStyle(branchBtn);	// 스타일
 			
 			final int panelIndex = index++; // panel 배열의 인덱스 고정
-			branchBtn.addActionListener(e -> showPanel(panelIndex));
+			branchBtn.addActionListener(e -> {
+				if (roleId == 1 && brName.equals(brList.get(panelIndex-1)) || (roleId == 2 && brName.equals(brList.get(panelIndex-1))))
+					showPanel(panelIndex);
+			      else JOptionPane.showMessageDialog(StorePage.this, "권한이 없습니다");
+			});
 			storeBranchButtons.add(branchBtn); // 리스트에 추가
 			
 			p_side.add(Box.createVerticalStrut(10));
@@ -159,17 +179,18 @@ public class StorePage extends Page {
 	public void createPanels(List<Branch> branches) {
 		panels = new Panel[1 + branches.size() + 3]; // 지점 관리 + 지점 수 + 3개 보고서 메뉴
 
-		panels[0] = new StoreConfigMenu(this); // 지점 관리
+		panels[0] = new StoreConfigMenu(mainLayout, this); // 지점 관리
 		
 		int n = 1;
 		for (Branch branch : branches) {
-			panels[n++] = new StoresMenu(this, branch.getBr_name());
+			panels[n++] = new StoresMenu(mainLayout, branch.getBr_name());
+			brList.add(branch.getBr_name());
 		}
-
+		
 		// 각 보고서 메뉴
-		panels[n++] = new ReportTotalMenu(this);
-		panels[n++] = new ReportProductMenu(this);
-		panels[n++] = new ReportStoreMenu(this);
+		panels[n++] = new ReportTotalMenu(mainLayout);
+		panels[n++] = new ReportProductMenu(mainLayout);
+		panels[n++] = new ReportStoreMenu(mainLayout);
 
 		p_content.removeAll();		// p_content 자식요소 제거
 		for (Panel panel : panels)
