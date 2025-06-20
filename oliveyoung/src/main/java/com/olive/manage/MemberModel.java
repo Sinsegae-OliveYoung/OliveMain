@@ -35,6 +35,11 @@ public class MemberModel extends AbstractTableModel{
 	public int getColumnCount() {
 		return column.length;
 	}
+	
+	@Override
+	public String getColumnName(int col) {
+		return column[col];
+	}
 
 	@Override
 	public Object getValueAt(int row, int col) {
