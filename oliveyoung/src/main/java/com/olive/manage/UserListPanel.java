@@ -23,14 +23,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.model.Branch;
 import com.olive.common.model.Role;
-import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.MemberDAO;
 import com.olive.common.repository.RoleDAO;
 import com.olive.common.util.ImageUtil;
+import com.olive.common.util.style.TableUtil;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
 
@@ -41,8 +42,11 @@ public class UserListPanel extends Panel{
 	RoleDAO roleDAO;
 	MemberFilterDTO filter;
 	
-	JPanel p_north;
+	JPanel p_north1;
+	JLabel lb_menu;
 	
+	JPanel p_north;
+	JLabel lb_filter;
 	JPanel p_start;
 	JLabel lb_start;
 	JButton bt_start;
@@ -56,27 +60,32 @@ public class UserListPanel extends Panel{
 	JTextField t_name;
 	JButton bt_search;
 	
-	
+	JPanel p_table; 
 	JTable table;
 	JScrollPane scroll;
 	MemberModel memberModel;
 	
+	JPanel p_south;   //페이징 
+	JButton bt_prev;  //이전 페이지 
+	JButton bt_next;   //다음 페이지 
+	
+	
 	ImageUtil imgUtil = new ImageUtil();
 	
-	public User user = new User();  //임시 로그인 유저 
-	
-	public UserListPanel(MainLayout mainLayout) {
-		super(mainLayout);
-		this.setLayout(new BorderLayout());
-		memberDAO = new MemberDAO();
-		branchDAO = new BranchDAO();
-		roleDAO = new RoleDAO();
-		filter = new MemberFilterDTO();
-		user.setUser_id(1);
+	public void setStyle() {
+		setLayout(new BorderLayout());
 		
-		//생성
+//		p_north1 = new JPanel();
+//		p_north1.setPreferredSize(new Dimension(100, 100));
+//		add(p_north1, BorderLayout.NORTH);
+//		lb_menu = new JLabel("사용자 목록");
+//	    lb_menu.setFont(new Font("SansSerif", Font.BOLD, 22));
+//	    lb_menu.setHorizontalAlignment(SwingConstants.LEFT);
+//	    p_north1.add(lb_menu);
+	    
 		p_north = new JPanel();
-		
+		lb_filter = new JLabel("필터");
+		p_north.add(lb_filter);
 		p_start = new JPanel(new BorderLayout());
 		lb_start = new JLabel("yyyy.mm.dd");
 		Image img = imgUtil.getImage("images/calendar_icon.png", 20, 20);
@@ -85,10 +94,11 @@ public class UserListPanel extends Panel{
 		bt_start.setContentAreaFilled(false);   // 배경 채우기 제거
 		//bt_cal.setFocusPainted(false);        // 포커스 테두리 제거
 		bt_start.setOpaque(false);              // 불투명 해제 (배경 투명화)
+		 
+		
 		
 		p_end = new JPanel(new BorderLayout());
 		LocalDate ld = LocalDate.now();
-		
 		
 		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
 		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
@@ -108,9 +118,26 @@ public class UserListPanel extends Panel{
 		t_name = new JTextField("이름");
 		bt_search = new JButton("검색");
 		
+		p_table = new JPanel();
+	
+		table = new JTable(memberModel = new MemberModel(mainLayout.user));
+		TableUtil.applyStyle(table);
+	
+	
+		//셀 내용 가운데 정렬 
+		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+        
+        scroll = new JScrollPane(table);
+		scroll.getViewport().setBackground(Color.WHITE);
+		scroll.setPreferredSize(new Dimension(1000, 500));
 		
-		table = new JTable(memberModel = new MemberModel(user));
-		scroll = new JScrollPane(table);
+		p_south = new JPanel();
+		bt_prev = new JButton("<");
+		bt_next = new JButton(">");
 		
 		
 		//스타일
@@ -120,28 +147,52 @@ public class UserListPanel extends Panel{
 		cb_role.setPreferredSize(new Dimension(100, 30));
 		t_name.setPreferredSize(new Dimension(100, 30));
 		bt_search.setPreferredSize(new Dimension(60, 30));
-		
+	     
 		lb_start.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // top, left, bottom, right
 		lb_end.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // top, left, bottom, right
 		//bt_cal.setPreferredSize(new Dimension(30, 30));
 		bt_start.setHorizontalAlignment(SwingConstants.RIGHT);
 		//bt_cal.setIconTextGap(5); // 텍스트와 아이콘 사이 간격
 		
+		
+		p_south.setPreferredSize(new Dimension(800, 100));
+		p_south.setBackground(Color.red);
+		
+		
 		// 조립 
 		p_north.add(p_start);
 		p_start.add(lb_start, BorderLayout.WEST);
 		p_start.add(bt_start, BorderLayout.EAST);
-		
 		p_north.add(p_end);
 		p_end.add(lb_end, BorderLayout.WEST);
 		p_end.add(bt_end, BorderLayout.EAST);
-		
 		p_north.add(cb_branch);
 		p_north.add(cb_role);
 		p_north.add(t_name);
 		p_north.add(bt_search);
 		add(p_north, BorderLayout.NORTH);
-		add(scroll);
+		
+		p_table.add(scroll);
+		add(p_table);
+		
+		p_south.add(bt_prev);
+		/**
+		 * 페이지 수만큼 add 
+		 */
+		p_south.add(bt_next);
+		add(p_south, BorderLayout.SOUTH);
+		
+	}
+	
+	public UserListPanel(MainLayout mainLayout) {
+		super(mainLayout);
+		
+		memberDAO = new MemberDAO();
+		branchDAO = new BranchDAO();
+		roleDAO = new RoleDAO();
+		filter = new MemberFilterDTO();
+		
+		setStyle();
 		
 		getBranch();
 		getRole();
@@ -224,6 +275,9 @@ public class UserListPanel extends Panel{
 			cb_role.addItem(role);
 		}
 	}
+	
+	
+
 	
 	
 }
