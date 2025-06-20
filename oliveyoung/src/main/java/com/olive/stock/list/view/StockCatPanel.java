@@ -11,6 +11,7 @@ import javax.swing.table.JTableHeader;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.Category;
+import com.olive.common.model.User;
 import com.olive.common.repository.CategoryDAO;
 import com.olive.common.util.TableUtil;
 import com.olive.mainlayout.MainLayout;
@@ -25,15 +26,17 @@ public class StockCatPanel extends Panel {
     JComboBox<Category> cb_category;
     CategoryDAO categoryDAO;
     
+    User user;
+    
     @Override
     public void refresh() {
         Category selected = (Category) cb_category.getSelectedItem();
         ListModel newModel;
 
         if (selected != null && selected.getCt_id() != 0) {
-            newModel = new ListModel(selected);
+            newModel = new ListModel(selected, user);
         } else {
-            newModel = new ListModel("now");
+            newModel = new ListModel("now", user);
         }
 
         table.setModel(newModel);
@@ -50,6 +53,7 @@ public class StockCatPanel extends Panel {
 
     public StockCatPanel(MainLayout mainLayout) {
         super(mainLayout);
+        user = mainLayout.user;
         setLayout(new BorderLayout());
 
         // 공통 색상 및 폰트
@@ -87,7 +91,7 @@ public class StockCatPanel extends Panel {
         topPanel.add(comboPanel, BorderLayout.EAST);
 
         // 테이블 생성
-        model = new ListModel("now");
+        model = new ListModel("now", user);
         table = new JTable(model);
 
         // 테이블 스타일 적용
@@ -118,10 +122,10 @@ public class StockCatPanel extends Panel {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     Category category = (Category) cb_category.getSelectedItem();
                     if (category.getCt_id() != 0) {
-                        ListModel newModel = new ListModel(category);
+                        ListModel newModel = new ListModel(category, user);
                         table.setModel(newModel);
                     } else {
-                        table.setModel(new ListModel("now"));
+                        table.setModel(new ListModel("now", user));
                     }
 
                     // 선택 변경 후 렌더러 다시 설정

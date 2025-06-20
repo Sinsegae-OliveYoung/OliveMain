@@ -18,6 +18,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.User;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
@@ -28,7 +29,7 @@ import com.olive.store.StorePage;
 
 public class StockUpdatePanel extends Panel{
 	
-	   JTable table;
+	    JTable table;
 	    UpdateModel model;
 	    
 	    @Override
@@ -52,7 +53,7 @@ public class StockUpdatePanel extends Panel{
 	        topPanel.setBackground(StockConfig.bgColor);
 
 	        // 테이블 생성
-	        model = new UpdateModel(stockPage);
+	        model = new UpdateModel(stockPage, mainLayout.user);
 	        table = new JTable(model);
 	        
 

@@ -8,6 +8,7 @@ import javax.swing.table.AbstractTableModel;
 
 import com.olive.common.model.Category;
 import com.olive.common.model.Stock;
+import com.olive.common.model.User;
 import com.olive.common.repository.StockDAO;
 
 
@@ -16,6 +17,8 @@ public class ListModel extends AbstractTableModel {
     StockDAO stockDAO;
     List<Stock> list;
     String status = null;
+    
+    User user;
 
     String[] column = {
         "상품옵션코드", "카테고리명", "상세카테고리명",
@@ -28,21 +31,22 @@ public class ListModel extends AbstractTableModel {
 //    		"st_quantity", "st_update"
 //    };
 
-    public ListModel(String str) {
+    public ListModel(String str, User user) {
         stockDAO = new StockDAO();
         status = str;
+        this.user = user;
         if(str.equals("now")) {
-        	list = stockDAO.listNow();             	
+        	list = stockDAO.listNow(user);             	
         } else if(str.equals("countAlert")) {
-        	list = stockDAO.listCountAlert();
+        	list = stockDAO.listCountAlert(user);
         } else if(str.equals("oldAlert")) {
-        	list = stockDAO.listOldAlert();
+        	list = stockDAO.listOldAlert(user);
         }
     }
     
-    public ListModel(Category category) {
+    public ListModel(Category category, User user) {
     	stockDAO = new StockDAO();
-    	list = stockDAO.listCat(category);
+    	list = stockDAO.listCat(category, user);
     }
 
     public int getRowCount() {
@@ -59,11 +63,11 @@ public class ListModel extends AbstractTableModel {
     
     public void reload() {
     	 if(status.equals("now")) {
-         	list = stockDAO.listNow();             	
+         	list = stockDAO.listNow(user);             	
          } else if(status.equals("countAlert")) {
-         	list = stockDAO.listCountAlert();
+         	list = stockDAO.listCountAlert(user);
          } else if(status.equals("oldAlert")) {
-         	list = stockDAO.listOldAlert();
+         	list = stockDAO.listOldAlert(user);
          }
         fireTableDataChanged();
     }

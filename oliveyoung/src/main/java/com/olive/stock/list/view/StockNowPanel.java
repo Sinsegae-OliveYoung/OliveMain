@@ -7,6 +7,8 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.Branch;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.TableUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
@@ -67,20 +69,13 @@ public class StockNowPanel extends Panel {
         }
 
         topPanel.add(buttonPanel, BorderLayout.EAST);
-
+        
         // 테이블 생성
-        model = new ListModel("now");
+        model = new ListModel("now", mainLayout.user);
         table = new JTable(model);
 
         // 테이블 스타일 적용
         TableUtil.applyStyle(table);
-        table.getColumnModel().getColumn(1).setPreferredWidth(200);
-        table.getColumnModel().getColumn(2).setPreferredWidth(200);
-        table.getColumnModel().getColumn(3).setPreferredWidth(200);
-        table.getColumnModel().getColumn(4).setPreferredWidth(200);
-        table.getColumnModel().getColumn(5).setPreferredWidth(200);
-        table.getColumnModel().getColumn(6).setPreferredWidth(200);
-        
         
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();

@@ -18,6 +18,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.User;
 import com.olive.common.util.TableUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
@@ -79,7 +80,7 @@ public class OldAlertPanel extends Panel{
 	        topPanel.add(buttonPanel, BorderLayout.EAST);
 
 	        // 테이블 생성
-	        model = new ListModel("oldAlert");
+	        model = new ListModel("oldAlert", mainLayout.user);
 	        table = new JTable(model);
 
 	        // 테이블 스타일 적용

@@ -15,6 +15,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -39,7 +40,7 @@ public class StockFiltPanel extends Panel {
     JTable table;
     JPanel p_north;
     JPanel p_dateArea;
-    JLabel lb_start, lb_end;
+    JLabel lb_start, lb_end, titleLabel;
     JButton bt_start, bt_end;
     StockModel model;
     
@@ -56,7 +57,7 @@ public class StockFiltPanel extends Panel {
         p_north.setBackground(StockConfig.bgColor);
         p_north.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
 
-        JLabel titleLabel = new JLabel("시간대 별 기록");
+        titleLabel = new JLabel("시간대 별 기록");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         p_north.add(titleLabel, BorderLayout.WEST);
 
@@ -75,7 +76,7 @@ public class StockFiltPanel extends Panel {
         JPanel pEnd = wrapDateField(lb_end, bt_end);
         
         // 카테고리 콤보박스 추가
-        categoryBox = new JComboBox<>(new String[]{"in", "out"});
+        categoryBox = new JComboBox<>(new String[]{"입고", "출고"});
         categoryBox.setPreferredSize(new Dimension(80, 30));
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
@@ -119,12 +120,40 @@ public class StockFiltPanel extends Panel {
         bt_start.addActionListener(e -> new DatePicker(lb_start));
         bt_end.addActionListener(e -> new DatePicker(lb_end));
         bt_search.addActionListener(e -> {
-        	String state = categoryBox.getSelectedItem().toString();
+        	
+        	String label = categoryBox.getSelectedItem().toString();
+        	String state = label.equals("입고") ? "in" : "out";
             String start = lb_start.getText();
             String end = lb_end.getText();
+            
+            // 입력값 유효성 체크
+            if (start.equals("yyyy.mm.dd") || start.isEmpty())  {
+                JOptionPane.showMessageDialog(this, "시작 날짜를 선택해주세요.", "날짜 입력 오류", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (end.equals("yyyy.mm.dd") || end.isEmpty()) {
+            	JOptionPane.showMessageDialog(this, "종료 날짜를 선택해주세요.", "날짜 입력 오류", JOptionPane.WARNING_MESSAGE);
+            	return;
+            }
+            // LocalDate로 파싱
+            LocalDate startDate = LocalDate.parse(start.replace(".", "-"));
+            LocalDate endDate = LocalDate.parse(end.replace(".", "-"));
+            LocalDate today = LocalDate.now();
+
+            // 시작일 > 종료일이면 오류
+            if (startDate.isAfter(endDate)) {
+                JOptionPane.showMessageDialog(this, "시작일은 종료일보다 빠르거나 같아야 합니다.", "날짜 순서 오류", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 시작일이 오늘보다 미래면 검색 막기
+            if (startDate.isAfter(today)) {
+                JOptionPane.showMessageDialog(this, "시작일은 오늘보다 미래일 수 없습니다.", "날짜 입력 오류", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             // 필터링 로직 추가 가능
             model = new StockModel(state ,start, end);
-            System.out.println("검색 후 상태: " + state + "검색: " + start + " ~ " + end);
             table.setModel(model);
             
             // 선택 변경 후 렌더러 다시 설정
@@ -132,6 +161,9 @@ public class StockFiltPanel extends Panel {
             	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
                 table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
             }
+            
+            // 제목 텍스트만 갱신
+            titleLabel.setText("시간대 별 " + label + " 기록");
             table.updateUI();
         });
 

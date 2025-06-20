@@ -8,6 +8,7 @@ import javax.swing.table.AbstractTableModel;
 
 import com.olive.common.model.Category;
 import com.olive.common.model.Stock;
+import com.olive.common.model.User;
 import com.olive.common.repository.StockDAO;
 import com.olive.common.repository.StockLogDAO;
 import com.olive.stock.StockPage;
@@ -19,6 +20,7 @@ public class UpdateModel extends AbstractTableModel {
     StockDAO stockDAO;
     List<Stock> list;
     StockPage stockpage; // 재고 업데이트 반영을 위함
+    User user;
 
     String[] column = {
         "상품옵션코드", "카테고리명", "상세카테고리명",
@@ -31,15 +33,16 @@ public class UpdateModel extends AbstractTableModel {
 //    		"st_quantity", "st_update"
 //    };
 
-    public UpdateModel(StockPage stockpage) { // StockPage를 보관해야함 -> update 위함
+    public UpdateModel(StockPage stockpage, User user) { // StockPage를 보관해야함 -> update 위함
     	this.stockpage = stockpage;
+    	this.user = user;
         stockDAO = new StockDAO();	
-        list = stockDAO.listNow(); 
+        list = stockDAO.listNow(user); 
     }
     
     public void reload() {
     	   stockDAO = new StockDAO();	
-           list = stockDAO.listNow(); 	
+           list = stockDAO.listNow(user); 	
            fireTableDataChanged();
     }
 
