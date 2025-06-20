@@ -1,5 +1,6 @@
 package com.olive.stock.history.view;
 
+import com.olive.common.view.Panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,6 +17,8 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.common.util.TableUtil;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
@@ -23,20 +26,20 @@ import com.olive.stock.model.StockModel;
 import com.olive.stock.model.ListModel;
 import com.olive.store.StorePage;
 
-public class StockIBPanel extends StockPanel{
+public class StockIBPanel extends Panel{
 	
 	JTable table;
     StockModel model;
 
-    public StockIBPanel(StockPage stockPage) {
-        super(stockPage);
+    public StockIBPanel(MainLayout mainLayout) {
+        super(mainLayout);
         setLayout(new BorderLayout());
 
         // 상단 패널
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
 
-        JLabel titleLabel = new JLabel("현재 수량 확인");
+        JLabel titleLabel = new JLabel("재고 입고 기록");
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         topPanel.add(titleLabel, BorderLayout.WEST);
@@ -70,17 +73,20 @@ public class StockIBPanel extends StockPanel{
         model = new StockModel("in");
         table = new JTable(model);
 
-        // 💡 테이블 스타일 적용
-        table.setRowHeight(25);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
+        System.out.println(table.getWidth());
+        
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
         
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+       int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 60, 100};
+        
         for (int i = 0; i < table.getColumnCount(); i++) {
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
@@ -91,15 +97,15 @@ public class StockIBPanel extends StockPanel{
         add(topPanel, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
         
-        // 정렬 기능 구현
-//        btnDateAsc.addActionListener(e -> {
-//            model.sortByDateAsc();
-//            table.updateUI();
-//        });
-//
-//        btnDateDesc.addActionListener(e -> {
-//            model.sortByDateDesc();
-//            table.updateUI();
-//        });
+        //버튼 기능 구현
+        btnDateAsc.addActionListener(e -> {
+            model.sortByDateAsc();
+            table.updateUI();
+        });
+
+        btnDateDesc.addActionListener(e -> {
+            model.sortByDateDesc();
+            table.updateUI();
+        });
     }
 }

@@ -208,7 +208,6 @@ public class MainLayout extends JFrame {
 
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
-
 					
 					if (source == bt_title) showPage(Config.MAIN_PAGE); 
 					else if (source == bt_pd) showPage(Config.PRODUCT_PAGE); 

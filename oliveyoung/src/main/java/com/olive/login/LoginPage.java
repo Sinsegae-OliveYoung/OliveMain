@@ -27,7 +27,6 @@ import com.olive.common.model.User;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.ImageUtil;
-import com.olive.login.security.model.Admin;
 import com.olive.mainlayout.MainLayout;
 
 public class LoginPage extends JFrame {

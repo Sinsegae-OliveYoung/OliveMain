@@ -1,4 +1,5 @@
 package com.olive.stock.list.view;
+import com.olive.common.view.Panel;
 
 import java.awt.*;
 import javax.swing.*;
@@ -6,18 +7,28 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.common.util.TableUtil;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
 import com.olive.stock.model.ListModel;
 
-public class StockNowPanel extends StockPanel {
+public class StockNowPanel extends Panel {
 
     JTable table;
     ListModel model;
+    MainLayout mainLayout;
+    
+    @Override
+    public void refresh() {
+        model.reload();     // ListModel에서 최신 데이터 로드
+        table.updateUI();   // 테이블 UI 갱신
+    }
 
-    public StockNowPanel(StockPage stockPage) {
-        super(stockPage);
+    public StockNowPanel(MainLayout mainLayout) {
+    	super(mainLayout);
+        this.mainLayout = mainLayout;
         setLayout(new BorderLayout());
 
         // 상단 패널
@@ -61,20 +72,27 @@ public class StockNowPanel extends StockPanel {
         model = new ListModel("now");
         table = new JTable(model);
 
-        // 💡 테이블 스타일 적용
-        table.setRowHeight(25);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setPreferredWidth(200);
+        table.getColumnModel().getColumn(4).setPreferredWidth(200);
+        table.getColumnModel().getColumn(5).setPreferredWidth(200);
+        table.getColumnModel().getColumn(6).setPreferredWidth(200);
+        
         
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+        
         for (int i = 0; i < table.getColumnCount(); i++) {
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
-
+        
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setBackground(Color.WHITE);
         

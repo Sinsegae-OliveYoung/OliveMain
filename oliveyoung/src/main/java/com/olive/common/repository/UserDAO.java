@@ -14,7 +14,6 @@ import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.StringUtil;
-import com.olive.login.security.model.Admin;
 
 public class UserDAO {
 	DBManager dbManager = DBManager.getInstance();
@@ -102,7 +101,7 @@ public class UserDAO {
 	
 	// 로그인 체크 (
 	public User checkLogin(int id, String pwd) {
-		System.out.println("여기");
+
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -147,7 +146,6 @@ public class UserDAO {
 				user.setPwd(rs.getString("pwd"));			// 해당되는 비밀번호(패스워드) 담기
 				user.setRole(role);
 
-				System.out.println(user.getRole().getRole_id());
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -165,7 +163,7 @@ public class UserDAO {
 					e.printStackTrace();
 				}
 		}		// 넘겨받은 아이디와 패스워드의 값에 해당되는 유저 반환
-		System.out.println(user);
+
 		return user;
 	}
 	

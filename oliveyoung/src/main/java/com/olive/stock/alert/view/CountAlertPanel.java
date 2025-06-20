@@ -1,4 +1,5 @@
 package com.olive.stock.alert.view;
+import com.olive.common.view.Panel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -17,20 +18,28 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.common.util.TableUtil;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
 import com.olive.stock.model.ListModel;
 import com.olive.store.StorePage;
 
-public class CountAlertPanel extends StockPanel{
+public class CountAlertPanel extends Panel{
 	
 
     JTable table;
     ListModel model;
+    
+    @Override
+    public void refresh() {
+        model.reload();     // ListModel에서 최신 데이터 로드
+        table.updateUI();   // 테이블 UI 갱신
+    }
 
-    public CountAlertPanel(StockPage stockPage) {
-        super(stockPage);
+    public CountAlertPanel(MainLayout mainLayout) {
+        super(mainLayout);
         setLayout(new BorderLayout());
 
         // 상단 패널
@@ -74,12 +83,8 @@ public class CountAlertPanel extends StockPanel{
         model = new ListModel("countAlert");
         table = new JTable(model);
 
-        // 💡 테이블 스타일 적용
-        table.setRowHeight(25);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
         
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -102,6 +107,8 @@ public class CountAlertPanel extends StockPanel{
 
         // 수량 컬럼 인덱스
         int quantityColumnIndex = model.findColumn("재고수량");
+        
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
 
         // 컬럼별 렌더러 적용
         for (int i = 0; i < table.getColumnCount(); i++) {
@@ -110,6 +117,7 @@ public class CountAlertPanel extends StockPanel{
             } else {
                 table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
             }
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
 
         JScrollPane scroll = new JScrollPane(table);
@@ -118,5 +126,31 @@ public class CountAlertPanel extends StockPanel{
         // 전체 레이아웃 구성
         add(topPanel, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
+        
+        // 정렬 기능 구현
+        btnDateAsc.addActionListener(e -> {
+            model.sortByDateAsc();
+            table.updateUI();
+        });
+
+        btnDateDesc.addActionListener(e -> {
+            model.sortByDateDesc();
+            table.updateUI();
+        });
+
+        btnQtyDesc.addActionListener(e -> {
+            model.sortByQuantityDesc();
+            table.updateUI();
+        });
+
+        btnNameAsc.addActionListener(e -> {
+            model.sortByNameAsc();
+            table.updateUI();
+        });
+
+        btnNameDesc.addActionListener(e -> {
+            model.sortByNameDesc();
+            table.updateUI();
+        });
     }
 }

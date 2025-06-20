@@ -1,4 +1,5 @@
 package com.olive.stock.list.view;
+import com.olive.common.view.Panel;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -11,19 +12,44 @@ import javax.swing.table.JTableHeader;
 import com.olive.common.config.Config;
 import com.olive.common.model.Category;
 import com.olive.common.repository.CategoryDAO;
+import com.olive.common.util.TableUtil;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
 import com.olive.stock.model.ListModel;
 
-public class StockCatPanel extends StockPanel {
+public class StockCatPanel extends Panel {
 
     JTable table;
     ListModel model;
     JComboBox<Category> cb_category;
     CategoryDAO categoryDAO;
+    
+    @Override
+    public void refresh() {
+        Category selected = (Category) cb_category.getSelectedItem();
+        ListModel newModel;
 
-    public StockCatPanel(StockPage stockPage) {
-        super(stockPage);
+        if (selected != null && selected.getCt_id() != 0) {
+            newModel = new ListModel(selected);
+        } else {
+            newModel = new ListModel("now");
+        }
+
+        table.setModel(newModel);
+
+        // 렌더러 재적용
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        table.updateUI();
+    }
+
+    public StockCatPanel(MainLayout mainLayout) {
+        super(mainLayout);
         setLayout(new BorderLayout());
 
         // 공통 색상 및 폰트
@@ -64,17 +90,17 @@ public class StockCatPanel extends StockPanel {
         model = new ListModel("now");
         table = new JTable(model);
 
-        // 테이블 헤더 스타일
-        table.setRowHeight(25);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
 
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+        
         for (int i = 0; i < table.getColumnCount(); i++) {
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
@@ -100,6 +126,7 @@ public class StockCatPanel extends StockPanel {
 
                     // 선택 변경 후 렌더러 다시 설정
                     for (int i = 0; i < table.getColumnCount(); i++) {
+                    	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
                         table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
                     }
                     table.updateUI();
@@ -117,7 +144,7 @@ public class StockCatPanel extends StockPanel {
 
         Category dummy = new Category();
         dummy.setCt_id(0);
-        dummy.setCt_code("카테고리를 선택하세요");
+        dummy.setCt_name("카테고리를 선택하세요");
         cb_category.addItem(dummy);
         
         for (Category category : cateList) {
