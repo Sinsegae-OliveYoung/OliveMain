@@ -29,6 +29,7 @@ import org.jfree.ui.RectangleInsets;
 
 import com.olive.common.config.Config;
 import com.olive.common.view.Panel;
+import com.olive.mainlayout.MainLayout;
 import com.olive.store.StorePage;
 
 /* -------------------------
@@ -46,8 +47,8 @@ public class ReportProductMenu extends Panel {
 	JFreeChart chart; 					// 데이터 집합을 포함하는 차트
 	ChartPanel chartPanel; 			// 차트 전용 패널
 
-	public ReportProductMenu(StorePage storePage) {
-		super(storePage);
+	public ReportProductMenu(MainLayout mainLayout) {
+		super(mainLayout);
 
 		// create
 		p_title = new JPanel();
