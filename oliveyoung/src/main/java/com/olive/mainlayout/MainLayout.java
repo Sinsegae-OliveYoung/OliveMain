@@ -231,7 +231,6 @@ public class MainLayout extends JFrame {
 						}
 					else if (source == bt_io) {
 						showPage(1);
-						System.out.println("go to inbound / outbound");
 					}
 					else if (source == bt_st) {
 						showPage(2);						

@@ -14,7 +14,6 @@ import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.StringUtil;
-import com.olive.login.security.model.Admin;
 
 public class UserDAO {
 	DBManager dbManager = DBManager.getInstance();
@@ -60,7 +59,19 @@ public class UserDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select user_id as '등록 번호', user_no as '사원 번호', user_name as '이름', role_name as '직급', role_code as '직급 코드', tel as '연락처', email as '이메일', hiredate as '입사일' from role r inner join user u on r.role_id = u.role_id order by user_no");
+		sql.append("select"
+				+ " user_id 	as '등록 번호'"
+				+ ", user_no 	as '사원 번호'"
+				+ ", user_name 	as '이름'"
+				+ ", role_name 	as '직급'"
+				+ ", role_code 	as '직급 코드'"
+				+ ", tel 		as '연락처'"
+				+ ", email 		as '이메일'"
+				+ ", hiredate 	as '입사일' "
+				+ "from role r "
+				+ "inner join user u on r.role_id = u.role_id "
+				+ "order by user_no"
+		);
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -102,7 +113,6 @@ public class UserDAO {
 	
 	// 로그인 체크 (
 	public User checkLogin(int id, String pwd) {
-		System.out.println("여기");
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -146,8 +156,6 @@ public class UserDAO {
 				user.setUser_no(rs.getInt("u.user_no"));	// 해당되는 사원번호(아이디) 담기
 				user.setPwd(rs.getString("pwd"));			// 해당되는 비밀번호(패스워드) 담기
 				user.setRole(role);
-
-				System.out.println(user.getRole().getRole_id());
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -164,8 +172,8 @@ public class UserDAO {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-		}		// 넘겨받은 아이디와 패스워드의 값에 해당되는 유저 반환
-		System.out.println(user);
+		}		
+		// 넘겨받은 아이디와 패스워드의 값에 해당되는 유저 반환
 		return user;
 	}
 	

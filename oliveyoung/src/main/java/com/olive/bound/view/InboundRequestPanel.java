@@ -6,6 +6,8 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.List;
@@ -19,7 +21,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
@@ -44,6 +48,7 @@ public class InboundRequestPanel extends Panel{
 	// LEFT 상품 테이블
 	JPanel p_list;
 	JLabel la_left;
+	JTableHeader header_re;
 	JTable table;
 	JScrollPane scroll;
 	
@@ -53,15 +58,19 @@ public class InboundRequestPanel extends Panel{
 	
 	JTable table_re;
 	JScrollPane scroll_re;
+	InboundModel model;
 	
 	// BOTTOM
 	JPanel p_bottom;
+	JPanel comboPanel;
 	JComboBox<Branch> cb_branch;
+    JLabel la_approver;
+    JComboBox<User> cb_approver;
 	JDateChooser dateChooser;
 	JLabel la_date;
 	JButton bt_save;
 	
-	
+	UserDAO userDAO;
 	ProductDAO productDAO;
 	BranchDAO branchDAO;
 	InboundModel inboundModel;
@@ -127,7 +136,21 @@ public class InboundRequestPanel extends Panel{
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
         
+        // 컬럼 너비 설정
+//        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+//        table.getColumnModel().getColumn(0).setPreferredWidth(60);
+//        table.getColumnModel().getColumn(1).setPreferredWidth(75);
+//        table.getColumnModel().getColumn(2).setPreferredWidth(75);
+//        table.getColumnModel().getColumn(3).setPreferredWidth(140);
+//        table.getColumnModel().getColumn(4).setPreferredWidth(40);
+//        table.getColumnModel().getColumn(5).setPreferredWidth(40);
+//        table.getColumnModel().getColumn(6).setPreferredWidth(40);
+        
+        
         scroll = new JScrollPane(table);
+        scroll.getViewport().setBackground(Config.WHITE);
+        scroll.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 80, Config.CONTENT_H - 180));
+        
         
         
         
@@ -138,7 +161,7 @@ public class InboundRequestPanel extends Panel{
 		table_re = new JTable(boundProductModel); // 입고 요청서 테이블
 		
 		// 테이블 헤더 클릭 이벤트 추가
-		JTableHeader header_re = table_re.getTableHeader();
+		header_re = table_re.getTableHeader();
 		header_re.addMouseListener(new java.awt.event.MouseAdapter() {
 		    @Override
 		    public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -166,8 +189,14 @@ public class InboundRequestPanel extends Panel{
         for (int i = 0; i < table_re.getColumnCount(); i++) {
         	table_re.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
+        
+        table_re.getColumnModel().getColumn(0).setPreferredWidth(120);
+        table_re.getColumnModel().getColumn(2).setPreferredWidth(50);
 
         scroll_re = new JScrollPane(table_re);
+        scroll_re.getViewport().setBackground(Config.WHITE);
+        scroll_re.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 150, Config.CONTENT_H - 180));
+        
 		
         // 컬럼 클릭 이벤트 -> 우측 테이블에 추가
         table.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -176,7 +205,7 @@ public class InboundRequestPanel extends Panel{
                 int row = table.getSelectedRow();
                 if (row >= 0) {
                     // 현재 테이블 모델을 가져온다 (InboundModel)
-                    InboundModel model = (InboundModel) table.getModel();
+                    model = (InboundModel) table.getModel();
                     Stock selectedStock = model.list.get(row);
 
                     // 선택된 상품을 입고요청 모델에 추가
@@ -197,13 +226,13 @@ public class InboundRequestPanel extends Panel{
         // 기존 p_bottom 내부 교체
         p_bottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
-        JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        comboPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         comboPanel.setOpaque(false);
 
         cb_branch = new JComboBox<>();
         cb_branch.setPreferredSize(new Dimension(200, 30));
         cb_branch.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        cb_branch.setBackground(Config.LIGHT_GREEN);
+        cb_branch.setBackground(Config.LIGHT_GRAY);
         cb_branch.setForeground(Color.DARK_GRAY);
         cb_branch.setFocusable(false);
         cb_branch.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -213,38 +242,40 @@ public class InboundRequestPanel extends Panel{
         la_date = new JLabel("입고일:");
         dateChooser = new JDateChooser();
         dateChooser.setPreferredSize(new Dimension(200, 30));
+        JTextField editor = ((JTextField) dateChooser.getDateEditor().getUiComponent());
+        editor.setBackground(Config.LIGHT_GRAY);
+//        dateChooser.setBackground(Config.LIGHT_GRAY);
         dateChooser.setDate(new java.util.Date());
+        
+        la_approver = new JLabel("결재자:");
+        cb_approver = new JComboBox<>();
+        cb_approver.setPreferredSize(new Dimension(200, 30));
+        cb_approver.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        cb_approver.setBackground(Config.LIGHT_GRAY);
+        cb_approver.setForeground(Color.DARK_GRAY);
+        cb_approver.setFocusable(false);
+        cb_approver.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        loadApproverList(cb_approver);
 
-//        JLabel la_approver = new JLabel("결재자:");
-//        JComboBox<User> cb_approver = new JComboBox<>();
-//        loadApproverList(cb_approver);
-//
         bt_save = new JButton("저장");
         bt_save.setPreferredSize(new Dimension(80, 30));
-        bt_save.setBackground(Config.LIGHT_GRAY);
-//
-//        // 저장 버튼 클릭 이벤트
-//        bt_save.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                saveInboundRequest(dateChooser, cb_approver);
-//            }
-//        });
+        bt_save.setBackground(Config.PINK);
+
+        // 저장 버튼 클릭 이벤트
+        bt_save.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveInboundRequest(dateChooser, cb_approver);
+            }
+        });
         
         comboPanel.add(la_date);
         comboPanel.add(dateChooser);
+        comboPanel.add(la_approver);
+        comboPanel.add(cb_approver);
         comboPanel.add(bt_save);
 
         p_bottom.add(comboPanel);
-//        p_bottom.add(la_date);
-//        p_bottom.add(dateChooser);
-//        p_bottom.add(la_approver);
-//        p_bottom.add(cb_approver);
-//        p_bottom.add(bt_save);
-        
-        
-        
-        
         
 		
 		// 스타일
@@ -254,25 +285,21 @@ public class InboundRequestPanel extends Panel{
         p_north.setPreferredSize(new Dimension(Config.CONTENT_W , 50));
         p_north.setBackground(Config.WHITE);
         
-//        la_left.setPreferredSize(new Dimension(400, 50));
-//        la_right.setPreferredSize(new Dimension(400, 50));
-        
 		p_center.setBackground(Config.WHITE);
 		
 		Dimension d = new Dimension(Config.CONTENT_W / 2 - 10, 620);
-		p_list.setPreferredSize(d);
+		
+		
+		p_list.setBorder(new EmptyBorder(0, 20, 0, 0)); // 패딩
+		p_list.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 100, Config.CONTENT_H - 180));
 		p_list.setBackground(Config.WHITE);
+		p_list.add(scroll);
 		
-		scroll.setPreferredSize(new Dimension(540, 550));
-		scroll.getViewport().setBackground(Config.WHITE);
-		
-		p_request.setPreferredSize(d);
+		p_request.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 110, Config.CONTENT_H - 180));
 		p_request.setBackground(Config.WHITE);
 		
-		scroll_re.setPreferredSize(new Dimension(540, 550));
-		scroll_re.getViewport().setBackground(Config.WHITE);
 
-		
+		p_bottom.setBorder(new EmptyBorder(20, 20, 20, 20)); // 패딩
 		p_bottom.setPreferredSize(new Dimension(Config.CONTENT_W , 50));
 		p_bottom.setBackground(Config.WHITE);
 		
@@ -285,25 +312,14 @@ public class InboundRequestPanel extends Panel{
 		p_north.add(la_left, BorderLayout.WEST);
 		p_north.add(la_right, BorderLayout.EAST);
 		
-//		p_list.add(la_left);
 		p_list.add(scroll);
-		
-//		p_request.add(la_right);
 		p_request.add(scroll_re);
-		
-//		p_center.add(p_list);
-//		p_center.add(p_request);
-		// SplitPane 생성
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scroll, scroll_re);
-        splitPane.setDividerLocation(500); // 초기 분할 위치 (px)
-        splitPane.setResizeWeight(0.5); // 크기 조절 시 왼쪽:오른쪽 비율
-        splitPane.setContinuousLayout(true);
-        splitPane.setOneTouchExpandable(true); // 화살표로 접었다 펼 수 있게
 
         // 중앙 패널에 SplitPane 추가       
-        p_center.add(splitPane, BorderLayout.CENTER);
+        p_center.add(p_list, BorderLayout.WEST);
+        p_center.add(p_request);
 		
-		p_bottom.add(comboPanel, BorderLayout.WEST);
+		p_bottom.add(comboPanel);
 		
 		add(p_north, BorderLayout.NORTH);
 		add(p_center, BorderLayout.CENTER);
@@ -321,15 +337,23 @@ public class InboundRequestPanel extends Panel{
                     } else {
                         table.setModel(new InboundModel("now"));
                     }
+                    
+                 // ✅ 테이블 모델 바뀐 후 너비 재적용
+                    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+                    table.getColumnModel().getColumn(0).setPreferredWidth(88);
+                    table.getColumnModel().getColumn(1).setPreferredWidth(90);
+                    table.getColumnModel().getColumn(2).setPreferredWidth(88);
+                    table.getColumnModel().getColumn(3).setPreferredWidth(161);
+                    table.getColumnModel().getColumn(4).setPreferredWidth(65);
+                    table.getColumnModel().getColumn(5).setPreferredWidth(67);
+                    table.getColumnModel().getColumn(6).setPreferredWidth(68);
 
                     // 선택 변경 후 렌더러 다시 설정
                     for (int i = 0; i < table.getColumnCount(); i++) {
                         table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
                     }
                     table.updateUI();
-                }
-            	
-            	System.out.println("리스트");
+                }            	
             }
         });
 		
@@ -341,10 +365,8 @@ public class InboundRequestPanel extends Panel{
 	
 	 // 카테고리 목록 불러오기
     private void loadCategories() {
-    	System.out.println("load");
     	branchDAO = new BranchDAO();
         List<Branch> branchList = branchDAO.selectAll();
-        System.out.println(branchList.get(1));
 
         Branch dummy = new Branch();
         dummy.setBr_id(0);
@@ -357,7 +379,7 @@ public class InboundRequestPanel extends Panel{
     }
     
     private void loadApproverList(JComboBox<User> cb_approver) {
-        UserDAO userDAO = new UserDAO();
+        userDAO = new UserDAO();
         List<User> userList = userDAO.selectAll();
         cb_approver.addItem(null); // 선택 안했을 때 default
         for (User user : userList) {

@@ -27,7 +27,6 @@ import com.olive.common.model.User;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.ImageUtil;
-import com.olive.login.security.model.Admin;
 import com.olive.mainlayout.MainLayout;
 
 public class LoginPage extends JFrame {
@@ -50,7 +49,7 @@ public class LoginPage extends JFrame {
 
 	DBManager dbManager = DBManager.getInstance();
 	MainLayout mainLayout;
-	UserDAO dao = new UserDAO();
+	UserDAO userDAO = new UserDAO();
 	public User user;
 
 	public LoginPage() {
@@ -74,6 +73,10 @@ public class LoginPage extends JFrame {
 		p_pwd = new JPanel();
 		lb_pwd = new JLabel("패스워드");
 		t_pwd = new JPasswordField(16);
+		
+		// 임시 로그인 패스 -> 추후 제거
+		t_id.setText("1021");
+		t_pwd.setText("1234");
 
 		bt_login = new JButton("로그인");
 
@@ -154,7 +157,7 @@ public class LoginPage extends JFrame {
 	// 로그인 정보가 맞는지 확인하는 메서드
 	public void loginCheck() {
 		// 모든 유저 정보에 입력받은 아이디와 패스워드 대입, 해당되는 유저 추출
-		user = dao.checkLogin(Integer.parseInt(t_id.getText()), new String(t_pwd.getPassword()));
+		user = userDAO.checkLogin(Integer.parseInt(t_id.getText()), new String(t_pwd.getPassword()));
 		
 		// 해당되는 유저가 있다면
 		if (user != null) {
@@ -163,7 +166,7 @@ public class LoginPage extends JFrame {
 			dispose(); // 현재 창 닫기
 			// 해당되는 유저가 없다면
 		} else {
-			List<User> userList = dao.selectAll();
+			List<User> userList = userDAO.selectAll();
 			Boolean exist = false; // 아이디 존재 여부를 결정 짓는 변수
 			// 모든 유저 정보를 가져와서 비교
 			for (User users : userList)

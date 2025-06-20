@@ -18,6 +18,7 @@ import com.olive.bound.view.InboundRequestPanel;
 import com.olive.bound.view.InboundShowPanel;
 import com.olive.bound.view.OutboundRequestPanel;
 import com.olive.common.config.Config;
+import com.olive.common.model.User;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -38,9 +39,19 @@ public class BoundPage extends Page {
 	
 	Panel[] panels;			// 하위 메뉴 패널들을 담을 배열
 	
+	MainLayout mainLayout;
+	User user;
+	
 	public BoundPage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
+		
+		this.mainLayout = mainLayout;
+		user = mainLayout.user;
+		
+		System.out.println("boundpage"+user.getUser_name());
+		
+		
 			
 		// create
 		p_side = new JPanel();
