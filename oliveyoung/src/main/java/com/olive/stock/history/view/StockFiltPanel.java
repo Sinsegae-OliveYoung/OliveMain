@@ -25,76 +25,72 @@ import com.olive.stock.StockPanel;
 import com.olive.stock.model.StockModel;
 import com.olive.stock.model.ListModel;
 import com.olive.store.StorePage;
+import com.toedter.calendar.JDateChooser;
 
 public class StockFiltPanel extends StockPanel{
 	
 	JTable table;
     StockModel model;
-    JComboBox cb_startDate;
+    JDateChooser dt_start;
+    JDateChooser dt_last;
+    
+        public StockFiltPanel(MainLayout mainLayout) {
+            super(mainLayout);
+            setLayout(new BorderLayout(0, 10)); // 아래 여백 추가
 
-    public StockFiltPanel(MainLayout mainLayout) {
-        super(mainLayout);
-        setLayout(new BorderLayout());
+            //  상단 패널
+            JPanel topPanel = new JPanel(new BorderLayout());
+            topPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
+            topPanel.setBackground(StockConfig.bgColor);
 
-        // 상단 패널
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+            JLabel titleLabel = new JLabel("시간대 별 기록");
+            titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+            topPanel.add(titleLabel, BorderLayout.WEST);
 
-        JLabel titleLabel = new JLabel("시간대 별 기록");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
-        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
-        topPanel.add(titleLabel, BorderLayout.WEST);
-        topPanel.setBackground(StockConfig.bgColor);
+            // 날짜 선택 패널
+            JPanel datePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+            datePanel.setOpaque(false);
 
-        // 시간대 별 ComboBox 구현 
-        JPanel comboPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        comboPanel.setOpaque(false);
+            dt_start = new JDateChooser();
+            dt_start.setPreferredSize(new Dimension(200, 30));
+            dt_last = new JDateChooser();
+            dt_last.setPreferredSize(new Dimension(200, 30));
 
-        cb_startDate = new JComboBox<>();
-        cb_startDate.setPreferredSize(new Dimension(200, 30));
-        cb_startDate.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        cb_startDate.setBackground(Config.LIGHT_GREEN);
-        cb_startDate.setForeground(Color.DARK_GRAY);
-        cb_startDate.setFocusable(false);
-        cb_startDate.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        comboPanel.add(cb_startDate);
+            datePanel.add(dt_start);
+            datePanel.add(dt_last);
+            topPanel.add(datePanel, BorderLayout.EAST);
 
-        topPanel.add(comboPanel, BorderLayout.EAST);
+            //  테이블 설정
+            model = new StockModel("in");
+            table = new JTable(model);
+            table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // 열 너비 고정
 
-        // 테이블 생성
-        model = new StockModel("in");
-        table = new JTable(model);
+            table.setRowHeight(25);
+            table.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+            table.getTableHeader().setBackground(Config.LIGHT_GREEN);
+            table.getTableHeader().setForeground(Color.DARK_GRAY);
 
-        // 💡 테이블 스타일 적용
-        table.setRowHeight(25);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
-        
-        // 테이블 셀 가운데 정렬
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            // 컬럼 정렬 + 너비 조정
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+
+            int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110, 70, 110};
+
+            for (int i = 0; i < columnWidths.length; i++) {
+                table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
+
+            // 스크롤 영역 조정
+            JScrollPane scroll = new JScrollPane(table);
+            scroll.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
+            scroll.getViewport().setBackground(Color.WHITE);
+
+            // 최종 조립
+            add(topPanel, BorderLayout.NORTH);
+            add(scroll, BorderLayout.CENTER);
         }
-
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.getViewport().setBackground(Color.WHITE);
-        
-        // 전체 레이아웃 구성
-        add(topPanel, BorderLayout.NORTH);
-        add(scroll, BorderLayout.CENTER);
-        
-        // 정렬 기능 구현
-//        btnDateAsc.addActionListener(e -> {
-//            model.sortByDateAsc();
-//            table.updateUI();
-//        });
-//
-//        btnDateDesc.addActionListener(e -> {
-//            model.sortByDateDesc();
-//            table.updateUI();
-//        });
     }
-}
+

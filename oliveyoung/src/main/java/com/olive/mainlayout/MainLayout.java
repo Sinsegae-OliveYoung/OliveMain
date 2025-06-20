@@ -223,7 +223,7 @@ public class MainLayout extends JFrame {
 					/*--------------
 					 *  개인 테스트용
 					 * -------------*/
-					if (source == bt_st) 
+					if (source == bt_pd) 
 						if (user.getRole().getRole_id() == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
 						else {
 							showPage(0);

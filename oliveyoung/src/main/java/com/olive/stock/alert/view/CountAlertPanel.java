@@ -109,6 +109,8 @@ public class CountAlertPanel extends StockPanel{
 
         // 수량 컬럼 인덱스
         int quantityColumnIndex = model.findColumn("재고수량");
+        
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
 
         // 컬럼별 렌더러 적용
         for (int i = 0; i < table.getColumnCount(); i++) {
@@ -117,6 +119,7 @@ public class CountAlertPanel extends StockPanel{
             } else {
                 table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
             }
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }
 
         JScrollPane scroll = new JScrollPane(table);

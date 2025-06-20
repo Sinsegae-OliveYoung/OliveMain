@@ -76,14 +76,25 @@ public class StockNowPanel extends StockPanel {
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
         table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
         table.getTableHeader().setForeground(Color.DARK_GRAY);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setPreferredWidth(200);
+        table.getColumnModel().getColumn(4).setPreferredWidth(200);
+        table.getColumnModel().getColumn(5).setPreferredWidth(200);
+        table.getColumnModel().getColumn(6).setPreferredWidth(200);
+        
         
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+        
         for (int i = 0; i < table.getColumnCount(); i++) {
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
-
+        
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setBackground(Color.WHITE);
         

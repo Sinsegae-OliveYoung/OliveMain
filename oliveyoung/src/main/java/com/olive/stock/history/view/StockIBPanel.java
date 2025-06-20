@@ -71,17 +71,21 @@ public class StockIBPanel extends StockPanel{
         model = new StockModel("in");
         table = new JTable(model);
 
-        // 💡 테이블 스타일 적용
+        // 테이블 스타일 적용
         table.setRowHeight(25);
         table.setFont(new Font("SansSerif", Font.PLAIN, 13));
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
         table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
         table.getTableHeader().setForeground(Color.DARK_GRAY);
+        System.out.println(table.getWidth());
         
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+       int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 60, 100};
+        
         for (int i = 0; i < table.getColumnCount(); i++) {
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 

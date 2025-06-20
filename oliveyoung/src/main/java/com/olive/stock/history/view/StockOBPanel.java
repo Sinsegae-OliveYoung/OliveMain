@@ -80,8 +80,11 @@ public class StockOBPanel extends StockPanel{
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 60, 100};
+        
         for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+        	table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
         JScrollPane scroll = new JScrollPane(table);

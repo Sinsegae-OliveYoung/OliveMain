@@ -106,6 +106,8 @@ public class OldAlertPanel extends StockPanel{
 	            }
 	        };
 
+	        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+	        
 	        // 수량 컬럼 인덱스
 	        int quantityColumnIndex = model.findColumn("입고일");
 
@@ -116,6 +118,7 @@ public class OldAlertPanel extends StockPanel{
 	            } else {
 	                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 	            }
+	        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
 	        }
 
 	        JScrollPane scroll = new JScrollPane(table);
