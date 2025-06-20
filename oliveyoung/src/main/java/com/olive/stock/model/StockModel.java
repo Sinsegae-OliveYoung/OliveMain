@@ -35,6 +35,11 @@ public class StockModel extends AbstractTableModel{
     	status = str;
     	list = stockLogDAO.listBound(str);  	
     }
+    public StockModel(String str, String start, String end) {
+    	stockLogDAO = new StockLogDAO();
+    	status = str;
+    	list = stockLogDAO.listBoundDate(str, start, end);  	
+    }
     
     public void reload() {
     	stockLogDAO = new StockLogDAO();

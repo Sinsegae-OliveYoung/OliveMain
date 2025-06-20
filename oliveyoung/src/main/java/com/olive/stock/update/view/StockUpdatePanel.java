@@ -1,4 +1,5 @@
 package com.olive.stock.update.view;
+import com.olive.common.view.Panel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -25,7 +26,7 @@ import com.olive.stock.model.ListModel;
 import com.olive.stock.model.UpdateModel;
 import com.olive.store.StorePage;
 
-public class StockUpdatePanel extends StockPanel{
+public class StockUpdatePanel extends Panel{
 	
 	   JTable table;
 	    UpdateModel model;

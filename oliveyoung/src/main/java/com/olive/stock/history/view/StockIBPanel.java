@@ -1,5 +1,6 @@
 package com.olive.stock.history.view;
 
+import com.olive.common.view.Panel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -16,6 +17,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
+import com.olive.common.util.TableUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
@@ -24,7 +26,7 @@ import com.olive.stock.model.StockModel;
 import com.olive.stock.model.ListModel;
 import com.olive.store.StorePage;
 
-public class StockIBPanel extends StockPanel{
+public class StockIBPanel extends Panel{
 	
 	JTable table;
     StockModel model;
@@ -72,12 +74,11 @@ public class StockIBPanel extends StockPanel{
         table = new JTable(model);
 
         // 테이블 스타일 적용
-        table.setRowHeight(25);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
+        TableUtil.applyStyle(table);
         System.out.println(table.getWidth());
+        
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
         
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();

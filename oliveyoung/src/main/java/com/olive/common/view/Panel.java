@@ -15,4 +15,8 @@ public class Panel extends JPanel{
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 		setVisible(false);
 	}
+	
+	public void refresh() {
+        // 재고 업데이트시 재고 모든 패널에서 overide하여 데이터 갱신
+    }
 }

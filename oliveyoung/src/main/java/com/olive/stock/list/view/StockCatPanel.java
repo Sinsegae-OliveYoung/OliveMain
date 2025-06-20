@@ -1,4 +1,5 @@
 package com.olive.stock.list.view;
+import com.olive.common.view.Panel;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -11,12 +12,13 @@ import javax.swing.table.JTableHeader;
 import com.olive.common.config.Config;
 import com.olive.common.model.Category;
 import com.olive.common.repository.CategoryDAO;
+import com.olive.common.util.TableUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
 import com.olive.stock.model.ListModel;
 
-public class StockCatPanel extends StockPanel {
+public class StockCatPanel extends Panel {
 
     JTable table;
     ListModel model;
@@ -88,12 +90,8 @@ public class StockCatPanel extends StockPanel {
         model = new ListModel("now");
         table = new JTable(model);
 
-        // 테이블 헤더 스타일
-        table.setRowHeight(25);
-        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
-        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
-        table.getTableHeader().setForeground(Color.DARK_GRAY);
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
 
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();

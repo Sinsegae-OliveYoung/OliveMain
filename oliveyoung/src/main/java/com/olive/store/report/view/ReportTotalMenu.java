@@ -112,10 +112,10 @@ public class ReportTotalMenu extends Panel {
 
 	public void loadData() {
 		brList = branchDAO.getBranchList(userId);
-
-		for (int i = 0; i < brList.size(); i++) {
-			stList = stockDAO.selectBrSales(year, month, (branchDAO.getBranchList(userId)).get(i).getBr_id());
-		}
+//
+//		for (int i = 0; i < brList.size(); i++) {
+//			stList = stockDAO.selectBrSales(year, month, (branchDAO.getBranchList(userId)).get(i).getBr_id());
+//		}
 		
 		//createDataset()
 	}

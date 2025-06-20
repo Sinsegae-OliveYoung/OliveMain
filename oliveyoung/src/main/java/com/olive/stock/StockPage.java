@@ -50,7 +50,7 @@ public class StockPage extends Page {
 	
 	JPanel p_content;
 	
-	StockPanel[] panels;			// 하위 메뉴 패널들을 담을 배열
+	Panel[] panels;			// 하위 메뉴 패널들을 담을 배열
 
 	private boolean isDataDirty = false;
 
@@ -207,7 +207,7 @@ public class StockPage extends Page {
 
 	public void createPanel() {
 		
-		panels = new StockPanel[8];
+		panels = new Panel[8];
 
 		panels[0] = new StockNowPanel(mainLayout);
 		panels[1] = new StockCatPanel(mainLayout);
@@ -225,7 +225,7 @@ public class StockPage extends Page {
 	
 	public void showPanel(int target) {
 		 if (isDataDirty) {
-		        for (StockPanel panel : panels) {
+		        for (Panel panel : panels) {
 		            panel.refresh(); // refresh()가 오버라이딩된 패널만 동작
 		          
 		        }

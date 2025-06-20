@@ -208,42 +208,6 @@ public class MainLayout extends JFrame {
 
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
-
-<<<<<<< HEAD
-					/*--------------
-					 *  병합용
-					 * -------------*/
-					/*
-					 * if (source == bt_title) showPage(Config.MAIN_PAGE); else if (source == bt_pd)
-					 * showPage(Config.PRODUCT_PAGE); else if (source == bt_io)
-					 * showPage(Config.BOUND_PAGE); else if (source == bt_st)
-					 * showPage(Config.STOCK_PAGE); else if (source == bt_cl)
-					 * showPage(Config.SCHEDULE_PAGE); else if (source == bt_sh)
-					 * showPage(Config.STORE_PAGE); else if (source == bt_ma)
-					 * showPage(Config.MANAGE_PAGE); else if (source == bt_lo) showPage(new
-					 * LoginPage());
-					 */
-
-					/*--------------
-					 *  개인 테스트용
-					 * -------------*/
-					if (source == bt_pd) 
-						if (user.getRole().getRole_id() == 3) JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
-						else {
-							showPage(0);
-						}
-					else if (source == bt_io) {
-						showPage(1);
-						System.out.println("go to inbound / outbound");
-					}
-					else if (source == bt_st) {
-						showPage(2);						
-					}
-					else if (source == bt_lo)
-						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION))
-								== JOptionPane.OK_OPTION) {
-							new LoginPage();
-=======
 					
 					if (source == bt_title) showPage(Config.MAIN_PAGE); 
 					else if (source == bt_pd) showPage(Config.PRODUCT_PAGE); 
@@ -254,7 +218,6 @@ public class MainLayout extends JFrame {
 					else if (source == bt_lo) {
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
 							setVisible(false);
->>>>>>> develop
 							dispose();
 							new LoginPage();
 						}
