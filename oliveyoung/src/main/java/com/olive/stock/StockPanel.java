@@ -10,7 +10,9 @@ import com.olive.mainlayout.MainLayout;
 import com.olive.store.StorePage;
 
 public class StockPanel extends JPanel{
+   protected MainLayout mainLayout;
 	public StockPanel(MainLayout mainLayout) {
+		this.mainLayout = mainLayout;
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 		setVisible(false);
 	}

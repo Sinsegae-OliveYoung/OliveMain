@@ -16,6 +16,7 @@ public class StockNowPanel extends StockPanel {
 
     JTable table;
     ListModel model;
+    MainLayout mainLayout;
     
     @Override
     public void refresh() {
@@ -24,7 +25,8 @@ public class StockNowPanel extends StockPanel {
     }
 
     public StockNowPanel(MainLayout mainLayout) {
-        super(mainLayout);
+    	super(mainLayout);
+        this.mainLayout = mainLayout;
         setLayout(new BorderLayout());
 
         // 상단 패널

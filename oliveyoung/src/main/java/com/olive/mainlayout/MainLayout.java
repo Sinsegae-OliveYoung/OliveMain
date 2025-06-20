@@ -266,17 +266,17 @@ public class MainLayout extends JFrame {
 		/*-------------------------------------------------
 		 * 개인 테스트용  --> 이거 사용해서 테스트 하심 돼요
 		 *------------------------------------------------- */
-		pages = new Page[2];
+		pages = new Page[1];
 
 //		pages[0] = new StorePage(this);
 //		p_content.add(pages[0]);
-		pages[1] = new StockPage(this);
-		p_content.add(pages[1]);
+		pages[0] = new StockPage(this);
+		p_content.add(pages[0]);
 	}
 
 	public void showPage(int target) {
 		// 로그인 검증 추가해야 함
-		for (int i = 1; i < pages.length; i++)
+		for (int i = 0; i < pages.length; i++)
 			pages[i].setVisible((i == target) ? true : false);
 	}
 }

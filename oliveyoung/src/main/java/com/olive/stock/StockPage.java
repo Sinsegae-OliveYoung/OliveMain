@@ -211,7 +211,7 @@ public class StockPage extends Page {
 
 		panels[0] = new StockNowPanel(mainLayout);
 		panels[1] = new StockCatPanel(mainLayout);
-		panels[2] = new StockUpdatePanel(mainLayout);
+		panels[2] = new StockUpdatePanel(mainLayout, this);
 		panels[3] = new StockIBPanel(mainLayout);
 		panels[4] = new StockOBPanel(mainLayout);
 		panels[5] = new StockFiltPanel(mainLayout);

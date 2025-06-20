@@ -18,7 +18,7 @@ public class UpdateModel extends AbstractTableModel {
 
     StockDAO stockDAO;
     List<Stock> list;
-    StockUpdatePanel now_panel; // 재고 업데이트 반영을 위함
+    StockPage stockpage; // 재고 업데이트 반영을 위함
 
     String[] column = {
         "상품옵션코드", "카테고리명", "상세카테고리명",
@@ -31,8 +31,8 @@ public class UpdateModel extends AbstractTableModel {
 //    		"st_quantity", "st_update"
 //    };
 
-    public UpdateModel(StockUpdatePanel now_panel) {
-    	this.now_panel = now_panel;
+    public UpdateModel(StockPage stockpage) { // StockPage를 보관해야함 -> update 위함
+    	this.stockpage = stockpage;
         stockDAO = new StockDAO();	
         list = stockDAO.listNow(); 
     }
@@ -127,7 +127,7 @@ public class UpdateModel extends AbstractTableModel {
 	                stock.setSt_quantity(quantity);
 	                stockDAO.updateProductQuantity(stock.getSt_id(), quantity); // stock id에 맞게 수량 변경
 	                
-	                now_panel.setDataDirty(true);;  // isDataDirty = true
+	                stockpage.setDataDirty(true);;  // isDataDirty = true
 	                
 	                fireTableCellUpdated(row, col); // 화면 갱신
 	            }

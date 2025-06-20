@@ -36,7 +36,7 @@ public class StockUpdatePanel extends StockPanel{
 	        table.updateUI();   // 테이블 UI 갱신
 	    }
 
-	    public StockUpdatePanel(MainLayout mainLayout) {
+	    public StockUpdatePanel(MainLayout mainLayout, StockPage stockPage) {
 	        super(mainLayout);
 	        setLayout(new BorderLayout());
 
@@ -51,7 +51,7 @@ public class StockUpdatePanel extends StockPanel{
 	        topPanel.setBackground(StockConfig.bgColor);
 
 	        // 테이블 생성
-	        model = new UpdateModel(this);
+	        model = new UpdateModel(stockPage);
 	        table = new JTable(model);
 	        
 
