@@ -42,5 +42,13 @@ public class Branch {
 	public String toString() {
 		return this.br_name;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Branch other = (Branch) obj;
+	    return this.br_id == other.br_id;
+	}
 }
 

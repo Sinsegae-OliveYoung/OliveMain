@@ -6,10 +6,11 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -51,7 +52,8 @@ public class InboundRequestPanel extends Panel{
 	// LEFT 상품 테이블
 	JPanel p_list;
 	JLabel la_left;
-	JTableHeader header_re;
+	
+	JTableHeader header;
 	JTable table;
 	JScrollPane scroll;
 	
@@ -59,16 +61,18 @@ public class InboundRequestPanel extends Panel{
 	JPanel p_request;
 	JLabel la_right;
 	
+	JTableHeader header_re;
 	JTable table_re;
 	JScrollPane scroll_re;
-	InboundModel model;
 	
 	// BOTTOM
 	JPanel p_bottom;
+	
 	JPanel comboPanel;
 	JComboBox<Branch> cb_branch;
 	JLabel la_approver;
 	JTextField tf_approver;
+	Date selectedDate;
 	JLabel la_date;
 	JDateChooser dateChooser;
 	JLabel la_memo;
@@ -78,29 +82,34 @@ public class InboundRequestPanel extends Panel{
 	UserDAO userDAO;
 	ProductDAO productDAO;
 	BranchDAO branchDAO;
+	InboundDAO insertDAO;
+	
+	InboundModel model; // 왼쪽 테이블 클릭시 우측테이블로 데이터 전송을 위한 모델 생성
 	InboundModel inboundModel;
 	BoundProductModel boundProductModel;
-	DefaultTableCellRenderer centerRenderer;
+	DefaultTableCellRenderer centerRenderer; // 테이블 정렬
 	
 	MainLayout mainLayout;
-	User user;
-	User currentApprover;  // 클래스 필드에 추가
+	User user; // 로그인한 계정 객체
+	User manager; // 로그인한 계정 지점의 점주(role = 2)
+	List<BoundProduct> productList;
 	
 	public InboundRequestPanel(MainLayout mainLayout, User user) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
 		
 		this.mainLayout = mainLayout;
-		user = mainLayout.user;
+		this.user = mainLayout.user;
+		int userId = user.getUser_id();
 		
-		System.out.println(user.getUser_id());
+		System.out.println("InboundRequestPanel : " + user.getUser_id()); // ------------------------------------------------------------
 		
 		// 공통 색상 및 폰트
         Color bgColor = new Color(245, 248, 250);
         Color comboColor = new Color(100, 149, 237);
         Font defaultFont = new Font("SansSerif", Font.PLAIN, 13);
 
-        // 상단 패널
+        // 상단 패널 ------------------------------------------------------------
         p_north = new JPanel(new BorderLayout());
         
         // 좌측 상단 패널
@@ -114,27 +123,11 @@ public class InboundRequestPanel extends Panel{
         la_right.setFont(new Font("SansSerif", Font.BOLD, 22));        
         
         
-        // 중앙 패널
+        // 중앙 패널 ------------------------------------------------------------
         p_center = new JPanel(new BorderLayout());
 		
 		// 좌측 중앙 - 테이블
 		table = new JTable(new InboundModel("now")); // 입고할 상품 리스트 테이블에 출력		
-		
-		// 테이블 헤더 클릭 이벤트 추가
-		JTableHeader header = table.getTableHeader();
-		header.addMouseListener(new java.awt.event.MouseAdapter() {
-		    @Override
-		    public void mouseClicked(java.awt.event.MouseEvent e) {
-		        int columnIndex = header.columnAtPoint(e.getPoint());
-		        String columnName = table.getColumnName(columnIndex);
-		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-		        
-		        // 예: 제품명 컬럼 클릭시만 처리
-		        if ("제품명".equals(columnName)) {
-		            javax.swing.JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
-		        }
-		    }
-		});
 		
 		// 테이블 헤더 스타일
 		table.setRowHeight(25);
@@ -153,31 +146,12 @@ public class InboundRequestPanel extends Panel{
         scroll = new JScrollPane(table);
         scroll.getViewport().setBackground(Config.WHITE);
         scroll.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 80, Config.CONTENT_H - 180));
+
         
         
-        
-        
-        
-        
-		
+        // ------------------------------------------------------------
         boundProductModel = new BoundProductModel();
 		table_re = new JTable(boundProductModel); // 입고 요청서 테이블
-		
-		// 테이블 헤더 클릭 이벤트 추가
-		header_re = table_re.getTableHeader();
-		header_re.addMouseListener(new java.awt.event.MouseAdapter() {
-		    @Override
-		    public void mouseClicked(java.awt.event.MouseEvent e) {
-		        int columnIndex = header_re.columnAtPoint(e.getPoint());
-		        String columnName = table_re.getColumnName(columnIndex);
-		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-		        
-		        // 예: 제품명 컬럼 클릭시만 처리
-		        if ("제품명".equals(columnName)) {
-		            javax.swing.JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
-		        }
-		    }
-		});
 		
 		// 테이블 헤더 스타일
 		table_re.setRowHeight(25);
@@ -199,33 +173,11 @@ public class InboundRequestPanel extends Panel{
         scroll_re = new JScrollPane(table_re);
         scroll_re.getViewport().setBackground(Config.WHITE);
         scroll_re.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 150, Config.CONTENT_H - 180));
-        
-		
-        // 컬럼 클릭 이벤트 -> 우측 테이블에 추가
-        table.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                int row = table.getSelectedRow();
-                if (row >= 0) {
-                    // 현재 테이블 모델을 가져온다 (InboundModel)
-                    model = (InboundModel) table.getModel();
-                    Stock selectedStock = model.list.get(row);
 
-                    // 선택된 상품을 입고요청 모델에 추가
-                    boundProductModel.addStock(selectedStock);
-                }
-            }
-        });
 				
 				
 				
-				
-				
-				
-				
-				
-				
-		// 하단 지점 선택 - 콤보박스
+		// 하단 지점 선택 - 콤보박스 ------------------------------------------------------------
         // 기존 p_bottom 내부 교체
         p_bottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 
@@ -247,21 +199,37 @@ public class InboundRequestPanel extends Panel{
         dateChooser = new JDateChooser();
         dateChooser.setPreferredSize(new Dimension(200, 30));
         
-     // 오늘 날짜 기준으로 내일 날짜 설정
+        // 오늘 날짜 기준으로 내일 날짜 설정
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new java.util.Date());
+        cal.setTime(new Date());
         cal.add(Calendar.DATE, 1); // 내일
-        java.util.Date tomorrow = cal.getTime();
-
+        Date tomorrow = cal.getTime();
+        
         // 내일로 설정
         dateChooser.setMinSelectableDate(tomorrow);
         dateChooser.setDate(tomorrow); // 기본값도 내일로
-
-        JTextField editor = ((JTextField) dateChooser.getDateEditor().getUiComponent());
+        
+        // 입력 필드 스타일
+        JTextField editor = (JTextField) dateChooser.getDateEditor().getUiComponent();
         editor.setBackground(Config.LIGHT_GRAY);
+        editor.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        // 달력 버튼 스타일
+        JButton calendarButton = dateChooser.getCalendarButton();
+        calendarButton.setBackground(Config.LIGHT_GRAY);
+        calendarButton.setFocusPainted(false);
+        calendarButton.setOpaque(true);
+        calendarButton.setPreferredSize(new Dimension(30, 20));
         
-        dateChooser.setDate(new java.util.Date());
-        
+        calendarButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                calendarButton.setBackground(Config.GREEN);
+            }
+            public void mouseExited(MouseEvent evt) {
+                calendarButton.setBackground(Config.LIGHT_GRAY);
+            }
+        });
+
         la_memo = new JLabel("메모 :");
     	tf_memo = new JTextField();
     	tf_memo.setPreferredSize(new Dimension(200, 30));
@@ -276,22 +244,12 @@ public class InboundRequestPanel extends Panel{
         tf_approver.setBackground(Config.LIGHT_GRAY);
         tf_approver.setForeground(Color.DARK_GRAY);
         tf_approver.setEditable(false); // 수정 불가능하게
-        
-//        loadApproverList(cb_approver);
 
         bt_save = new JButton("저장");
         bt_save.setPreferredSize(new Dimension(80, 30));
-        bt_save.setBackground(Config.PINK);
+        bt_save.setBackground(Config.LIGHT_GRAY);
 
-        // 저장 버튼 클릭 이벤트
-        bt_save.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	saveInboundRequest();
-//                saveInboundRequest(dateChooser, cb_approver);
-            }
-        });
-        
+        // 하단 패널 부착
         comboPanel.add(la_date);
         comboPanel.add(dateChooser);
         comboPanel.add(la_approver);
@@ -304,15 +262,10 @@ public class InboundRequestPanel extends Panel{
         
 		
 		// 스타일
-        
-		//new Dimension(Config.CONTENT_W, Config.CONTENT_H) // 1100, 740 -> 550, 740
-//		p_center.setPreferredSize(new Dimension(1100, 300));
         p_north.setPreferredSize(new Dimension(Config.CONTENT_W , 50));
         p_north.setBackground(Config.WHITE);
         
 		p_center.setBackground(Config.WHITE);
-		
-		Dimension d = new Dimension(Config.CONTENT_W / 2 - 10, 620);
 		
 		
 		p_list.setBorder(new EmptyBorder(0, 20, 0, 0)); // 패딩
@@ -328,8 +281,9 @@ public class InboundRequestPanel extends Panel{
 		p_bottom.setPreferredSize(new Dimension(Config.CONTENT_W , 50));
 		p_bottom.setBackground(Config.WHITE);
 		
-		// 조립
 		
+		
+		// 조립 ------------------------------------------------------------
 		la_left.setBorder(BorderFactory.createEmptyBorder(0, 300, 0, 0));   // 왼쪽 padding
 		la_right.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 160));  // 오른쪽 padding
 
@@ -339,8 +293,7 @@ public class InboundRequestPanel extends Panel{
 		
 		p_list.add(scroll);
 		p_request.add(scroll_re);
-
-        // 중앙 패널에 SplitPane 추가       
+     
         p_center.add(p_list, BorderLayout.WEST);
         p_center.add(p_request);
 		
@@ -350,30 +303,99 @@ public class InboundRequestPanel extends Panel{
 		add(p_center, BorderLayout.CENTER);
 		add(p_bottom, BorderLayout.SOUTH);
 		
-		// 콤보박스 이벤트 연결
+		
+		
+		
+		
+		// 좌측 테이블 헤더 클릭 이벤트 추가 ------------------------------------------------------------
+		header = table.getTableHeader();
+		header.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				int columnIndex = header.columnAtPoint(e.getPoint());
+				String columnName = table.getColumnName(columnIndex);
+				System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+				
+				// 예: 제품명 컬럼 클릭시만 처리
+				if ("제품명".equals(columnName)) {
+					javax.swing.JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
+				}
+			}
+		});
+		
+		// 우측 테이블 헤더 클릭 이벤트 추가 ------------------------------------------------------------
+		header_re = table_re.getTableHeader();
+		header_re.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				int columnIndex = header_re.columnAtPoint(e.getPoint());
+				String columnName = table_re.getColumnName(columnIndex);
+				System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+				
+				// 예: 제품명 컬럼 클릭시만 처리
+				if ("제품명".equals(columnName)) {
+					javax.swing.JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
+				}
+			}
+		});
+		
+		// 컬럼 클릭 이벤트 -> 우측 테이블에 추가 ------------------------------------------------------------
+		table.addMouseListener(new java.awt.event.MouseAdapter() {
+			@Override
+			public void mouseClicked(java.awt.event.MouseEvent e) {
+				int row = table.getSelectedRow();
+				if (row >= 0) {
+					// 현재 테이블 모델을 가져온다 (InboundModel)
+					model = (InboundModel) table.getModel();
+
+					Stock selectedStock = model.list.get(row);  // model.list는 Stock 리스트로 구성됨
+					BoundProduct bp = new BoundProduct();
+					bp.setProductOption(selectedStock.getProductOption());
+					bp.setB_count(1); // 초기 수량
+
+					boundProductModel.addProduct(bp);
+				}
+			}
+		});
+		
+		// 저장 버튼 클릭 이벤트 ------------------------------------------------------------
+		bt_save.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				saveInboundRequest(userId);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				bt_save.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_save.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+		
+		// 콤보박스 이벤트 연결 ------------------------------------------------------------
 		cb_branch.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                 	Branch branch= (Branch) cb_branch.getSelectedItem();
                     if (branch.getBr_id() != 0) {
-                        InboundModel inboundModel = new InboundModel(branch);
+                        inboundModel = new InboundModel(branch);
                         table.setModel(inboundModel);
                     } else {
                         table.setModel(new InboundModel("now"));
                     }
                     setTableWidth(table); // 테이블 너비 재설정
-                    
-                    System.out.println("브랜치 " + branch.getBr_id());
+
                     
                     // ✅ 선택된 지점의 점장 이름 불러오기
-                    User manager = userDAO.getManagerByBranchId(branch.getBr_id());
+                    manager = userDAO.getManagerByBranchId(branch.getBr_id());
                     if (manager != null) {
                         tf_approver.setText(manager.getUser_name());
                         tf_approver.setToolTipText(manager.getUser_id() + " / " + manager.getUser_name());
                         
                         // 전역변수에 결재자(점장) 객체 넣기
-                        currentApprover = manager;
+//                        currentApprover = manager;
                         
                     } else {
                         tf_approver.setText("점장 없음");
@@ -385,36 +407,36 @@ public class InboundRequestPanel extends Panel{
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H-70));
 		setBackground(Config.WHITE);
 		
-		int userId = mainLayout.user.getUser_id();
 		this.userDAO = new UserDAO(); // ✅ NPE 방지: 반드시 먼저 생성!
+		
 		loadCategories(userId);
 	}
 	
 	 // 카테고리 목록 불러오기
     private void loadCategories(int userId) {
-    	 branchDAO = new BranchDAO();
-    	    List<Branch> branchList = branchDAO.getBranchList(userId);
+    	branchDAO = new BranchDAO();
+	    List<Branch> branchList = branchDAO.getBranchList(userId);
 
-    	    if (branchList.isEmpty()) {
-    	        JOptionPane.showMessageDialog(this, "소속된 지점이 없습니다.");
-    	        return;
-    	    }
+	    if (branchList.isEmpty()) {
+	        JOptionPane.showMessageDialog(this, "소속된 지점이 없습니다.");
+	        return;
+	    }
 
-    	    for (Branch branch : branchList) {
-    	        cb_branch.addItem(branch);
-    	    }
+	    for (Branch branch : branchList) {
+	        cb_branch.addItem(branch);
+	    }
 
-    	    // ✅ 첫 번째 지점을 기본 선택값으로 설정
-    	    cb_branch.setSelectedIndex(0);
+	    // ✅ 첫 번째 지점을 기본 선택값으로 설정
+	    cb_branch.setSelectedIndex(0);
 
-    	    // ✅ 초기에 테이블도 해당 지점으로 세팅
-    	    Branch firstBranch = (Branch) cb_branch.getSelectedItem();
-    	    if (firstBranch != null) {
-    	        InboundModel inboundModel = new InboundModel(firstBranch);
-    	        table.setModel(inboundModel);
+	    // ✅ 초기에 테이블도 해당 지점으로 세팅
+	    Branch firstBranch = (Branch) cb_branch.getSelectedItem();
+	    if (firstBranch != null) {
+	        inboundModel = new InboundModel(firstBranch);
+	        table.setModel(inboundModel);
 
-    	        setTableWidth(table);
-    	    }
+	        setTableWidth(table);
+	    }
     }
     
     private void loadApproverList(JComboBox<User> cb_approver) {
@@ -426,11 +448,9 @@ public class InboundRequestPanel extends Panel{
         }
     }
     
-    private void saveInboundRequest() {
-    //(JDateChooser dateChooser, JComboBox<User> cb_approver) {
-        java.util.Date selectedDate = dateChooser.getDate();
-        
-        
+    private void saveInboundRequest(int userId) {
+ 
+        selectedDate = dateChooser.getDate();
 
         if (selectedDate == null) {
             JOptionPane.showMessageDialog(this, "입고일을 선택하세요");
@@ -438,7 +458,7 @@ public class InboundRequestPanel extends Panel{
         }
 
         // 오늘 날짜와 비교
-        java.util.Date today = new java.util.Date();
+        Date today = new java.util.Date();
 
         Calendar cal1 = Calendar.getInstance();
         cal1.setTime(today);
@@ -458,66 +478,73 @@ public class InboundRequestPanel extends Panel{
             JOptionPane.showMessageDialog(this, "입고일은 '내일 이후'만 선택 가능합니다.");
             return;
         }
-
-        if (currentApprover == null) {
+        if (manager == null) {
             JOptionPane.showMessageDialog(this, "결재자가 지정되지 않았습니다.");
             return;
         }
-
         if (boundProductModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(this, "입고 요청할 상품이 없습니다.");
             return;
         }
-        
         if(tf_memo == null) {
         	JOptionPane.showMessageDialog(this, "메모가 입력되지 않았습니다.");
         	return;
         }
-        
-	
-	//        List<InboundProduct> products = new ArrayList<>();
-	//        for (int i = 0; i < requestModel.getRowCount(); i++) {
-	//            Stock stock = requestModel.getStockAt(i);
-	//            int optionId = stock.getProductOption().getOption_id();
-	//            int count = (int) requestModel.getValueAt(i, 2);
-	//            products.add(new InboundProduct(optionId, count));
-	//        }
-	//
-	//        InboundDAO inboundDAO = new InboundDAO();
-	//        inboundDAO.insertInbound(
-	//                approver.getUser_id(),
-	//                new Date(utilDate.getTime()),
-	//                "",
-	//                products
-	//        );
-        
-        
-        // 👉 데이터 준비
-//        java.sql.Date sqlDate = new java.sql.Date(selectedDate.getTime());
-//        String comment = tf_memo.getText().trim();
-//        List<BoundProduct> productList = boundProductModel.getProductList(); // ✅ BoundProduct 리스트를 반환하는 메서드 필요
-//
-//        // 👉 DAO 호출
-//        InboundDAO inboundDAO = new InboundDAO();
-//        inboundDAO.insertInbound(currentApprover.getUser_id(), sqlDate, comment, productList);
-        int userId = currentApprover.getUser_id();
+
+        // 점주 계정 id
+        int managerId = manager.getUser_id();
+        // 지점 id
         int brId = ((Branch) cb_branch.getSelectedItem()).getBr_id();
-        Date sqlDate = new Date(dateChooser.getDate().getTime());
-        String comment = tf_memo.getText().trim();
-        List<BoundProduct> productList = boundProductModel.getProductList();
+        // 요청일 날짜 가져오기
+        java.sql.Date requestDate = new java.sql.Date(selectedDate.getTime());
+        // 메모 가져오기
+        String memo = tf_memo.getText().trim();
+        // 상품 리스트 가져오기
+        productList = boundProductModel.getProductList();
+        
 
-        InboundDAO dao = new InboundDAO();
-        dao.insertInbound(userId, brId, sqlDate, comment, productList);
+		String requesterName = user.getUser_name();
+		String approverName = manager.getUser_name();
+		int totalCount = productList.stream().mapToInt(BoundProduct::getB_count).sum();
+		int totalPrice = productList.stream().mapToInt(bp -> bp.getProductOption().getPrice() * bp.getB_count()).sum();
+		String requestDateStr = new SimpleDateFormat("yyyy-MM-dd").format(selectedDate);
 
-        // ✅ 저장 후 UI 초기화
-        JOptionPane.showMessageDialog(this, "입고 요청이 저장되었습니다.");
+		// 팝업 보여주기
+		boolean confirmed = showConfirmationDialog(requesterName, approverName, totalCount, totalPrice, requestDateStr);
 
-        boundProductModel.clear(); // 테이블 초기화용 clear() 메서드 필요
-        tf_memo.setText("");
+		if (!confirmed) {
+			JOptionPane.showMessageDialog(this, "입고 요청이 취소되었습니다.");
+		    return; // 저장 중단
+		} else {
+			// 저장하기
+			insertDAO = new InboundDAO();
+			insertDAO.insertInbound(userId, managerId, brId, requestDate, memo, productList);
+			
+			
+			// ✅ 저장 후 UI 초기화
+			boundProductModel.clear(); // 테이블 초기화용 clear() 메서드 필요
+			tf_memo.setText("");
+			
+			// ✅ 정적 메서드 호출로 새로고침
+			InboundShowPanel.refreshStaticList();
+			
+			JOptionPane.showMessageDialog(this, "입고 요청이 저장되었습니다.");
+		}
         
         
-        JOptionPane.showMessageDialog(this, "입고 요청이 저장되었습니다.");
-//        requestModel.clear();
+        System.out.println(
+        		"로그인 id : "  	+ userId + 
+        		", 점주 id : " 	+ managerId + 
+        		", 지점 id : " 	+ brId +
+        		", 요청일 : " 	+ requestDate +
+        		", 메모 : " 		+ memo
+        );
+        
+        System.out.println("첫번째 제품 id : " + productList.getFirst().getProductOption().getOption_id()
+        		+ ", 개수 : " + productList.getFirst().getB_count());
+        
+        
+
     }
     
     private void setTableWidth(JTable table) {
@@ -535,5 +562,23 @@ public class InboundRequestPanel extends Panel{
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
         table.updateUI();
+    }
+    
+    private boolean showConfirmationDialog(String requesterName, String approverName, int totalCount, int totalPrice, String requestDate) {
+        String message = String.format(
+            "<html><body>" +
+            "<b>입고 요청 정보를 확인해주세요.</b><br><br>" +
+            "요청자 :		%s<br><br>" +
+            "결재자 :		%s<br><br>" +
+            "총 상품 수량 :	%d개<br><br>" +
+            "총 상품 금액 :	%,d원<br><br>" +
+            "입고 요청일 : 	%s<br><br><br>" +
+            "정말 요청하시겠습니까?" +
+            "</body></html>",
+            requesterName, approverName, totalCount, totalPrice, requestDate
+        );
+
+        int result = JOptionPane.showConfirmDialog(this, message, "입고 요청 확인", JOptionPane.YES_NO_OPTION);
+        return result == JOptionPane.YES_OPTION;
     }
 }

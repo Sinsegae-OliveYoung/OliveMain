@@ -276,7 +276,7 @@ public class MainLayout extends JFrame {
 		profile = user.getUser_name()  
 				+ " "
 				+ user.getRole().getRole_name()
-				+ "님 :)";
+				+ "님 *´︶`*";
 		
 		if (user.getRole().getRole_id() != 1) {
 			profile = branchDAO.getBranchList(user.getUser_id()) + " " + profile;

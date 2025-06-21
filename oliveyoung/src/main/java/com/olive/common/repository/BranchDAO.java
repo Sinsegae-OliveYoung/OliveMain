@@ -149,52 +149,52 @@ public class BranchDAO {
 	}
 
 	// 모든 지점의 정보 가져오기
-		public List selectBranch() {
-			Connection con = null;
-			PreparedStatement pstmt = null;
-			ResultSet rs = null;
-			ArrayList<Branch> list = new ArrayList();
-			
-			con = dbManager.getConnection();
-			
-			StringBuffer sql = new StringBuffer();
+	public List selectBranch() {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<Branch> list = new ArrayList();
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
 
 //			sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
-			sql.append("SELECT br_id AS '등록 번호',"
-					+ " br_name AS '지점명',"
-					+ " user_name AS '담당자',"
-					+ " br_address AS '주소',"
-					+ " br_tel AS '연락처'"
-					+ " FROM user u INNER JOIN branch b"
-					+ " ON u.user_id = b.user_id"
-					+ " ORDER BY br_id");
+		sql.append("SELECT br_id AS '등록 번호',"
+				+ " br_name AS '지점명',"
+				+ " user_name AS '담당자',"
+				+ " br_address AS '주소',"
+				+ " br_tel AS '연락처'"
+				+ " FROM user u INNER JOIN branch b"
+				+ " ON u.user_id = b.user_id"
+				+ " ORDER BY br_id");
+		
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			rs = pstmt.executeQuery();
+			list = new ArrayList();
 			
-			try {
-				pstmt = con.prepareStatement(sql.toString());
-				rs = pstmt.executeQuery();
-				list = new ArrayList();
+			while (rs.next()) {
+				Branch branch = new Branch();
+				branch.setBr_id(rs.getInt("등록 번호"));
+				branch.setBr_name(rs.getString("지점명"));
+				branch.setBr_address(rs.getString("주소"));
+				branch.setBr_tel(rs.getString("연락처"));
 				
-				while (rs.next()) {
-					Branch branch = new Branch();
-					branch.setBr_id(rs.getInt("등록 번호"));
-					branch.setBr_name(rs.getString("지점명"));
-					branch.setBr_address(rs.getString("주소"));
-					branch.setBr_tel(rs.getString("연락처"));
-					
-					// 사원 (User) 카테고리
-					User user = new User();
-					user.setUser_name(rs.getString("담당자"));
-					branch.setUser(user);
-					
-					list.add(branch);
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} finally {
-				dbManager.release(pstmt, rs);
+				// 사원 (User) 카테고리
+				User user = new User();
+				user.setUser_name(rs.getString("담당자"));
+				branch.setUser(user);
+				
+				list.add(branch);
 			}
-			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
 		}
+		return list;
+	}
 		
 	// 한 지점의 상품 재고 페이지 출력
 	public List selectBranchStock(String br_name) {
@@ -206,7 +206,29 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select br_name as '지점명', bd_name as '브랜드', ct_name as '상위 카테고리', ct_dt_name as '하위 카테고리', product_name as '상품명', st_quantity as '재고', st_update as '최근 수정일' from brand b inner join product p inner join product_option o inner join stock s inner join category c inner join category_detail cd inner join branch bh on bh.br_id=s.br_id and b.bd_id=p.bd_id and p.product_id=o.product_id and o.option_id=s.option_id and p.ct_dt_id=cd.ct_dt_id and c.ct_id=cd.ct_id and bh.br_name=?");
+		
+		sql.append("select br_name 	as '지점명'"
+				+ ", bd_name 		as '브랜드'"
+				+ ", ct_name 		as '상위 카테고리'"
+				+ ", ct_dt_name 	as '하위 카테고리'"
+				+ ", product_name 	as '상품명'"
+				+ ", st_quantity 	as '재고', st_update as '최근 수정일'"
+				+ " from 	   brand b"
+				+ " inner join product p"
+				+ " inner join product_option o"
+				+ " inner join stock s"
+				+ " inner join category c"
+				+ " inner join category_detail cd"
+				+ " inner join branch bh"
+				+ " on 	bh.br_id 		= s.br_id"
+				+ " and b.bd_id	 		= p.bd_id"
+				+ " and p.product_id 	= o.product_id"
+				+ " and o.option_id 	= s.option_id"
+				+ " and p.ct_dt_id 		= cd.ct_dt_id"
+				+ " and c.ct_id		 	= cd.ct_id"
+				+ " and bh.br_name 		= ? "
+		);
+		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, br_name);
@@ -262,14 +284,19 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("SELECT br_name AS '지점명',"
-				+ " br_address AS '매장 주소',"
-				+ " br_tel AS '매장 전화',"
-				+ " user_name AS '담당자',"
-				+ " tel AS '연락처',"
-				+ " email AS '이메일'"
-				+ " FROM user u INNER JOIN branch b"
-				+ " ON u.user_id=b.user_id AND br_name=?");
+		sql.append("SELECT"
+				+ " br_name 	AS '지점명',"
+				+ " br_address 	AS '매장 주소',"
+				+ " br_tel 		AS '매장 전화',"
+				+ " user_name 	AS '담당자',"
+				+ " tel 		AS '연락처',"
+				+ " email 		AS '이메일'"
+				+ " FROM 	   user u"
+				+ " INNER JOIN branch b"
+				+ " ON u.user_id = b.user_id"
+				+ " AND br_name  = ?"
+		);
+		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, br_name);
@@ -310,17 +337,28 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select b.br_id, br_name, br_address, br_tel");
-		sql.append(", u.user_id, user_name, tel, hiredate, email");
-		sql.append(", r.role_id, role_name, role_code");
-		sql.append(" from branch b");
-		sql.append(" inner join member m");
-		sql.append(" join user u");
-		sql.append(" join role r");
-		sql.append(" on b.br_id = m.br_id");
-		sql.append(" and u.user_id = m.user_id");
-		sql.append(" and u.role_id = r.role_id");
-		sql.append(" where m.user_id = ?");
+		sql.append("select "
+				+ "  b.br_id"
+				+ ", br_name"
+				+ ", br_address"
+				+ ", br_tel"
+				+ ", u.user_id"
+				+ ", user_name"
+				+ ", tel"
+				+ ", hiredate"
+				+ ", email"
+				+ ", r.role_id"
+				+ ", role_name"
+				+ ", role_code"
+				+ " from branch b"
+				+ " inner join member m"
+				+ " inner join user u"
+				+ " inner join role r"
+				+ " on  b.br_id 	= m.br_id"
+				+ " and u.user_id 	= m.user_id"
+				+ " and u.role_id 	= r.role_id"
+				+ " where m.user_id = ?"
+		);
 	
 		try {
 			pstmt = con.prepareStatement(sql.toString());

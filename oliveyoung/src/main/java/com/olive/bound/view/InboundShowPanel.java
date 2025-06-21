@@ -5,13 +5,17 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
 
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -25,7 +29,10 @@ import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
+import com.olive.common.model.User;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.InboundDAO;
+import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
 import com.toedter.calendar.JDateChooser;
@@ -36,7 +43,7 @@ public class InboundShowPanel extends Panel{
 	JPanel rightButtonPanel;
 	JLabel titleLabel;
 	JComboBox<Branch> cb_branch;
-	JComboBox<Branch> cb_appuser;
+	JComboBox<User> cb_appuser;
 	JButton bt_delete;
 	JButton bt_save;
 	
@@ -58,15 +65,31 @@ public class InboundShowPanel extends Panel{
     JTable table_detail;
     JScrollPane scrollPane;
 	
-
+    User user;
 	Bound bound;
+	InboundModel inboundModel;
 	InboundListModel model;
 	BoundShowModel model_detail;
+	
+	UserDAO userDAO;
     InboundDAO inboundDAO = new InboundDAO();
+    BranchDAO branchDAO;
+    List<Branch> branchList; // 지점 목록
+    List<BoundProduct> boundProductList; // 상품 목록
+    List<Branch> userBranches; // 사용자 소유 지점 목록
 
+    private static InboundShowPanel instance; // ✅ 정적 필드 추가
+    
     public InboundShowPanel(MainLayout mainLayout) {
         super(mainLayout);
         setLayout(new BorderLayout());
+        
+        instance = this; // ✅ 생성자에서 자기 자신 저장
+        this.user = mainLayout.user;
+        
+        // 로그인 계정의 지점 리스트 가져오기
+        branchDAO = new BranchDAO();
+        userBranches = branchDAO.getBranchList(user.getUser_id());
 
         // 공통 색상 및 폰트
         Color bgColor = new Color(245, 248, 250);
@@ -113,9 +136,11 @@ public class InboundShowPanel extends Panel{
         
         // 리스트 테이블 생성
         bound = new Bound();
-//        model = new InboundListModel(bound);  // # 입고 요청서 model 연결
         
-        model = new InboundListModel("now");  // # 입고 요청서 model 연결
+//        model = new InboundListModel("now");  // # 입고 요청서 model 연결
+//        table_list = new JTable(model);
+        
+        model = new InboundListModel(userBranches);
         table_list = new JTable(model);
 
         // 리스트 테이블 헤더 스타일
@@ -158,14 +183,20 @@ public class InboundShowPanel extends Panel{
         // 지점 선택
         cb_branch = new JComboBox<>();
         cb_branch.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        cb_branch.setBackground(Config.WHITE);
+        
         la_branch = new JLabel("지점 : "); 
         la_branch.setPreferredSize(new Dimension(80, 30));
         p_detail.add(la_branch);
         p_detail.add(cb_branch);
 
         // 결재자 선택
-        cb_appuser = new JComboBox<>();
+        cb_appuser = new JComboBox<User>();
         cb_appuser.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        cb_appuser.setBackground(Config.WHITE);
+//        cb_appuser.setEnabled(false); // 비활성화
+        
+        cb_appuser.setToolTipText("지점 변경 시 자동 설정됩니다.");
         la_appuser = new JLabel("결재자 : ");
         la_appuser.setPreferredSize(new Dimension(80, 30));
         p_detail.add(la_appuser);
@@ -233,8 +264,6 @@ public class InboundShowPanel extends Panel{
         add(p_center, BorderLayout.CENTER);
         
                 
-        
-        
      // JTable 클릭 이벤트 처리
         table_list.addMouseListener(new MouseAdapter() {
             @Override
@@ -246,22 +275,102 @@ public class InboundShowPanel extends Panel{
                 }
             }
         });
+        
+        
+        cb_branch.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    Branch selectedBranch = (Branch) cb_branch.getSelectedItem();
+                    if (selectedBranch == null || selectedBranch.getBr_id() == 0) return;
+
+                    // ✅ 해당 지점의 점장 불러오기
+                    UserDAO userDAO = new UserDAO();
+                    User manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
+
+                    // ✅ cb_appuser 초기화 및 업데이트
+                    cb_appuser.removeAllItems();
+                    if (manager != null) {
+                        cb_appuser.addItem(manager);
+                        cb_appuser.setSelectedItem(manager);
+                    } else {
+                        User dummy = new User();
+                        dummy.setUser_name("점장 없음");
+                        cb_appuser.addItem(dummy);
+                        cb_appuser.setSelectedItem(dummy);
+                    }
+                }
+            }
+        });
 
     }
     
     
     private void showDetail(BoundProduct boundProduct) {
-        Bound bound = boundProduct.getBound();
+    	bound = boundProduct.getBound();
 
-        cb_branch.setSelectedItem(bound.getBranch());
-        cb_appuser.setSelectedItem(bound.getUser());
+        cb_appuser.setSelectedItem(bound.getApprover());
         dateChooser.setDate(bound.getRequest_date());
         t_memo.setText(bound.getComment());
-        
-        System.out.println(bound.getComment());
 
-        // DAO에서 해당 bound_id의 상세 상품 리스트 조회
-        List<BoundProduct> boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
+        // 상품 리스트 불러오기
+        boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
         model_detail.setBoundProductList(boundProductList);
+
+        // 요청서에 연결된 지점
+        Branch requestBranch = bound.getBranch();
+
+        // 콤보박스 초기화
+        cb_branch.removeAllItems();
+
+        // 요청서 지점 먼저 추가
+        if (requestBranch != null) {
+            cb_branch.addItem(requestBranch);
+        }
+
+        // 로그인 계정 지점 리스트 중 중복되지 않은 지점만 추가
+        for (Branch userBranch : userBranches) {
+            if (requestBranch == null || !userBranch.equals(requestBranch)) {
+                cb_branch.addItem(userBranch);
+            }
+        }
+
+        // 요청서 지점을 선택 상태로
+        cb_branch.setSelectedItem(requestBranch);
+        
+        
+        // 결재자
+        cb_appuser.removeAllItems();
+        User approver = bound.getApprover();
+        System.out.println(approver.getUser_name());
+        if (approver != null) {
+            cb_appuser.addItem(approver);
+            cb_appuser.setSelectedItem(approver);
+        }
+        
+    }
+    
+    
+    // 테이블 새로고침을 위함
+    public static void refreshStaticList() {
+        if (instance != null) {
+            instance.refreshList(); // ✅ 내부 리프레시 메서드 호출
+        }
+    }
+
+    public void refreshList() {
+    	this.model = new InboundListModel(userBranches);
+        table_list = new JTable(model);
+//        this.model = new InboundListModel("now");
+//        table_list.setModel(model);
+        table_list.revalidate();
+        table_list.repaint();
+
+        // 상세내용 초기화
+        model_detail.setBoundProductList(List.of());
+        t_memo.setText("");
+        dateChooser.setDate(null);
+        cb_branch.setSelectedIndex(-1);
+        cb_appuser.setSelectedIndex(-1);
     }
 }
