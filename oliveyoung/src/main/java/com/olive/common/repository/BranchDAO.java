@@ -12,6 +12,7 @@ import com.olive.common.model.Branch;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
+import com.olive.common.model.Member;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
 import com.olive.common.model.Role;
@@ -337,51 +338,54 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select "
-				+ "  b.br_id"
-				+ ", br_name"
-				+ ", br_address"
-				+ ", br_tel"
-				+ ", u.user_id"
-				+ ", user_name"
-				+ ", tel"
-				+ ", hiredate"
-				+ ", email"
-				+ ", r.role_id"
-				+ ", role_name"
-				+ ", role_code"
-				+ " from branch b"
-				+ " inner join member m"
-				+ " inner join user u"
-				+ " inner join role r"
-				+ " on  b.br_id 	= m.br_id"
-				+ " and u.user_id 	= m.user_id"
-				+ " and u.role_id 	= r.role_id"
-				+ " where m.user_id = ?"
-		);
+		
+		sql.append("SELECT "
+		        + "  b.br_id AS br_id"  // 명확한 별칭
+		        + ", b.br_name AS br_name"
+		        + ", b.br_address AS br_address"
+		        + ", b.br_tel AS br_tel"
+		        + ", u.user_id AS user_id"
+		        + ", u.user_name AS user_name"
+		        + ", u.tel AS user_tel"
+		        + ", u.hiredate AS hiredate"
+		        + ", u.email AS email"
+		        + ", r.role_id AS role_id"
+		        + ", r.role_name AS role_name"
+		        + ", r.role_code AS role_code"
+		        + ", m.br_id"
+		        + ", u.user_id"
+		        + " FROM branch b"
+		        + " INNER JOIN member m ON b.br_id = m.br_id"
+		        + " INNER JOIN user u ON u.user_id = m.user_id"
+		        + " INNER JOIN role r ON u.role_id = r.role_id"
+		        + " WHERE m.user_id = ?");
 	
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setInt(1, user_id);  
 			rs = pstmt.executeQuery();
 			
-			while(rs.next()) {
+			while(rs.next()) {				
 				
 				Role role = new Role();
-				role.setRole_id(rs.getInt("r.role_id"));
-				role.setRole_code(rs.getString("r.role_code"));
-				role.setRole_name(rs.getString("r.role_name"));
-				
+				role.setRole_id(rs.getInt("role_id"));         // r.role_id → role_id
+				role.setRole_code(rs.getString("role_code"));
+				role.setRole_name(rs.getString("role_name"));
+
 				User user = new User();
-				user.setUser_id(rs.getInt("u.user_id"));
+				user.setUser_id(rs.getInt("user_id"));         // u.user_id → user_id
 				user.setUser_name(rs.getString("user_name"));
-				user.setTel(rs.getString("tel"));
+				user.setTel(rs.getString("user_tel"));         // u.tel → user_tel
 				user.setHiredate(rs.getDate("hiredate"));
 				user.setEmail(rs.getString("email"));
 				user.setRole(role);
+
+				Member member = new Member();
+				member.setMem_id(rs.getInt("br_id"));
+				member.setUser(user);
 				
 				Branch branch = new Branch();
-				branch.setBr_id(rs.getInt("b.br_id"));
+				branch.setBr_id(rs.getInt("br_id"));
 				branch.setBr_name(rs.getString("br_name"));
 				branch.setBr_address(rs.getString("br_address"));
 				branch.setBr_tel(rs.getString("br_tel"));

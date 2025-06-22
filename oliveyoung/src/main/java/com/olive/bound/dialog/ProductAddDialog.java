@@ -38,6 +38,8 @@ public class ProductAddDialog extends JDialog {
     BoundProductEditModel boundProductEditModel;
     BoundProduct selected;
     Bound bound;
+
+    private boolean isConfirmed = false;
     
     private List<BoundProduct> selectedProducts = new ArrayList<>();
 
@@ -46,11 +48,6 @@ public class ProductAddDialog extends JDialog {
         this.selected = selected;
         
         bound = selected.getBound();
-        
-        // bound_id 로그 출력
-        if (selected != null && selected.getBound() != null) {
-            System.out.println("요청서 번호(bound_id): " + bound.getBound_id());
-        }
 
         setSize(800, 500);
         setLocationRelativeTo(parentFrame);
@@ -106,20 +103,18 @@ public class ProductAddDialog extends JDialog {
 
         // 버튼 이벤트
         bt_close.addActionListener(e -> dispose());
-
         
         bt_add.addActionListener(e -> {
             selectedProducts = new ArrayList<>();
             BoundProductEditModel model = (BoundProductEditModel) table.getModel();
-
             for (int i = 0; i < model.getRowCount(); i++) {
-                BoundProduct bp = model.getBoundProductAt(i); // model이 제공해야 하는 메서드
-                if (bp.getB_count() > 0) {
+                BoundProduct bp = model.getBoundProductAt(i);
+                if (bp.getB_count() > 0 && bp.getProductOption() != null && bp.getProductOption().getOption_id() != 0) {
                     selectedProducts.add(bp);
                 }
             }
-
-            dispose(); // 다이얼로그 닫기
+            isConfirmed = true; // ✅ 추가 버튼 눌린 경우만 true
+            dispose();
         });
 
         
@@ -149,4 +144,8 @@ public class ProductAddDialog extends JDialog {
         return selectedProducts;
     }
 
+
+	public boolean isConfirmed() {
+	    return isConfirmed;
+	}
 }

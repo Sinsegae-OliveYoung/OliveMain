@@ -48,7 +48,10 @@ public class BoundProductEditModel extends AbstractTableModel{
 	}
 	
 	public BoundProduct getBoundProduct(int row) {
-	    return list.get(row);
+//	    return list.get(row);
+		BoundProduct bp = list.get(row);
+	    System.out.println("getBoundProductAt option_id: " + bp.getProductOption().getOption_id());
+	    return bp;
 	}
 	
 	
@@ -108,8 +111,6 @@ public class BoundProductEditModel extends AbstractTableModel{
             	value = Integer.toString(boundProduct.getProductOption().getPrice());
                 break;
             case 6: //재고수량
-//            	value =  "0";
-            	
             	int st_qty = stockMap.getOrDefault(productOption.getOption_id(), 0);
                 value = Integer.toString(st_qty);
                 

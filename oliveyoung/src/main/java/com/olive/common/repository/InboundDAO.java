@@ -206,33 +206,62 @@ public class InboundDAO {
 
         StringBuffer sql = new StringBuffer();
         
-        sql.append(
-        		  "SELECT"
-        		  + "    c.ct_name,"
-        		  + "    cd.ct_dt_name,"
-        		  + "    b.bd_name,"
-        		  + "    p.product_id,"
-        		  + "    p.product_name,"
-        		  + "    po.option_id,"
-        		  + "    CASE WHEN po.option_no = 99 THEN '-' ELSE po.option_name END AS option_name,"
-        		  + "    po.option_code,"
-        		  + "    po.price,"
-        		  + "    COALESCE(("
-        		  + "        SELECT SUM(s.st_quantity)"
-        		  + "        FROM stock s"
-        		  + "        WHERE s.option_id = po.option_id"
-        		  + "          AND s.br_id = bo.br_id"
-        		  + "    ), 0) AS st_quantity,"
-        		  + "    COALESCE(bp.b_count, 0) AS b_count"
-        		  + " FROM product p"
-        		  + " INNER JOIN product_option po ON p.product_id = po.product_id"
-        		  + " INNER JOIN category c ON p.ct_id = c.ct_id"
-        		  + " INNER JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id AND c.ct_id = cd.ct_id"
-        		  + " INNER JOIN brand b ON p.bd_id = b.bd_id"
-        		  + " LEFT JOIN bound_product bp ON bp.option_id = po.option_id AND bp.bound_id = ?"
-        		  + " JOIN bound bo ON bo.bound_id = ?"
-        		  + " ORDER BY c.ct_id ASC, cd.ct_dt_id ASC"
-        );
+//        sql.append(
+//        		  "SELECT"
+//        		  + "    c.ct_name,"
+//        		  + "    cd.ct_dt_name,"
+//        		  + "    b.bd_name,"
+//        		  + "    p.product_id,"
+//        		  + "    p.product_name,"
+//        		  + "    po.option_id,"
+//        		  + "    CASE WHEN po.option_no = 99 THEN '-' ELSE po.option_name END AS option_name,"
+//        		  + "    po.option_code,"
+//        		  + "    po.price,"
+//        		  + "    COALESCE(("
+//        		  + "        SELECT SUM(s.st_quantity)"
+//        		  + "        FROM stock s"
+//        		  + "        WHERE s.option_id = po.option_id"
+//        		  + "          AND s.br_id = bo.br_id"
+//        		  + "    ), 0) AS st_quantity,"
+//        		  + "    COALESCE(bp.b_count, 0) AS b_count,"
+//        		  + "	bp.option_id "
+//        		  + " FROM product p"
+//        		  + " INNER JOIN product_option po ON p.product_id = po.product_id"
+//        		  + " INNER JOIN category c ON p.ct_id = c.ct_id"
+//        		  + " INNER JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id AND c.ct_id = cd.ct_id"
+//        		  + " INNER JOIN brand b ON p.bd_id = b.bd_id"
+//        		  + " LEFT JOIN bound_product bp ON bp.option_id = po.option_id AND bp.bound_id = ?"
+//        		  + " JOIN bound bo ON bo.bound_id = ?"
+//        		  + " ORDER BY c.ct_id ASC, cd.ct_dt_id ASC"
+//        );
+        
+        sql.append("SELECT ")
+        .append("  c.ct_name, ")
+        .append("  cd.ct_dt_name, ")
+        .append("  b.bd_name, ")
+        .append("  p.product_id, ")
+        .append("  p.product_name, ")
+        .append("  po.option_id AS po_option_id, ")
+        .append("  CASE WHEN po.option_no = 99 THEN '-' ELSE po.option_name END AS option_name, ")
+        .append("  po.option_code, ")
+        .append("  po.price, ")
+        .append("  COALESCE(( ")
+        .append("    SELECT SUM(s.st_quantity) ")
+        .append("    FROM stock s ")
+        .append("    WHERE s.option_id = po.option_id ")
+        .append("      AND s.br_id = bo.br_id ")
+        .append("  ), 0) AS st_quantity, ")
+        .append("  COALESCE(bp.b_count, 0) AS b_count, ")
+        .append("  bp.option_id AS bp_option_id ")
+        .append("  ,bo.bound_id AS bound_id ")
+        .append("FROM product p ")
+        .append("INNER JOIN product_option po ON p.product_id = po.product_id ")
+        .append("INNER JOIN category c ON p.ct_id = c.ct_id ")
+        .append("INNER JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id AND c.ct_id = cd.ct_id ")
+        .append("INNER JOIN brand b ON p.bd_id = b.bd_id ")
+        .append("LEFT JOIN bound_product bp ON bp.option_id = po.option_id AND bp.bound_id = ? ")
+        .append("JOIN bound bo ON bo.bound_id = ? ")
+        .append("ORDER BY c.ct_id ASC, cd.ct_dt_id ASC ");
         
         try {
             con = dbManager.getConnection();
@@ -264,11 +293,10 @@ public class InboundDAO {
                 product.setCategory_detail(categoryDetail);
                 product.setBrand(brand);
 
-                // ProductOption 객체 생성 및 연결
+                /// ProductOption 객체 생성 및 option_id 명확히 세팅
                 ProductOption productOption = new ProductOption();
-                productOption.setOption_id(rs.getInt("option_id"));
+                productOption.setOption_id(rs.getInt("po_option_id"));   // 별칭으로 읽기
                 productOption.setOption_code(rs.getString("option_code"));
-//                productOption.setOption_no(rs.getInt("option_no"));
                 productOption.setOption_name(rs.getString("option_name"));
                 productOption.setPrice(rs.getInt("price"));
                 productOption.setProduct(product);
@@ -279,12 +307,12 @@ public class InboundDAO {
 //                branch.setBr_name(rs.getString("br_name"));
                 
                 Bound bound = new Bound();
-//                bound.setBound_id(rs.getInt("bound_id"));
+                bound.setBound_id(rs.getInt("bound_id"));
                 
                 BoundProduct boundProduct = new BoundProduct();
                 boundProduct.setBound(bound);
                 boundProduct.setProductOption(productOption);
-                boundProduct.setB_count(rs.getInt("b_count")); // ✅ 추가: 요청 수량 설정
+                boundProduct.setB_count(rs.getInt("b_count"));
 
                 // Stock 객체 생성
                 Stock stock = new Stock();
@@ -293,6 +321,9 @@ public class InboundDAO {
                 stock.setProductOption(productOption);
                 stock.setBranch(branch);
 
+                
+                System.out.println("Loaded option_id: " + productOption.getOption_id());  // 디버그용 출력
+                
                 list.add(boundProduct);
             }
         } catch (SQLException e) {
@@ -425,7 +456,7 @@ public class InboundDAO {
     public void updateBound(Bound bound) {
     	Connection con = null;
         PreparedStatement pstmt = null;
-        
+
         try {
         	con = dbManager.getConnection();
 
@@ -494,7 +525,10 @@ public class InboundDAO {
     
     // 기존 요청서에서 추가한 상품 bound_option에 넣기
     public void insertBoundProduct(BoundProduct boundProduct) {
+    	
+    	System.out.println("insertBoundProduct getOption_id : " + boundProduct.getProductOption().getOption_id());
     	if (boundProduct.getProductOption() == null || boundProduct.getProductOption().getOption_id() == 0) {
+    		System.err.println("🚨 무효한 상품 옵션입니다: " + boundProduct);
             System.out.println("무효한 상품 옵션으로 인해 저장 생략: " + boundProduct);
             return; // 저장하지 않음
         }

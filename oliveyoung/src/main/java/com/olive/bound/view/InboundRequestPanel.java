@@ -31,6 +31,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 import com.olive.bound.model.BoundProductModel;
+import com.olive.bound.model.InboundListModel;
 import com.olive.bound.model.InboundModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.BoundProduct;
@@ -96,6 +97,8 @@ public class InboundRequestPanel extends Panel{
 	User user; // 로그인한 계정 객체
 	User manager; // 로그인한 계정 지점의 점주(role = 2)
 	List<BoundProduct> productList;
+	
+	private static InboundRequestPanel instance; // ✅ 정적 필드 추가
 	
 	public InboundRequestPanel(MainLayout mainLayout, User user) {
 		super(mainLayout);
@@ -441,15 +444,7 @@ public class InboundRequestPanel extends Panel{
 	        setTableWidth(table);
 	    }
     }
-    
-    private void loadApproverList(JComboBox<User> cb_approver) {
-        userDAO = new UserDAO();
-        List<User> userList = userDAO.selectAll();
-        cb_approver.addItem(null); // 선택 안했을 때 default
-        for (User user : userList) {
-            cb_approver.addItem(user);
-        }
-    }
+
     
     private void saveInboundRequest(int userId) {
  
@@ -583,5 +578,54 @@ public class InboundRequestPanel extends Panel{
 
         int result = JOptionPane.showConfirmDialog(this, message, "입고 요청 확인", JOptionPane.YES_NO_OPTION);
         return result == JOptionPane.YES_OPTION;
+    }
+    
+    // 테이블 새로고침을 위함
+    public static void refreshStaticList() {
+        if (instance != null) {
+            instance.refreshList(); // ✅ 내부 리프레시 메서드 호출
+        }
+    }
+
+    public void refreshList() {
+        // 콤보박스 선택값 초기화
+        cb_branch.setSelectedIndex(0); // 첫 번째 지점 선택
+
+        // 테이블 모델 새로고침
+        Branch selectedBranch = (Branch) cb_branch.getSelectedItem();
+        if (selectedBranch != null) {
+            inboundModel = new InboundModel(selectedBranch);
+            table.setModel(inboundModel);
+            setTableWidth(table); // 컬럼 너비 재설정
+        }
+
+        // 우측 요청 상품 테이블 초기화
+        boundProductModel.clear();
+        table_re.setModel(boundProductModel);
+
+        // 메모 입력 필드 초기화
+        tf_memo.setText("");
+
+        // 입고일: 내일로 재설정
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.DATE, 1); // 내일
+        dateChooser.setDate(cal.getTime());
+
+        // 결재자 이름 재설정
+        manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
+        if (manager != null) {
+            tf_approver.setText(manager.getUser_name());
+            tf_approver.setToolTipText(manager.getUser_id() + " / " + manager.getUser_name());
+        } else {
+            tf_approver.setText("점장 없음");
+            tf_approver.setToolTipText(null);
+        }
+
+        // 테이블 다시 그리기
+        table.revalidate();
+        table.repaint();
+        table_re.revalidate();
+        table_re.repaint();
     }
 }
