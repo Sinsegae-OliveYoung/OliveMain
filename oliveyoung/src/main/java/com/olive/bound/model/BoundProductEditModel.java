@@ -50,7 +50,6 @@ public class BoundProductEditModel extends AbstractTableModel{
 	public BoundProduct getBoundProduct(int row) {
 //	    return list.get(row);
 		BoundProduct bp = list.get(row);
-	    System.out.println("getBoundProductAt option_id: " + bp.getProductOption().getOption_id());
 	    return bp;
 	}
 	

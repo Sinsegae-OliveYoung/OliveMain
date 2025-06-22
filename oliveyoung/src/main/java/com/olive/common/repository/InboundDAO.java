@@ -320,9 +320,6 @@ public class InboundDAO {
                 stock.setSt_quantity(rs.getInt("st_quantity"));
                 stock.setProductOption(productOption);
                 stock.setBranch(branch);
-
-                
-                System.out.println("Loaded option_id: " + productOption.getOption_id());  // 디버그용 출력
                 
                 list.add(boundProduct);
             }
@@ -526,7 +523,6 @@ public class InboundDAO {
     // 기존 요청서에서 추가한 상품 bound_option에 넣기
     public void insertBoundProduct(BoundProduct boundProduct) {
     	
-    	System.out.println("insertBoundProduct getOption_id : " + boundProduct.getProductOption().getOption_id());
     	if (boundProduct.getProductOption() == null || boundProduct.getProductOption().getOption_id() == 0) {
     		System.err.println("🚨 무효한 상품 옵션입니다: " + boundProduct);
             System.out.println("무효한 상품 옵션으로 인해 저장 생략: " + boundProduct);

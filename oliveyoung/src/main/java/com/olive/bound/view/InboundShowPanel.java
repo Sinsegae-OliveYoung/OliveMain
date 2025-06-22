@@ -9,6 +9,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -24,11 +25,15 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import com.olive.bound.dialog.ProductAddDialog;
 import com.olive.bound.model.BoundShowModel;
@@ -317,19 +322,51 @@ public class InboundShowPanel extends Panel{
         
         // ------------------------------------------------------------
         // 테이블 헤더 클릭 이벤트 추가
-        JTableHeader header_re = table_detail.getTableHeader();
-        header_re.addMouseListener(new java.awt.event.MouseAdapter() {
-        	@Override
-        	public void mouseClicked(java.awt.event.MouseEvent e) {
-        		int columnIndex = header_re.columnAtPoint(e.getPoint());
-        		String columnName = table_detail.getColumnName(columnIndex);
-        		System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-        		
-        		// 예: 제품명 컬럼 클릭시만 처리
-        		if ("상품명".equals(columnName)) {
-        			javax.swing.JOptionPane.showMessageDialog(null, "상품명 컬럼 클릭됨");
-        		}
-        	}
+//        JTableHeader header_re = table_detail.getTableHeader();
+//        header_re.addMouseListener(new java.awt.event.MouseAdapter() {
+//        	@Override
+//        	public void mouseClicked(java.awt.event.MouseEvent e) {
+//        		int columnIndex = header_re.columnAtPoint(e.getPoint());
+//        		String columnName = table_detail.getColumnName(columnIndex);
+//        		System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+//        		
+//        		// 예: 제품명 컬럼 클릭시만 처리
+//        		if ("상품명".equals(columnName)) {
+//        			javax.swing.JOptionPane.showMessageDialog(null, "상품명 컬럼 클릭됨");
+//        		}
+//        	}
+//        });
+     // 1. 정렬 기능 설정
+        TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table_list.getModel());
+        table_list.setRowSorter(sorter_list);
+
+        // 2. 헤더 클릭 이벤트로 정렬 상태 출력
+        JTableHeader header_list = table_list.getTableHeader();
+        header_list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int columnIndex = header_list.columnAtPoint(e.getPoint());
+                String columnName = table_list.getColumnName(columnIndex);
+                System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+
+                SortOrder order = getSortOrder(sorter_list, columnIndex);
+                if (order == SortOrder.ASCENDING) {
+                    System.out.println("정렬 방향: 오름차순");
+                } else if (order == SortOrder.DESCENDING) {
+                    System.out.println("정렬 방향: 내림차순");
+                } else {
+                    System.out.println("정렬 방향 없음");
+                }
+            }
+
+            private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+                for (RowSorter.SortKey key : sorter.getSortKeys()) {
+                    if (key.getColumn() == columnIndex) {
+                        return key.getSortOrder();
+                    }
+                }
+                return SortOrder.UNSORTED;
+            }
         });
 
         cb_branch.addItemListener(new ItemListener() {
@@ -362,23 +399,27 @@ public class InboundShowPanel extends Panel{
         table_list.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mouseClicked(MouseEvent e) {
-        		int row = table_list.getSelectedRow();
-        		if (row != -1) {
-        			selected = model.getBoundAt(row);
+//        		int row = table_list.getSelectedRow();
+        		int viewRow = table_list.getSelectedRow();
+        		if (viewRow != -1) {
+        			int modelRow = table_list.convertRowIndexToModel(viewRow); // ✅ 핵심
+        			selected = model.getBoundAt(modelRow);
         			showDetail(selected);
         			bt_add.setEnabled(true); // 상품 추가 버튼 활성화
+        			
+        			
+        			originalProductList = inboundDAO
+        					.selectBoundProductListByBoundId(selected.getBound().getBound_id())
+        					.stream()
+        					.map(bp -> {
+        						BoundProduct copy = new BoundProduct();
+        						copy.setB_count(bp.getB_count());
+        						copy.setProductOption(bp.getProductOption()); // option_id 기반 비교용
+        						return copy;
+        					})
+        					.collect(Collectors.toList());
         		}
         		
-        		originalProductList = inboundDAO
-    			    .selectBoundProductListByBoundId(selected.getBound().getBound_id())
-    			    .stream()
-    			    .map(bp -> {
-    			        BoundProduct copy = new BoundProduct();
-    			        copy.setB_count(bp.getB_count());
-    			        copy.setProductOption(bp.getProductOption()); // option_id 기반 비교용
-    			        return copy;
-    			    })
-    			    .collect(Collectors.toList());
         	}
         });
 
@@ -477,9 +518,7 @@ public class InboundShowPanel extends Panel{
         cb_branch.setSelectedItem(requestBranch);
 
         
-        Branch selectedBranch = (Branch) cb_branch.getSelectedItem();
-        System.out.println("선택된 지점: br_id = " + selectedBranch.getBr_id() + ", name = " + selectedBranch.getBr_name());
-        
+        Branch selectedBranch = (Branch) cb_branch.getSelectedItem();       
         
         // 결재자
         cb_appuser.removeAllItems();
@@ -576,6 +615,18 @@ public class InboundShowPanel extends Panel{
                 return;
             }
         }
+        // --- 3. 사용자 확인 ---
+        int totalCount = newProductList.stream().mapToInt(BoundProduct::getB_count).sum();
+        int totalPrice = newProductList.stream()
+            .mapToInt(bp -> bp.getB_count() * bp.getProductOption().getPrice())
+            .sum();
+
+        String requesterName = user.getUser_name();
+        String approverName = newApprover.getUser_name();
+        String requestDateStr = new SimpleDateFormat("yyyy-MM-dd").format(newRequestDate);
+
+        boolean confirmed = showConfirmationDialog(requesterName, approverName, totalCount, totalPrice, requestDateStr);
+        if (!confirmed) return;
 
         // 4. 변경사항이 있으면 저장
         if (isBoundModified) {
@@ -598,6 +649,26 @@ public class InboundShowPanel extends Panel{
 
         // 테이블 새로고침
         refreshStaticList();
+    }
+    
+    
+    // 요청서 저장 확인 폼
+    private boolean showConfirmationDialog(String requesterName, String approverName, int totalCount, int totalPrice, String requestDate) {
+        String message = String.format(
+            "<html><body>" +
+            "<b>입고 요청 정보를 확인해주세요.</b><br><br>" +
+            "요청자 :&nbsp;&nbsp;&nbsp;%s<br><br>" +
+            "결재자 :&nbsp;&nbsp;&nbsp;%s<br><br>" +
+            "총 상품 수량 :&nbsp;&nbsp;&nbsp;%d개<br><br>" +
+            "총 상품 금액 :&nbsp;&nbsp;&nbsp;%,d원<br><br>" +
+            "입고 요청일 :&nbsp;&nbsp;&nbsp;%s<br><br><br>" +
+            "<b>정말 요청하시겠습니까?</b>" +
+            "</body></html>",
+            requesterName, approverName, totalCount, totalPrice, requestDate
+        );
+
+        int result = JOptionPane.showConfirmDialog(this, message, "입고 요청 확인", JOptionPane.YES_NO_OPTION);
+        return result == JOptionPane.YES_OPTION;
     }
 
     // 테이블 새로고침을 위함

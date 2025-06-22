@@ -24,14 +24,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import com.olive.bound.model.BoundProductModel;
-import com.olive.bound.model.InboundListModel;
 import com.olive.bound.model.InboundModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.BoundProduct;
@@ -314,52 +317,90 @@ public class InboundRequestPanel extends Panel{
 		
 		
 		// 좌측 테이블 헤더 클릭 이벤트 추가 ------------------------------------------------------------
-		header = table.getTableHeader();
-		header.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				int columnIndex = header.columnAtPoint(e.getPoint());
-				String columnName = table.getColumnName(columnIndex);
-				System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-				
-				// 예: 제품명 컬럼 클릭시만 처리
-				if ("제품명".equals(columnName)) {
-					javax.swing.JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
-				}
-			}
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+		table.setRowSorter(sorter);
+
+		// 헤더 클릭 감지 및 정렬 상태 출력
+		JTableHeader header = table.getTableHeader();
+		header.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int columnIndex = header.columnAtPoint(e.getPoint());
+		        String columnName = table.getColumnName(columnIndex);
+		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+
+		        SortOrder order = getSortOrder(sorter, columnIndex);
+		        if (order == SortOrder.ASCENDING) {
+		            System.out.println("정렬 방향: 오름차순");
+		        } else if (order == SortOrder.DESCENDING) {
+		            System.out.println("정렬 방향: 내림차순");
+		        } else {
+		            System.out.println("정렬 방향 없음");
+		        }
+		    }
+
+		    private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+		        List<? extends RowSorter.SortKey> sortKeys = sorter.getSortKeys();
+		        for (RowSorter.SortKey key : sortKeys) {
+		            if (key.getColumn() == columnIndex) {
+		                return key.getSortOrder();
+		            }
+		        }
+		        return SortOrder.UNSORTED;
+		    }
 		});
 		
-		// 우측 테이블 헤더 클릭 이벤트 추가 ------------------------------------------------------------
-		header_re = table_re.getTableHeader();
-		header_re.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mouseClicked(java.awt.event.MouseEvent e) {
-				int columnIndex = header_re.columnAtPoint(e.getPoint());
-				String columnName = table_re.getColumnName(columnIndex);
-				System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-				
-				// 예: 제품명 컬럼 클릭시만 처리
-				if ("제품명".equals(columnName)) {
-					JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
-				}
-			}
+		// 테이블 생성 이후
+		TableRowSorter<TableModel> sorter_re = new TableRowSorter<>(table_re.getModel());
+		table_re.setRowSorter(sorter_re);
+
+		// 헤더 클릭 이벤트로 정렬 상태 출력
+		JTableHeader header_re = table_re.getTableHeader();
+		header_re.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int columnIndex = header_re.columnAtPoint(e.getPoint());
+		        String columnName = table_re.getColumnName(columnIndex);
+		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+
+		        SortOrder order = getSortOrder(sorter_re, columnIndex);
+		        if (order == SortOrder.ASCENDING) {
+		            System.out.println("정렬 방향: 오름차순");
+		        } else if (order == SortOrder.DESCENDING) {
+		            System.out.println("정렬 방향: 내림차순");
+		        } else {
+		            System.out.println("정렬 방향 없음");
+		        }
+		    }
+
+		    private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+		        List<? extends RowSorter.SortKey> sortKeys = sorter.getSortKeys();
+		        for (RowSorter.SortKey key : sortKeys) {
+		            if (key.getColumn() == columnIndex) {
+		                return key.getSortOrder();
+		            }
+		        }
+		        return SortOrder.UNSORTED;
+		    }
 		});
 		
 		// 컬럼 클릭 이벤트 -> 우측 테이블에 추가 ------------------------------------------------------------
 		table.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mouseClicked(java.awt.event.MouseEvent e) {
-				int row = table.getSelectedRow();
-				if (row >= 0) {
-					// 현재 테이블 모델을 가져온다 (InboundModel)
-					model = (InboundModel) table.getModel();
+				int viewRow = table.getSelectedRow();  // 화면상 클릭한 행
+				if (viewRow >= 0) {
+					int modelRow = table.convertRowIndexToModel(viewRow);  // 실제 모델 인덱스
 
-					Stock selectedStock = model.list.get(row);  // model.list는 Stock 리스트로 구성됨
-					BoundProduct bp = new BoundProduct();
-					bp.setProductOption(selectedStock.getProductOption());
-					bp.setB_count(1); // 초기 수량
+		            // 모델에서 정확한 데이터 가져오기
+		            model = (InboundModel) table.getModel();
+		            Stock selectedStock = model.list.get(modelRow); // ✅ 반드시 modelRow 사용
 
-					boundProductModel.addProduct(bp);
+		            BoundProduct bp = new BoundProduct();
+		            bp.setProductOption(selectedStock.getProductOption());
+		            bp.setB_count(1); // 초기 수량
+
+		            boundProductModel.addProduct(bp);
 				}
 			}
 		});
@@ -445,7 +486,6 @@ public class InboundRequestPanel extends Panel{
 	    }
     }
 
-    
     private void saveInboundRequest(int userId) {
  
         selectedDate = dateChooser.getDate();
