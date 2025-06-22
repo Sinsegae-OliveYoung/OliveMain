@@ -10,20 +10,15 @@ import com.olive.common.repository.MemberDAO;
 
 public class MemberModel extends AbstractTableModel{
 	
-	User user;  //로그인 유저 정보
 	List<Member> list;
 	MemberDAO memberDAO;
 	String[] column = { 
 			"사원번호", "사원명", "소속지점", "직급", "연락처", "이메일", "입사일"
 	};
 	
-	public MemberModel(User user) {
-		this.user = user;
+	public MemberModel(MemberFilterDTO filter, int currentPage, int pageSize) {
 		memberDAO = new MemberDAO();
-		MemberFilterDTO filter = new MemberFilterDTO();
-		filter.setUser_id(1);
-		list = memberDAO.select(filter);
-		
+		list = memberDAO.select(filter, currentPage, pageSize);
 	}
 
 	@Override

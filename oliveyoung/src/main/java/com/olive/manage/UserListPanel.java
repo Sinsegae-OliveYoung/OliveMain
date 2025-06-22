@@ -8,9 +8,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -26,6 +29,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.model.Branch;
+import com.olive.common.model.Member;
 import com.olive.common.model.Role;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.MemberDAO;
@@ -41,6 +45,8 @@ public class UserListPanel extends Panel{
 	BranchDAO branchDAO;
 	RoleDAO roleDAO;
 	MemberFilterDTO filter;
+	Member selectedMember; 
+	
 	
 	JPanel p_north1;
 	JLabel lb_menu;
@@ -69,8 +75,157 @@ public class UserListPanel extends Panel{
 	JButton bt_prev;  //이전 페이지 
 	JButton bt_next;   //다음 페이지 
 	
-	
+	List<JButton> bt_list = new ArrayList<>();
+	int currentPage = 1;  
+	int pageSize = 3;
+	int totalPageSize = 0;
+
 	ImageUtil imgUtil = new ImageUtil();
+	ManagePage managePage;	
+	
+	public void createPageButton() {
+		for(int i = 0; i < pageSize; i++) {
+			bt_list.add(new JButton());
+			p_south.add(bt_list.get(i));
+		}
+	}
+	
+	public void setTotalPageSize() {
+		
+		int count = memberDAO.countSelect(filter);
+		totalPageSize = count / pageSize;
+		if(count % pageSize != 0) totalPageSize++;
+	}
+	
+	
+	public void setPageRange() {
+		 
+	}
+	
+	public void setPageButton() {
+		
+		int start = ((currentPage - 1) / pageSize) * pageSize + 1;
+		int end = Math.min(totalPageSize, (start + pageSize -1));
+		System.out.println("start: " + start);
+		System.out.println("end: " + end);
+		
+		for(int i = 0; i < bt_list.size(); i++) {
+			JButton btn = bt_list.get(i);
+			
+			if(start + i <= end) {
+				 btn.setText(String.valueOf(start + i));
+				  btn.setVisible(true);
+			} else {
+				  btn.setVisible(false);
+			}
+		}
+		
+	}
+	
+	public UserListPanel(MainLayout mainLayout, ManagePage managePage) {
+		super(mainLayout);
+		this.managePage = managePage;
+		
+		memberDAO = new MemberDAO();
+		branchDAO = new BranchDAO();
+		roleDAO = new RoleDAO();
+		filter = new MemberFilterDTO();
+		
+		filter.setUser_id(mainLayout.user.getUser_id());  
+		setTotalPageSize();
+		setStyle();
+		
+		getBranch();
+		getRole();
+		
+		// 이벤트 연결 
+		bt_start.addActionListener(e -> {
+			new DatePicker(lb_start);
+		});
+		
+		bt_end.addActionListener(e -> {
+			new DatePicker(lb_end);
+		});
+		
+		bt_search.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setFilter();
+				
+				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
+				if(!lb_start.getText().equals("yyyy.mm.dd")) {
+					filter.setStart_date(Date.valueOf(LocalDate.parse(lb_start.getText(), formatter))); 
+				}
+				
+				if(!lb_end.getText().equals("yyyy.mm.dd")) {
+					filter.setEnd_date(Date.valueOf(LocalDate.parse(lb_end.getText(), formatter))); 
+				}
+				
+				memberModel.list = memberDAO.select(filter, currentPage, pageSize);
+				table.updateUI();
+			}
+		});
+		
+		bt_next.addActionListener(e -> {
+			currentPage++;
+			bt_prev.setEnabled(true);
+			if(currentPage == totalPageSize) {
+				bt_next.setEnabled(false);
+			}
+			
+			if(currentPage % pageSize == 1) {
+				setPageButton();
+			}
+		});
+		
+		bt_prev.addActionListener(e -> {
+			currentPage--;
+			bt_next.setEnabled(true);
+			if(currentPage == 1) {
+				bt_prev.setEnabled(false);
+			}
+			
+			if(currentPage % pageSize == 0) {
+				setPageButton();
+			}
+		});
+		
+		//이름 textfield의 placeholder 제거 이벤트 
+		t_name.addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent e) {
+				if (t_name.getText().isEmpty()) {
+					t_name.setText("이름");
+		        }
+			}
+			
+			@Override
+			public void focusGained(FocusEvent e) {
+				if (t_name.getText().equals("이름")) {
+		            t_name.setText("");
+		        }
+			}
+		});
+		
+		table.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int row = table.getSelectedRow();  // 클릭된 row index
+
+		        // 모델에서 사용자 정보 추출
+		        selectedMember = memberModel.list.get(row);  // ← 너가 만든 MemberModel의 list 사용
+		        managePage.showUserDetailPanel(selectedMember);
+		    }
+		});
+		
+	}
+	
+	public void setFilter() {
+		filter.setBr_id(((Branch)cb_branch.getSelectedItem()).getBr_id());
+		filter.setRole_id(((Role)cb_role.getSelectedItem()).getRole_id());
+		filter.setUser_id(mainLayout.user.getUser_id());  
+		filter.setUser_name(t_name.getText());
+	}
 	
 	public void setStyle() {
 		setLayout(new BorderLayout());
@@ -120,7 +275,7 @@ public class UserListPanel extends Panel{
 		
 		p_table = new JPanel();
 	
-		table = new JTable(memberModel = new MemberModel(mainLayout.user));
+		table = new JTable(memberModel = new MemberModel(filter, currentPage, pageSize));
 		TableUtil.applyStyle(table);
 	
 	
@@ -137,6 +292,7 @@ public class UserListPanel extends Panel{
 		
 		p_south = new JPanel();
 		bt_prev = new JButton("<");
+		bt_prev.setEnabled(false);
 		bt_next = new JButton(">");
 		
 		
@@ -176,85 +332,21 @@ public class UserListPanel extends Panel{
 		add(p_table);
 		
 		p_south.add(bt_prev);
-		/**
-		 * 페이지 수만큼 add 
-		 */
+		createPageButton();  // 5개 페이지 버튼에 대응되는 버튼 생성
+		setPageButton();
 		p_south.add(bt_next);
 		add(p_south, BorderLayout.SOUTH);
 		
 	}
 	
-	public UserListPanel(MainLayout mainLayout) {
-		super(mainLayout);
-		
-		memberDAO = new MemberDAO();
-		branchDAO = new BranchDAO();
-		roleDAO = new RoleDAO();
-		filter = new MemberFilterDTO();
-		
-		setStyle();
-		
-		getBranch();
-		getRole();
-		
-		// 이벤트 연결 
-		bt_start.addActionListener(e -> {
-			new DatePicker(lb_start);
-		});
-		
-		bt_end.addActionListener(e -> {
-			new DatePicker(lb_end);
-		});
-		
-		bt_search.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				
-				filter.setBr_id(((Branch)cb_branch.getSelectedItem()).getBr_id());
-				filter.setRole_id(((Role)cb_role.getSelectedItem()).getRole_id());
-				filter.setUser_id(1);  //수정 필요
-				filter.setUser_name(t_name.getText());
-				
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-				if(!lb_start.getText().equals("yyyy.mm.dd")) {
-					filter.setStart_date(Date.valueOf(LocalDate.parse(lb_start.getText(), formatter))); 
-				}
-				
-				if(!lb_end.getText().equals("yyyy.mm.dd")) {
-					filter.setEnd_date(Date.valueOf(LocalDate.parse(lb_end.getText(), formatter))); 
-				}
-				
-				memberModel.list = memberDAO.select(filter);
-				memberModel.fireTableDataChanged();
-			}
-		});
-		
-		//이름 textfield의 placeholder 제거 이벤트 
-		t_name.addFocusListener(new FocusListener() {
-			@Override
-			public void focusLost(FocusEvent e) {
-				if (t_name.getText().isEmpty()) {
-					t_name.setText("이름");
-		        }
-			}
-			
-			@Override
-			public void focusGained(FocusEvent e) {
-				if (t_name.getText().equals("이름")) {
-		            t_name.setText("");
-		        }
-			}
-		});
-	}
 	
-	// 지점 목록을 콤보박스에 넣기 
+	// 지점, 직급 콤보박스 채우기 
 	public void getBranch() {
 		System.out.println("UserListPanel.getBranch()");
-		List<Branch> br_list = branchDAO.getBranchList(1);   //수정 필요
+		List<Branch> br_list = branchDAO.getBranchList(mainLayout.user.getUser_id());  
 		Branch dummy = new Branch();
 		dummy.setBr_id(0);
 		dummy.setBr_name("지점");
-		//---- dummy에도 전체 값 세팅해야하는지 
 		
 		cb_branch.addItem(dummy);
 		for(Branch br : br_list) {
@@ -268,7 +360,6 @@ public class UserListPanel extends Panel{
 		Role dummy = new Role();
 		dummy.setRole_id(0);
 		dummy.setRole_name("직급");
-		//--전체 값 세팅?
 		
 		cb_role.addItem(dummy);
 		for(Role role : role_list) {
@@ -277,7 +368,7 @@ public class UserListPanel extends Panel{
 	}
 	
 	
-
+	
 	
 	
 }

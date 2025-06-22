@@ -1,5 +1,6 @@
 package com.olive.common.view;
 
+import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JPanel;
@@ -12,6 +13,7 @@ public class Panel extends JPanel{
 
 	public Panel(MainLayout mainLayout) {
 		this.mainLayout = mainLayout;
+		
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 		setVisible(false);
 	}

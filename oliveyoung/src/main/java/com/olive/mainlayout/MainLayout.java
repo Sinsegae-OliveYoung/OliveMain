@@ -71,7 +71,7 @@ public class MainLayout extends JFrame {
 
 	public MainLayout(User user) {
 		this.user = user;
-
+		
 		branchDAO = new BranchDAO();
 		
 		// create

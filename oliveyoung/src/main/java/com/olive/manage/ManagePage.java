@@ -15,6 +15,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.Member;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -112,16 +113,26 @@ public class ManagePage extends Page{
 	
 	public void createPanel() {
 		
-		panels = new Panel[1];
+		panels = new Panel[2];
 		
-		panels[0] = new UserListPanel(mainLayout);
-		
-		for (int i = 0; i < panels.length; i++)
+		panels[0] = new UserListPanel(mainLayout, this);
 		p_content.add(panels[0]);
+	}
+	
+	public void showUserDetailPanel(Member member) {
+		if(panels[1] != null) {
+			p_content.remove(panels[1]);
+		}
+		panels[1] = new UserDetailPanel(mainLayout, member);
+		p_content.add(panels[1]);
+		showPanel(1);
+		revalidate(); // 새 패널 UI 반영
+		repaint();
 	}
 	
 	public void showPanel(int target) {
 		for (int i = 0; i < panels.length; i++) {
+			if(panels[i] == null) continue;
 			panels[i].setVisible((i == target) ? true : false);
 		}
 	}
