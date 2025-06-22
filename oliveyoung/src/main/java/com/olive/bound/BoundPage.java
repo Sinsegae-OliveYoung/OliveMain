@@ -49,10 +49,6 @@ public class BoundPage extends Page {
 		
 		this.mainLayout = mainLayout;
 		user = mainLayout.user;
-		
-		System.out.println("boundpage"+user.getUser_name());
-		
-		
 			
 		// create
 		p_side = new JPanel();

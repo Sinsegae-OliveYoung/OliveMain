@@ -14,8 +14,12 @@ import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.BoundState;
 import com.olive.common.model.Branch;
+import com.olive.common.model.Brand;
+import com.olive.common.model.Category;
+import com.olive.common.model.CategoryDetail;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
+import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
 
@@ -23,84 +27,6 @@ public class InboundDAO {
 
     DBManager dbManager = DBManager.getInstance();
     
-//    public List<BoundProduct> selectInbound() {
-//    	Connection con = null;
-//        PreparedStatement pstmt = null;
-//        ResultSet rs = null;
-//        List<BoundProduct> list = new ArrayList<>();
-//
-//        StringBuffer sql = new StringBuffer();
-//        
-//        sql.append("select"
-//        		+ "		bd.request_date"
-//        		+ "	   ,bd.user_id"
-//        		+ "	   ,bd.approver_id"
-//        		+ "	   ,au.user_name 	as approver_name"
-//        		+ "	   ,u.user_id"
-//        		+ "	   ,u.user_name"
-//        		+ "	   ,bo.bo_state_id"
-//        		+ "	   ,bo.bo_state_name"
-//        		+ "	   ,br.br_name"
-//        		+ "	   ,bd.bound_id"
-//        		+ "	   ,bd.comment"
-//        		+ " from 	bound bd"
-//        		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
-//        		+ " inner join user u			on u.user_id = bd.user_id"
-//        		+ " inner join branch br 		on br.br_id  = bd.br_id"
-//        		+ " LEFT JOIN user au 			ON au.user_id = bd.approver_id" // 결재자(user) 테이블 다시 조인
-//        		+ " where	1 = 1"
-//        		+ " and 	bd.bound_flag = \"in\""
-//        		+ " and		bd.br_id in (1, 2, 3, 4, 5)"
-//        		+ " order by bd.request_date desc"
-//        );
-//        
-//        try {
-//            con = dbManager.getConnection();
-//            pstmt = con.prepareStatement(sql.toString());
-//            rs = pstmt.executeQuery();
-//
-//            while (rs.next()) {
-//            	// User 객체 생성
-//            	User user = new User();
-//            	user.setUser_id(rs.getInt("user_id"));
-//            	user.setUser_name(rs.getString("user_name"));
-//            	
-//            	User approver = new User();
-//            	approver.setUser_id(rs.getInt("approver_id"));
-//            	approver.setUser_name(rs.getString("approver_name"));
-//            	
-//            	
-//            	// Branch 객체 생성
-//            	Branch branch = new Branch();
-//            	branch.setBr_name(rs.getString("br_name"));
-//            	
-//            	// BoundState 객체 생성
-//            	BoundState boundState = new BoundState();
-//            	boundState.setBo_state_name(rs.getString("bo_state_name"));
-//            	
-//                // Inbound 객체 생성
-//            	Bound bound = new Bound();
-//            	bound.setBound_id(rs.getInt("bound_id"));
-//            	bound.setRequest_date(rs.getDate("request_date"));
-//            	bound.setComment(rs.getString("comment"));
-//            	bound.setUser(user);
-//            	bound.setApprover(approver);
-//            	bound.setBranch(branch);
-//            	bound.setBoundState(boundState);
-//            	
-//            	BoundProduct boundProduct = new BoundProduct();
-//            	boundProduct.setBound(bound);
-//
-//                list.add(boundProduct);
-//            }
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        } finally {
-//            dbManager.release(pstmt, rs);
-//        }
-//
-//        return list;
-//    }
     
     public List<BoundProduct> selectInboundByBranches(List<Branch> branchList) {
         Connection con = null;
@@ -135,7 +61,7 @@ public class InboundDAO {
         		+ " LEFT JOIN user au 			ON au.user_id = bd.approver_id" // 결재자(user) 테이블 다시 조인
         		+ " WHERE bd.bound_flag = 'in'"
                 + " AND bd.br_id IN (" + branchIds.toString() + ")"
-        		+ " order by bd.request_date desc"
+        		+ " order by bd.request_date desc, bd.bound_id DESC"
         );
         
 
@@ -187,170 +113,6 @@ public class InboundDAO {
         return list;
     }
 
-    
-    public List<BoundProduct> selectInbound(BoundProduct inbo) {
-    	Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        List<BoundProduct> list = new ArrayList<>();
-
-        StringBuffer sql = new StringBuffer();
-        
-        sql.append("select"
-        		+ "		bd.request_date"
-        		+ "	   ,bd.user_id"
-        		+ "	   ,u.user_name"
-        		+ "	   ,bo.bo_state_id"
-        		+ "	   ,bo.bo_state_name"
-        		+ "	   ,br.br_name"
-        		+ "	   ,bd.bound_id"
-        		+ "	   ,bd.comment"
-        		+ " from 	bound bd"
-        		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
-        		+ " inner join user u			on u.user_id = bd.user_id"
-        		+ " inner join branch br 		on br.br_id  = bd.br_id"
-        		+ " where	1 = 1"
-        		+ " and 	bd.bound_flag = \"in\""
-        		+ " and		bd.br_id in (1, 2, 3, 4, 5)"
-        		+ " order by bd.request_date desc")
-        ;
-        
-        try {
-            con = dbManager.getConnection();
-            pstmt = con.prepareStatement(sql.toString());
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-            	// User 객체 생성
-            	User user = new User();
-            	user.setUser_name(rs.getString("user_name"));
-            	
-            	// Branch 객체 생성
-            	Branch branch = new Branch();
-            	branch.setBr_name(rs.getString("br_name"));
-            	
-            	// BoundState 객체 생성
-            	BoundState boundState = new BoundState();
-            	boundState.setBo_state_name(rs.getString("bo_state_name"));
-            	
-                // Inbound 객체 생성
-            	Bound bound = new Bound();
-            	bound.setBound_id(rs.getInt("bound_id"));
-            	bound.setRequest_date(rs.getDate("request_date"));
-            	bound.setComment(rs.getString("comment"));
-            	bound.setUser(user);
-            	bound.setBranch(branch);
-            	bound.setBoundState(boundState);
-            	
-            	BoundProduct boundProduct = new BoundProduct();
-            	boundProduct.setBound(bound);
-
-                list.add(boundProduct);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            dbManager.release(pstmt, rs);
-        }
-
-        return list;
-    }
-    
-    
-    public void insertInbound(int user_id, int managerId, int br_id, Date requestDate, String comment, List<BoundProduct> products) throws BoundException{
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        
-        con = dbManager.getConnection();
-
-        StringBuffer boundSql = new StringBuffer();
-        StringBuffer boundProductSql = new StringBuffer();
-        
-        
-        // Bound Table
-        boundSql.append("INSERT INTO bound (user_id, approver_id, br_id, request_date, comment, bo_state_id, bound_flag) "
-        		+ "VALUES (?, ?, ?, ?, ?, 1, 'in')");
-        
-        // BoundProduct Table
-        boundProductSql.append("INSERT INTO bound_product (bound_id, option_id, b_count) VALUES (?, ?, ?)");
-
-        try {
-            con.setAutoCommit(false);
-            // bound insert
-            
-            pstmt = con.prepareStatement(boundSql.toString(), Statement.RETURN_GENERATED_KEYS);
-
-            
-//            pstmt = con.prepareStatement(boundSql.toString());
-            pstmt.setInt(1, user_id);
-            pstmt.setInt(2, managerId);
-            pstmt.setInt(3, br_id);
-            pstmt.setDate(4, requestDate);
-            pstmt.setString(5, comment);
-            
-            int result = pstmt.executeUpdate();
-			if(result < 1) {
-				throw new BoundException("입고 요청서 등록에 실패하였습니다");				
-			}
-
-//            rs = pstmt.getGeneratedKeys();
-//            int bound_id = 0;
-//            if (rs.next()) {
-//                bound_id = rs.getInt(1);
-//            }
-            
-            // bound_product insert
-//            pstmt = con.prepareStatement(boundProductSql);
-//            for (BoundProduct bp : products) {
-//                pstmt.setInt(1, bound_id);
-//                pstmt.setInt(2, bp.getProductOption().getOption_id());
-//                pstmt.setInt(3, bp.getB_count());
-//                pstmt.addBatch();
-//            }
-//            pstmt.executeBatch();
-
-			// 생성된 bound_id 가져오기
-	        rs = pstmt.getGeneratedKeys();
-	        int bound_id = 0;
-	        if (rs.next()) {
-	            bound_id = rs.getInt(1);
-	        } else {
-	            throw new BoundException("입고 요청서 ID를 가져오지 못했습니다");
-	        }
-
-	        // 3. bound_product 테이블에 insert
-	        pstmt = con.prepareStatement(boundProductSql.toString());
-	        for (BoundProduct bp : products) {
-	            pstmt.setInt(1, bound_id);
-	            pstmt.setInt(2, bp.getProductOption().getOption_id());
-	            pstmt.setInt(3, bp.getB_count());
-	            pstmt.addBatch();
-	        }
-	        pstmt.executeBatch();
-
-            con.commit();
-        } catch (SQLException e) {
-        	e.printStackTrace();
-            try {
-                if (con != null) con.rollback();
-                throw new BoundException("입고 요청서 등록에 실패하였습니다");
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-                throw new BoundException("입고 요청서 등록에 실패하였습니다");
-            }
-        } finally {
-            dbManager.release(pstmt, rs);
-            try {
-                if (con != null) con.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw new BoundException("입고 요청서 등록에 실패하였습니다");
-            }
-        }
-    }
-
-    
     public List<BoundProduct> selectBoundProductListByBoundId(int boundId) {
     	Connection con = null;
         PreparedStatement pstmt = null;
@@ -434,4 +196,255 @@ public class InboundDAO {
 
         return list;
     }
+    
+ // 제품 리스트 & 선택된 요청서의 가져오기
+    public List<BoundProduct> boundEditProduct(int bound_id) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<BoundProduct> list = new ArrayList<>();
+
+        StringBuffer sql = new StringBuffer();
+        
+        sql.append(
+        		  "SELECT"
+        		  + "    c.ct_name,"
+        		  + "    cd.ct_dt_name,"
+        		  + "    b.bd_name,"
+        		  + "    p.product_id,"
+        		  + "    p.product_name,"
+        		  + "    po.option_id,"
+        		  + "    CASE WHEN po.option_no = 99 THEN '-' ELSE po.option_name END AS option_name,"
+        		  + "    po.option_code,"
+        		  + "    po.price,"
+        		  + "    COALESCE(("
+        		  + "        SELECT SUM(s.st_quantity)"
+        		  + "        FROM stock s"
+        		  + "        WHERE s.option_id = po.option_id"
+        		  + "          AND s.br_id = bo.br_id"
+        		  + "    ), 0) AS st_quantity,"
+        		  + "    COALESCE(bp.b_count, 0) AS b_count"
+        		  + " FROM product p"
+        		  + " INNER JOIN product_option po ON p.product_id = po.product_id"
+        		  + " INNER JOIN category c ON p.ct_id = c.ct_id"
+        		  + " INNER JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id AND c.ct_id = cd.ct_id"
+        		  + " INNER JOIN brand b ON p.bd_id = b.bd_id"
+        		  + " LEFT JOIN bound_product bp ON bp.option_id = po.option_id AND bp.bound_id = ?"
+        		  + " JOIN bound bo ON bo.bound_id = ?"
+        		  + " ORDER BY c.ct_id ASC, cd.ct_dt_id ASC"
+        );
+        
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, bound_id);
+            pstmt.setInt(2, bound_id);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+
+                // Category 객체 생성
+                Category category = new Category();
+//                category.setCt_code(rs.getString("ct_code"));
+                category.setCt_name(rs.getString("ct_name"));
+
+                // CategoryDetail 객체 생성 및 연결
+                CategoryDetail categoryDetail = new CategoryDetail();
+                categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
+                categoryDetail.setCategory(category);
+
+                // Brand 객체 생성
+                Brand brand = new Brand();
+                brand.setBd_name(rs.getString("bd_name"));
+
+                // Product 객체 생성 및 연결
+                Product product = new Product();
+                product.setProduct_name(rs.getString("product_name"));
+                product.setCategory(category);
+                product.setCategory_detail(categoryDetail);
+                product.setBrand(brand);
+
+                // ProductOption 객체 생성 및 연결
+                ProductOption productOption = new ProductOption();
+                productOption.setOption_id(rs.getInt("option_id"));
+                productOption.setOption_code(rs.getString("option_code"));
+//                productOption.setOption_no(rs.getInt("option_no"));
+                productOption.setOption_name(rs.getString("option_name"));
+                productOption.setPrice(rs.getInt("price"));
+                productOption.setProduct(product);
+
+                // Branch 객체 생성 및 연결
+                Branch branch = new Branch();
+                branch = new Branch();
+//                branch.setBr_name(rs.getString("br_name"));
+                
+                Bound bound = new Bound();
+//                bound.setBound_id(rs.getInt("bound_id"));
+                
+                BoundProduct boundProduct = new BoundProduct();
+                boundProduct.setBound(bound);
+                boundProduct.setProductOption(productOption);
+                boundProduct.setB_count(rs.getInt("b_count")); // ✅ 추가: 요청 수량 설정
+
+                // Stock 객체 생성
+                Stock stock = new Stock();
+//                stock.setSt_id(rs.getInt("st_id"));
+                stock.setSt_quantity(rs.getInt("st_quantity"));
+                stock.setProductOption(productOption);
+                stock.setBranch(branch);
+
+                list.add(boundProduct);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt, rs);
+        }
+
+        return list;
+    }
+    
+    // 선택된 요청서의 지점의 재고 가져오기
+    public List<Stock> selectStockForBound(int bound_id) {
+        List<Stock> stockList = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT s.option_id, SUM(s.st_quantity) AS st_quantity ");
+        sql.append("FROM stock s ");
+        sql.append("WHERE s.br_id = ( ");
+        sql.append("    SELECT br_id ");
+        sql.append("    FROM bound ");
+        sql.append("    WHERE bound_id = ? ");
+        sql.append(") ");
+        sql.append("GROUP BY s.option_id");
+
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, bound_id);
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Stock stock = new Stock();
+                ProductOption po = new ProductOption();
+                po.setOption_id(rs.getInt("option_id"));
+                stock.setProductOption(po);
+                stock.setSt_quantity(rs.getInt("st_quantity"));
+
+                stockList.add(stock);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt, rs);
+        }
+
+        return stockList;
+    }
+    
+    // 요청서 신규 등록 - InboundRequestPanel
+    public void insertInbound(int user_id, int managerId, int br_id, Date requestDate, String comment, List<BoundProduct> products) throws BoundException{
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        con = dbManager.getConnection();
+
+        StringBuffer boundSql = new StringBuffer();
+        StringBuffer boundProductSql = new StringBuffer();
+        
+        
+        // Bound Table
+        boundSql.append("INSERT INTO bound (user_id, approver_id, br_id, request_date, comment, bo_state_id, bound_flag) "
+        		+ "VALUES (?, ?, ?, ?, ?, 1, 'in')");
+        
+        // BoundProduct Table
+        boundProductSql.append("INSERT INTO bound_product (bound_id, option_id, b_count) VALUES (?, ?, ?)");
+
+        try {
+            con.setAutoCommit(false);
+            // bound insert
+            
+            pstmt = con.prepareStatement(boundSql.toString(), Statement.RETURN_GENERATED_KEYS);
+
+            pstmt.setInt(1, user_id);
+            pstmt.setInt(2, managerId);
+            pstmt.setInt(3, br_id);
+            pstmt.setDate(4, requestDate);
+            pstmt.setString(5, comment);
+            
+            int result = pstmt.executeUpdate();
+			if(result < 1) {
+				throw new BoundException("입고 요청서 등록에 실패하였습니다");				
+			}
+
+			// 생성된 bound_id 가져오기
+	        rs = pstmt.getGeneratedKeys();
+	        int bound_id = 0;
+	        if (rs.next()) {
+	            bound_id = rs.getInt(1);
+	        } else {
+	            throw new BoundException("입고 요청서 ID를 가져오지 못했습니다");
+	        }
+
+	        // 3. bound_product 테이블에 insert
+	        pstmt = con.prepareStatement(boundProductSql.toString());
+	        for (BoundProduct bp : products) {
+	            pstmt.setInt(1, bound_id);
+	            pstmt.setInt(2, bp.getProductOption().getOption_id());
+	            pstmt.setInt(3, bp.getB_count());
+	            pstmt.addBatch();
+	        }
+	        pstmt.executeBatch();
+
+            con.commit();
+        } catch (SQLException e) {
+        	e.printStackTrace();
+            try {
+                if (con != null) con.rollback();
+                throw new BoundException("입고 요청서 등록에 실패하였습니다");
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                throw new BoundException("입고 요청서 등록에 실패하였습니다");
+            }
+        } finally {
+            dbManager.release(pstmt, rs);
+            try {
+                if (con != null) con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new BoundException("입고 요청서 등록에 실패하였습니다");
+            }
+        }
+    }
+
+    // 요청서 삭제 - InboundShowPanel
+    public void deleteInbound(int boundId) {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+            con = dbManager.getConnection();
+
+            // 1. bound_product 테이블 먼저 삭제
+            String sqlDeleteProduct = "DELETE FROM bound_product WHERE bound_id = ?";
+            pstmt = con.prepareStatement(sqlDeleteProduct);
+            pstmt.setInt(1, boundId);
+            pstmt.executeUpdate();
+            pstmt.close(); // 기존 pstmt 닫고 재사용
+
+            // 2. bound 테이블 삭제
+            String sqlDeleteBound = "DELETE FROM bound WHERE bound_id = ?";
+            pstmt = con.prepareStatement(sqlDeleteBound);
+            pstmt.setInt(1, boundId);
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt);
+        }    }
 }

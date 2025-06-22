@@ -1,4 +1,4 @@
-package com.olive.bound.view;
+package com.olive.bound.model;
 
 import java.util.List;
 

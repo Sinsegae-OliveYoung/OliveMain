@@ -7,6 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.olive.common.model.Bound;
+import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
@@ -55,7 +57,7 @@ public class ProductDAO {
                 + " INNER JOIN category_detail cd 	ON p.ct_dt_id 	= cd.ct_dt_id "
                 + "								   AND c.ct_id 		= cd.ct_id "
                 + " INNER JOIN brand b 				ON p.bd_id 		= b.bd_id "
-                + " ORDER BY p.product_name");
+                + " ORDER BY c.ct_id ASC, cd.ct_dt_id asc");
         
         try {
             con = dbManager.getConnection();
@@ -153,7 +155,7 @@ public class ProductDAO {
                 + " INNER JOIN category_detail cd 	ON p.ct_dt_id 	= cd.ct_dt_id"
                 + "								   AND c.ct_id 		= cd.ct_id "
                 + " INNER JOIN brand b 				ON p.bd_id 		= b.bd_id "
-                + " ORDER BY p.product_name"
+                + " ORDER BY c.ct_id ASC, cd.ct_dt_id asc"
         );
         
         try {
@@ -216,4 +218,5 @@ public class ProductDAO {
 
         return list;
     }
+    
 }

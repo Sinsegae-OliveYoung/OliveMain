@@ -26,9 +26,12 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
+import com.olive.bound.model.BoundProductModel;
+import com.olive.bound.model.InboundModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
@@ -101,8 +104,6 @@ public class InboundRequestPanel extends Panel{
 		this.mainLayout = mainLayout;
 		this.user = mainLayout.user;
 		int userId = user.getUser_id();
-		
-		System.out.println("InboundRequestPanel : " + user.getUser_id()); // ------------------------------------------------------------
 		
 		// 공통 색상 및 폰트
         Color bgColor = new Color(245, 248, 250);
@@ -187,7 +188,7 @@ public class InboundRequestPanel extends Panel{
         cb_branch = new JComboBox<>();
         cb_branch.setPreferredSize(new Dimension(200, 30));
         cb_branch.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        cb_branch.setBackground(Config.LIGHT_GRAY);
+        cb_branch.setBackground(Config.WHITE);
         cb_branch.setForeground(Color.DARK_GRAY);
         cb_branch.setFocusable(false);
         cb_branch.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -211,7 +212,7 @@ public class InboundRequestPanel extends Panel{
         
         // 입력 필드 스타일
         JTextField editor = (JTextField) dateChooser.getDateEditor().getUiComponent();
-        editor.setBackground(Config.LIGHT_GRAY);
+        editor.setBackground(Config.WHITE);
         editor.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
         // 달력 버튼 스타일
@@ -230,13 +231,6 @@ public class InboundRequestPanel extends Panel{
             }
         });
 
-        la_memo = new JLabel("메모 :");
-    	tf_memo = new JTextField();
-    	tf_memo.setPreferredSize(new Dimension(200, 30));
-    	tf_memo.setFont(new Font("SansSerif", Font.PLAIN, 14));
-    	tf_memo.setBackground(Config.LIGHT_GRAY);
-    	tf_memo.setForeground(Color.DARK_GRAY);
-        
         la_approver = new JLabel("결재자 :");
         tf_approver = new JTextField();
         tf_approver.setPreferredSize(new Dimension(120, 30));
@@ -244,6 +238,15 @@ public class InboundRequestPanel extends Panel{
         tf_approver.setBackground(Config.LIGHT_GRAY);
         tf_approver.setForeground(Color.DARK_GRAY);
         tf_approver.setEditable(false); // 수정 불가능하게
+        tf_approver.setBorder(new LineBorder(Color.LIGHT_GRAY, 1));
+        
+        la_memo = new JLabel("메모 :");
+    	tf_memo = new JTextField();
+    	tf_memo.setPreferredSize(new Dimension(200, 30));
+    	tf_memo.setFont(new Font("SansSerif", Font.PLAIN, 14));
+    	tf_memo.setBackground(Config.WHITE);
+    	tf_memo.setForeground(Color.DARK_GRAY);
+        
 
         bt_save = new JButton("저장");
         bt_save.setPreferredSize(new Dimension(80, 30));
