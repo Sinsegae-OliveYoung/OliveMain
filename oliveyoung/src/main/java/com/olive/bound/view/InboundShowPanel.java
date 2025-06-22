@@ -577,7 +577,6 @@ public class InboundShowPanel extends Panel{
         refreshStaticList();
     }
 
-    
     // 테이블 새로고침을 위함
     public static void refreshStaticList() {
         if (instance != null) {
