@@ -13,36 +13,39 @@ import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
+import com.olive.common.model.Role;
 import com.olive.common.model.Stock;
+import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
+import com.olive.mainlayout.MainLayout;
 
 public class StockDAO {
 
     DBManager dbManager = DBManager.getInstance();
 
-    public List<Stock> listNow() {
+    public List<Stock> listNow(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         List<Stock> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-        sql.append("SELECT po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, s.st_id, s.st_quantity, s.st_update,");
-        sql.append(" po.option_id, br.br_id FROM stock s "); 
-        sql.append("JOIN product_option po ON s.option_id = po.option_id ");
-        sql.append("JOIN product p ON po.product_id = p.product_id ");
-        sql.append("JOIN brand b ON p.bd_id = b.bd_id ");
-        sql.append("JOIN branch br ON s.br_id = br.br_id ");
-        sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
-        sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
-        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
-        sql.append("order by s.st_update ");
-
-        // 현재 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
-
+        sql.append("SELECT po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, " +
+        	    "s.st_id, s.st_quantity, s.st_update, po.option_id, br.br_id " +
+        	    "FROM stock s " +
+        	    "JOIN product_option po ON s.option_id = po.option_id " +
+        	    "JOIN product p ON po.product_id = p.product_id " +
+        	    "JOIN brand b ON p.bd_id = b.bd_id " +
+        	    "JOIN branch br ON s.br_id = br.br_id " +
+        	    "JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id " +
+        	    "JOIN category ct ON cd.ct_id = ct.ct_id " +
+        	    "WHERE br.br_id = ? " + // 로그인한 유저의 br_id로 대체
+        	    "ORDER BY s.st_update");
+        
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, getBranchID(user));
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -97,7 +100,7 @@ public class StockDAO {
         return list;
     }
    
-    public List<Stock> listCat(Category category) {
+    public List<Stock> listCat(Category category, User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -112,14 +115,15 @@ public class StockDAO {
         sql.append("JOIN branch br ON s.br_id = br.br_id ");
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
-        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+        sql.append("where br.br_id = ? ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
         sql.append("and ct.ct_name = ?");
         sql.append("order by s.st_update ");
         
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());
-            pstmt.setString(1, category.getCt_name());
+            pstmt.setInt(1, getBranchID(user));
+            pstmt.setString(2, category.getCt_name());
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -174,7 +178,7 @@ public class StockDAO {
         return list;
     }
     
-    public List<Stock> listCountAlert() {
+    public List<Stock> listCountAlert(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -189,13 +193,14 @@ public class StockDAO {
         sql.append("JOIN branch br ON s.br_id = br.br_id ");
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
-        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+        sql.append("where br.br_id = ? ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
         sql.append("and s.st_quantity between 1 and 30 ");
         sql.append("order by s.st_update ");
         
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, getBranchID(user));
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -250,7 +255,7 @@ public class StockDAO {
         return list;
     }
     
-    public List<Stock> listOldAlert() {
+    public List<Stock> listOldAlert(User user) {
         Connection con = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -265,13 +270,14 @@ public class StockDAO {
         sql.append("JOIN branch br ON s.br_id = br.br_id ");
         sql.append("JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id ");
         sql.append("JOIN category ct ON cd.ct_id = ct.ct_id ");
-        sql.append("where br.br_id = 1 ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
+        sql.append("where br.br_id = ? ");// 로그인 후 1 대신 => 접속한 유저의 소속 브랜치(br_id)와 stock에 br_id가 일치하는지 여부 작성
         sql.append("and s.st_update < DATE_SUB(CURDATE(), INTERVAL 1 YEAR) ");
         sql.append("order by s.st_update ");
         
         try {
             con = dbManager.getConnection();
             pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, getBranchID(user));
             rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -325,4 +331,74 @@ public class StockDAO {
 
         return list;
     }
+    
+    public void updateProductQuantity(int st_id, int st_quantity) {
+    	  Connection con = null;
+          PreparedStatement pstmt = null;
+
+          StringBuffer sql = new StringBuffer();
+          sql.append("UPDATE stock set st_quantity = ? where st_id = ?");
+          
+          try {
+              con = dbManager.getConnection();
+              pstmt = con.prepareStatement(sql.toString());
+              pstmt.setInt(1, st_quantity);
+              pstmt.setInt(2, st_id);
+              pstmt.execute();
+              
+          } catch ( SQLException e) {
+        	  e.printStackTrace();
+          } finally {
+        	  dbManager.release(pstmt);
+          }
+    }
+    
+ // 로그인한 user가 관리하는 branch 목록 반환
+ 	public int getBranchID(User user){
+ 		
+ 		Connection con = null;
+ 		PreparedStatement pstmt = null;
+ 		ResultSet rs = null;
+ 		int resultID = -1;
+ 		
+ 		con = dbManager.getConnection();
+ 		
+ 		StringBuffer sql = new StringBuffer();
+ 		sql.append("select b.br_id");
+ 		sql.append(" from branch b");
+ 		sql.append(" inner join member m");
+ 		sql.append(" join user u");
+ 		sql.append(" join role r");
+ 		sql.append(" on b.br_id = m.br_id");
+ 		sql.append(" and u.user_id = m.user_id");
+ 		sql.append(" and u.role_id = r.role_id");
+ 		sql.append(" where m.user_id = ?");
+ 	
+ 		try {
+ 			pstmt = con.prepareStatement(sql.toString());
+ 			pstmt.setInt(1, user.getUser_id());  
+ 			rs = pstmt.executeQuery();
+ 			
+ 			while(rs.next()) {
+ 				resultID = rs.getInt("b.br_id");
+ 			}
+ 		} catch (SQLException e) {
+ 			e.printStackTrace();
+ 		} finally {
+ 			dbManager.release(pstmt, rs);
+ 		}
+ 		
+ 		return resultID;
+ 	}
 }
+
+
+
+
+
+
+
+
+
+
+

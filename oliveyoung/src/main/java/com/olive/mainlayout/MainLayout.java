@@ -209,7 +209,6 @@ public class MainLayout extends JFrame {
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
 
-
 					/*--------------
 					 *  병합용
 					 * -------------*/
@@ -223,7 +222,7 @@ public class MainLayout extends JFrame {
 					 * showPage(Config.MANAGE_PAGE); else if (source == bt_lo) showPage(new
 					 * LoginPage());
 					 */
-					
+
 					if (source == bt_title) showPage(Config.MAIN_PAGE); 
 					else if (source == bt_pd) showPage(Config.PRODUCT_PAGE); 
 					else if (source == bt_io) showPage(Config.BOUND_PAGE); 

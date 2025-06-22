@@ -10,14 +10,16 @@ import com.olive.common.model.Category;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.StockDAO;
+import com.olive.common.repository.StockLogDAO;
+import com.olive.stock.StockPage;
+import com.olive.stock.update.view.StockUpdatePanel;
 
 
-public class ListModel extends AbstractTableModel {
+public class UpdateModel extends AbstractTableModel {
 
     StockDAO stockDAO;
     List<Stock> list;
-    String status = null;
-    
+    StockPage stockpage; // 재고 업데이트 반영을 위함
     User user;
 
     String[] column = {
@@ -31,22 +33,17 @@ public class ListModel extends AbstractTableModel {
 //    		"st_quantity", "st_update"
 //    };
 
-    public ListModel(String str, User user) {
-        stockDAO = new StockDAO();
-        status = str;
-        this.user = user;
-        if(str.equals("now")) {
-        	list = stockDAO.listNow(user);             	
-        } else if(str.equals("countAlert")) {
-        	list = stockDAO.listCountAlert(user);
-        } else if(str.equals("oldAlert")) {
-        	list = stockDAO.listOldAlert(user);
-        }
+    public UpdateModel(StockPage stockpage, User user) { // StockPage를 보관해야함 -> update 위함
+    	this.stockpage = stockpage;
+    	this.user = user;
+        stockDAO = new StockDAO();	
+        list = stockDAO.listNow(user); 
     }
     
-    public ListModel(Category category, User user) {
-    	stockDAO = new StockDAO();
-    	list = stockDAO.listCat(category, user);
+    public void reload() {
+    	   stockDAO = new StockDAO();	
+           list = stockDAO.listNow(user); 	
+           fireTableDataChanged();
     }
 
     public int getRowCount() {
@@ -59,17 +56,6 @@ public class ListModel extends AbstractTableModel {
 
     public String getColumnName(int col) {
         return column[col];
-    }
-    
-    public void reload() {
-    	 if(status.equals("now")) {
-         	list = stockDAO.listNow(user);             	
-         } else if(status.equals("countAlert")) {
-         	list = stockDAO.listCountAlert(user);
-         } else if(status.equals("oldAlert")) {
-         	list = stockDAO.listOldAlert(user);
-         }
-        fireTableDataChanged();
     }
 
     public Object getValueAt(int row, int col) {
@@ -118,6 +104,49 @@ public class ListModel extends AbstractTableModel {
         }
 
         return value;
+    }
+    
+
+    @Override
+    public void setValueAt(Object value, int row, int col) {
+	  Stock stock = list.get(row);
+
+	    // 가격 컬럼인 경우만 처리
+	    if (col == 6) {
+	    	System.out.println(col);
+	        try {
+	            int quantity = Integer.parseInt(value.toString());
+
+	            // 확인 다이얼로그 띄우기
+	            int result = javax.swing.JOptionPane.showConfirmDialog(
+	                null, // parent component (null이면 화면 중앙)
+	                "수정하시겠습니까?",
+	                "가격 수정 확인",
+	                javax.swing.JOptionPane.YES_NO_OPTION
+	            );
+
+	            // 사용자가 '예'를 누른 경우에만 반영
+	            if (result == javax.swing.JOptionPane.YES_OPTION) {
+	                stock.setSt_quantity(quantity);
+	                stockDAO.updateProductQuantity(stock.getSt_id(), quantity); // stock id에 맞게 수량 변경
+	                
+	                stockpage.setDataDirty(true);;  // isDataDirty = true
+	                
+	                fireTableCellUpdated(row, col); // 화면 갱신
+	            }
+
+	        } catch (NumberFormatException e) {
+	            javax.swing.JOptionPane.showMessageDialog(null, "숫자만 입력 가능합니다.");
+	        }
+	    }
+    }
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+    	if(columnIndex == 6) {
+    		return true;
+    	}
+    	else return false;
     }
     
     public void sortByDateAsc() {
