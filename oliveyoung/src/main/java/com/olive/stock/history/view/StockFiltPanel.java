@@ -34,15 +34,16 @@ import com.olive.store.StorePage;
 import com.toedter.calendar.JDateChooser;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.LabelUtil;
 
 public class StockFiltPanel extends Panel {
 
     JTable table;
-    JPanel p_north;
     JPanel p_dateArea;
     JLabel lb_start, lb_end, titleLabel;
     JButton bt_start, bt_end;
     StockModel model;
+    MainLayout mainLayout;
     
     JComboBox<String> categoryBox;
 
@@ -50,21 +51,23 @@ public class StockFiltPanel extends Panel {
 
     public StockFiltPanel(MainLayout mainLayout) {
         super(mainLayout);
-        setLayout(new BorderLayout(0, 10)); // 테이블 아래 간격
+        this.mainLayout = mainLayout;
+        setLayout(new BorderLayout(0, 10));
+        setBackground(Config.WHITE);
 
-        // 제목 영역
-        p_north = new JPanel(new BorderLayout());
-        p_north.setBackground(StockConfig.bgColor);
-        p_north.setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
+        // 상단 패널
+        JPanel topPanel = new JPanel(new BorderLayout());
+        StockConfig.panelStyle(topPanel);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
         titleLabel = new JLabel("시간대 별 기록");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
-        p_north.add(titleLabel, BorderLayout.WEST);
+        LabelUtil.applyTitleStyle(titleLabel);
+        topPanel.add(titleLabel, BorderLayout.WEST);
 
         // 날짜 + 버튼 영역
         p_dateArea = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         p_dateArea.setOpaque(false);
-        p_dateArea.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        p_dateArea.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 20));
 
         lb_start = new JLabel("yyyy.mm.dd");
         lb_end = new JLabel(LocalDate.now().toString().replace("-", "."));
@@ -93,7 +96,6 @@ public class StockFiltPanel extends Panel {
         p_dateArea.add(categoryBox);
         p_dateArea.add(bt_search);
 
-        p_north.add(p_dateArea, BorderLayout.EAST);
 
         // 테이블 생성 및 스타일
         model = new StockModel("in");
@@ -113,7 +115,7 @@ public class StockFiltPanel extends Panel {
         }
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
+//        scroll.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
         scroll.getViewport().setBackground(Color.WHITE);
 
         // 이벤트 연결
@@ -166,8 +168,16 @@ public class StockFiltPanel extends Panel {
             titleLabel.setText("시간대 별 " + label + " 기록");
             table.updateUI();
         });
+        
+        // 전체 조립
+        JPanel topContainer = new JPanel(new BorderLayout());
+        topContainer.setOpaque(false);
+        topContainer.add(topPanel, BorderLayout.NORTH);
+        topContainer.add(p_dateArea, BorderLayout.CENTER);
 
-        add(p_north, BorderLayout.NORTH);
+        add(topContainer, BorderLayout.NORTH);
+
+        add(topContainer, BorderLayout.NORTH);
         add(scroll, BorderLayout.CENTER);
     }
 

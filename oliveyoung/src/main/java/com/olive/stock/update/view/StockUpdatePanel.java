@@ -19,6 +19,7 @@ import javax.swing.table.DefaultTableModel;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
+import com.olive.common.util.style.LabelUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
@@ -44,10 +45,11 @@ public class StockUpdatePanel extends Panel{
 
 	        // 상단 패널
 	        JPanel topPanel = new JPanel(new BorderLayout());
-	        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+	        StockConfig.panelStyle(topPanel);
+	        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
 	        JLabel titleLabel = new JLabel("수동 수량 재고 조정");
-	        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+	        LabelUtil.applyTitleStyle(titleLabel);
 	        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 	        topPanel.add(titleLabel, BorderLayout.WEST);
 	        topPanel.setBackground(StockConfig.bgColor);
@@ -57,7 +59,7 @@ public class StockUpdatePanel extends Panel{
 	        table = new JTable(model);
 	        
 
-	        // 💡 테이블 스타일 적용
+	        // 테이블 스타일 적용
 	        table.setRowHeight(25);
 	        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
 	        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));

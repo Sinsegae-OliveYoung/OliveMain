@@ -10,7 +10,7 @@ import com.olive.stock.StockConfig;
 
 public class LabelUtil {
 	
-	static Font titleFont = new Font("SansSerif", Font.BOLD, 22);
+	static Font titleFont = new Font("SansSerif", Font.BOLD, 26);
 	
 	/**
 	 * 사이드바 메뉴 클릭 시 패널에 나오는 라벨 스타일 
