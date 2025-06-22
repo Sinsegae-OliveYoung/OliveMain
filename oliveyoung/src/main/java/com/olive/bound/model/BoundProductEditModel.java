@@ -122,4 +122,7 @@ public class BoundProductEditModel extends AbstractTableModel{
         return value;
     }
 
+	public BoundProduct getBoundProductAt(int row) {
+	    return list.get(row); // list는 BoundProduct를 담고 있는 내부 리스트
+	}
 }

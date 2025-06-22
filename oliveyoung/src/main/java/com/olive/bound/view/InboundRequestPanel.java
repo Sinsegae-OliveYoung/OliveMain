@@ -337,7 +337,7 @@ public class InboundRequestPanel extends Panel{
 				
 				// 예: 제품명 컬럼 클릭시만 처리
 				if ("제품명".equals(columnName)) {
-					javax.swing.JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
+					JOptionPane.showMessageDialog(null, "제품명 컬럼 클릭됨");
 				}
 			}
 		});

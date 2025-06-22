@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -325,27 +326,15 @@ public class InboundShowPanel extends Panel{
         		}
         	}
         });
-                
-     // JTable 클릭 이벤트 처리
-        table_list.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int row = table_list.getSelectedRow();
-                if (row != -1) {
-                    selected = model.getBoundAt(row);
-                    showDetail(selected);
-                    bt_add.setEnabled(true); // 상품 추가 버튼 활성화
-                }
-            }
-        });
-        
-        
+
         cb_branch.addItemListener(new ItemListener() {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     Branch selectedBranch = (Branch) cb_branch.getSelectedItem();
                     if (selectedBranch == null || selectedBranch.getBr_id() == 0) return;
+                    
+                    System.out.println(selectedBranch);
 
                     // ✅ 해당 지점의 점장 불러오기
                     UserDAO userDAO = new UserDAO();
@@ -366,13 +355,35 @@ public class InboundShowPanel extends Panel{
             }
         });
         
+        // JTable 클릭 이벤트 처리
+        table_list.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mouseClicked(MouseEvent e) {
+        		int row = table_list.getSelectedRow();
+        		if (row != -1) {
+        			selected = model.getBoundAt(row);
+        			showDetail(selected);
+        			bt_add.setEnabled(true); // 상품 추가 버튼 활성화
+        		}
+        	}
+        });
+        
+        
         bt_add.addActionListener(e -> {
-//            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
-//            new ProductAddDialog(parentFrame, this); // 다이얼로그 띄우기
-        	JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
             ProductAddDialog dialog = new ProductAddDialog(parentFrame, selected);
             dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true); // 여기서 다이얼로그 실행됨
+
+            List<BoundProduct> updatedList = dialog.getSelectedProducts();
+            if (updatedList != null) {
+                List<BoundProduct> filteredList = updatedList.stream()
+                    .filter(bp -> bp.getB_count() > 0)
+                    .toList();
+                model_detail.setBoundProductList(filteredList);
+            }
         });
+
         
         bt_add.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -400,7 +411,7 @@ public class InboundShowPanel extends Panel{
         
         bt_save.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				
+				saveInbound(selected);
 			}
 			
 			public void mouseEntered(MouseEvent e) {
@@ -413,6 +424,7 @@ public class InboundShowPanel extends Panel{
 		});
 
     }
+    
     
     
     private void showDetail(BoundProduct boundProduct) {
@@ -439,7 +451,7 @@ public class InboundShowPanel extends Panel{
 
         // 로그인 계정 지점 리스트 중 중복되지 않은 지점만 추가
         for (Branch userBranch : userBranches) {
-            if (requestBranch == null || !userBranch.equals(requestBranch)) {
+            if (!userBranch.equals(requestBranch)) {
                 cb_branch.addItem(userBranch);
             }
         }
@@ -478,7 +490,93 @@ public class InboundShowPanel extends Panel{
             refreshStaticList();
         }
     }
-    
+
+    private void saveInbound(BoundProduct boundProduct) {
+        if (selected == null) return;
+
+        // 1. 현재 선택된 요청서 정보 추출
+        Bound currentBound = selected.getBound();
+        User newApprover = (User) cb_appuser.getSelectedItem();
+        Date newRequestDate = dateChooser.getDate();
+        String newMemo = t_memo.getText().trim();
+        List<BoundProduct> newProductList = model_detail.getBoundProductList();
+        
+        Branch newBranch = (Branch) cb_branch.getSelectedItem();
+        if (newBranch == null || newBranch.getBr_id() == 0) {
+            JOptionPane.showMessageDialog(null, "지점을 선택해주세요.");
+            return;
+        }
+
+        // 2. 기존 정보와 비교하여 변경 여부 판단
+        boolean isModified = false;
+
+        // 지점, 결재자, 날짜, 메모 비교
+        if (!currentBound.getBranch().equals(newBranch) ||
+            !currentBound.getApprover().equals(newApprover) ||
+            !currentBound.getRequest_date().equals(newRequestDate) ||
+            !currentBound.getComment().equals(newMemo)) {
+            isModified = true;
+        }
+
+        // 상품 리스트 비교 (수량 또는 제품 ID 변경 여부)
+        List<BoundProduct> oldProductList = inboundDAO.selectBoundProductListByBoundId(currentBound.getBound_id());
+        if (oldProductList.size() != newProductList.size()) {
+            isModified = true;
+        } else {
+            for (int i = 0; i < newProductList.size(); i++) {
+                BoundProduct newBP = newProductList.get(i);
+                boolean match = false;
+                for (BoundProduct oldBP : oldProductList) {
+                    if (newBP.getProductOption().getOption_id() == oldBP.getProductOption().getOption_id() &&
+                        newBP.getB_count() == oldBP.getB_count()) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match) {
+                    isModified = true;
+                    break;
+                }
+            }
+        }
+
+        // 3. 변경사항 없으면 메시지
+        if (!isModified) {
+            JOptionPane.showMessageDialog(null, "변경된 사항이 없습니다.");
+            return;
+        }
+        
+        for (BoundProduct bp : newProductList) {
+            if (bp.getProductOption() == null) {
+                System.err.println("productOption이 null입니다. bp: " + bp);
+                return;
+            }
+            System.out.println("option_id: " + bp.getProductOption().getOption_id());
+        }
+
+        // 4. 변경사항이 있으면 저장
+        currentBound.setBranch(newBranch);
+        currentBound.setApprover(newApprover);
+        currentBound.setRequest_date(newRequestDate);
+        currentBound.setComment(newMemo);
+
+        // 요청서 업데이트
+        inboundDAO.updateBound(currentBound);
+
+        // 요청 상품들 업데이트
+        inboundDAO.deleteBoundProductsByBoundId(currentBound.getBound_id());
+        
+        for (BoundProduct bp : newProductList) {
+            bp.setBound(currentBound); // bound_id 설정
+            inboundDAO.insertBoundProduct(bp);
+        }
+
+        JOptionPane.showMessageDialog(null, "요청서가 성공적으로 저장되었습니다.");
+
+        // 테이블 새로고침
+        refreshStaticList();
+    }
+
     
     // 테이블 새로고침을 위함
     public static void refreshStaticList() {

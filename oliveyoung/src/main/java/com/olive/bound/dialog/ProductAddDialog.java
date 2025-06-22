@@ -7,6 +7,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.InputVerifier;
@@ -36,6 +38,8 @@ public class ProductAddDialog extends JDialog {
     BoundProductEditModel boundProductEditModel;
     BoundProduct selected;
     Bound bound;
+    
+    private List<BoundProduct> selectedProducts = new ArrayList<>();
 
     public ProductAddDialog(JFrame parentFrame, BoundProduct selected) {
         super(parentFrame, "상품 추가", true);
@@ -103,7 +107,17 @@ public class ProductAddDialog extends JDialog {
         // 버튼 이벤트
         bt_close.addActionListener(e -> dispose());
 
+        
         bt_add.addActionListener(e -> {
+            selectedProducts = new ArrayList<>();
+            BoundProductEditModel model = (BoundProductEditModel) table.getModel();
+
+            for (int i = 0; i < model.getRowCount(); i++) {
+                BoundProduct bp = model.getBoundProductAt(i); // model이 제공해야 하는 메서드
+                if (bp.getB_count() > 0) {
+                    selectedProducts.add(bp);
+                }
+            }
 
             dispose(); // 다이얼로그 닫기
         });
@@ -127,8 +141,12 @@ public class ProductAddDialog extends JDialog {
         // 컴포넌트 조립
         add(scroll, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
-        
-        setVisible(true);
+
         
     }
+
+    public List<BoundProduct> getSelectedProducts() {
+        return selectedProducts;
+    }
+
 }

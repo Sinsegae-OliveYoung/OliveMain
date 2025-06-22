@@ -197,7 +197,7 @@ public class InboundDAO {
         return list;
     }
     
- // 제품 리스트 & 선택된 요청서의 가져오기
+	// 제품 리스트 & 선택된 요청서의 가져오기
     public List<BoundProduct> boundEditProduct(int bound_id) {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -421,7 +421,31 @@ public class InboundDAO {
         }
     }
 
-    // 요청서 삭제 - InboundShowPanel
+    // 기존 요청 수정 - InboundShowPanel
+    public void updateBound(Bound bound) {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+        
+        try {
+        	con = dbManager.getConnection();
+
+        	String sql = "UPDATE bound SET br_id = ?, approver_id = ?, request_date = ?, comment = ? WHERE bound_id = ?";
+        	pstmt = con.prepareStatement(sql);
+        	
+            pstmt.setInt(1, bound.getBranch().getBr_id());
+            pstmt.setInt(2, bound.getApprover().getUser_id());
+            pstmt.setDate(3, new java.sql.Date(bound.getRequest_date().getTime()));
+            pstmt.setString(4, bound.getComment());
+            pstmt.setInt(5, bound.getBound_id());
+
+            pstmt.executeUpdate();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // 기존 요청서 삭제 - InboundShowPanel
     public void deleteInbound(int boundId) {
     	Connection con = null;
         PreparedStatement pstmt = null;
@@ -446,5 +470,53 @@ public class InboundDAO {
             e.printStackTrace();
         } finally {
             dbManager.release(pstmt);
-        }    }
+        }    
+    }
+    
+    // 기존 요청서에서 제외한 상품 bound_option에서 없애기
+    public void deleteBoundProductsByBoundId(int boundId) {
+    	Connection con = null;
+    	PreparedStatement pstmt = null;
+    	
+    	try {
+    		con = dbManager.getConnection();
+    		
+    		String sql = "DELETE FROM bound_product WHERE bound_id = ?";
+    		pstmt = con.prepareStatement(sql);
+    		
+    		pstmt.setInt(1, boundId);
+    		pstmt.executeUpdate();
+    		
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    // 기존 요청서에서 추가한 상품 bound_option에 넣기
+    public void insertBoundProduct(BoundProduct boundProduct) {
+    	if (boundProduct.getProductOption() == null || boundProduct.getProductOption().getOption_id() == 0) {
+            System.out.println("무효한 상품 옵션으로 인해 저장 생략: " + boundProduct);
+            return; // 저장하지 않음
+        }
+    	
+    	Connection con = null;
+    	PreparedStatement pstmt = null;
+        
+        try {
+        	con = dbManager.getConnection();
+        	
+        	String sql = "INSERT INTO bound_product (bound_id, option_id, b_count) VALUES (?, ?, ?)";
+        	pstmt = con.prepareStatement(sql);
+             
+            pstmt.setInt(1, boundProduct.getBound().getBound_id());
+            pstmt.setInt(2, boundProduct.getProductOption().getOption_id());
+            pstmt.setInt(3, boundProduct.getB_count());
+            
+            pstmt.executeUpdate();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
+

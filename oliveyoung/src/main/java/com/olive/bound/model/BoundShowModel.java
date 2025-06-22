@@ -46,4 +46,8 @@ public class BoundShowModel extends AbstractTableModel {
         this.boundProductList = boundProductList != null ? boundProductList : new ArrayList<>();
         fireTableDataChanged();
     }
+    
+    public List<BoundProduct> getBoundProductList() {
+        return this.boundProductList;
+    }
 }
