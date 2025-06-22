@@ -5,7 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.olive.common.model.Branch;
 import com.olive.common.model.Brand;
@@ -13,11 +15,9 @@ import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
-import com.olive.common.model.Role;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
-import com.olive.mainlayout.MainLayout;
 
 public class StockDAO {
 
@@ -390,6 +390,51 @@ public class StockDAO {
  		
  		return resultID;
  	}
+ 	
+
+    // 월별 매출 - 소속 지점 합산
+    public List<Map<String, Integer>> selectSales(int br_id) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<Map<String, Integer>> list = new ArrayList<>();
+        
+        StringBuffer sql = new StringBuffer();
+        sql.append("SELECT DATE_FORMAT(approve_date, '%Y') AS Year,"
+        		+ " DATE_FORMAT(approve_date, '%m') AS Month,"
+        		+ " SUM(b_count*price) AS Sales"
+        		+ " FROM bound b"
+        		+ " INNER JOIN bound_product bp"
+        		+ " ON b.bound_id=bp.bound_id"
+        		+ " INNER JOIN product_option po"
+        		+ " ON bp.option_id=po.option_id"
+        		+ " WHERE bo_state_id=3"
+        		+ " AND br_id=?"
+        		+ " GROUP BY Year, month"
+        		+ " ORDER BY Year, Month");
+        
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, br_id);
+            rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Map<String, Integer> map = new HashMap<>();
+            	map.put("Year", rs.getInt("Year"));
+            	map.put("Month", rs.getInt("Month"));
+            	map.put("Sales", rs.getInt("Sales"));
+            	
+            	list.add(map);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt, rs);
+        }
+
+        return list;
+    }
+   
 }
 
 
