@@ -6,17 +6,24 @@ import javax.swing.table.AbstractTableModel;
 
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
-import com.olive.common.repository.InboundDAO;
+import com.olive.common.repository.BoundDAO;
 
-public class InboundListModel extends AbstractTableModel{
-	InboundDAO inboundDAO;
+public class BoundListModel extends AbstractTableModel{
+	BoundDAO boundDAO;
 	List<BoundProduct> list;
 	
 	String[] column = {"날짜", "지점명", "작성자", "입고상태"};
 	
-	public InboundListModel(List<Branch> branchList) {
-        inboundDAO = new InboundDAO();
-        list = inboundDAO.selectInboundByBranches(branchList);
+	public BoundListModel(List<Branch> branchList, String flag) {
+        
+        if(flag == "in") {
+        	boundDAO = new BoundDAO();
+        	list = boundDAO.selectInboundByBranches(branchList);
+        }
+        else if(flag == "out") {
+        	boundDAO = new BoundDAO();
+        	list = boundDAO.selectOutboundByBranches(branchList);
+        }
     }
 
 	@Override

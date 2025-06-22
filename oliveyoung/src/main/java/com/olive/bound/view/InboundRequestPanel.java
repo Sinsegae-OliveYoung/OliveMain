@@ -35,14 +35,14 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import com.olive.bound.model.BoundProductModel;
-import com.olive.bound.model.InboundModel;
+import com.olive.bound.model.BoundRequestModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
-import com.olive.common.repository.InboundDAO;
+import com.olive.common.repository.BoundDAO;
 import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
@@ -89,10 +89,10 @@ public class InboundRequestPanel extends Panel{
 	UserDAO userDAO;
 	ProductDAO productDAO;
 	BranchDAO branchDAO;
-	InboundDAO insertDAO;
+	BoundDAO insertDAO;
 	
-	InboundModel model; // 왼쪽 테이블 클릭시 우측테이블로 데이터 전송을 위한 모델 생성
-	InboundModel inboundModel;
+	BoundRequestModel model; // 왼쪽 테이블 클릭시 우측테이블로 데이터 전송을 위한 모델 생성
+	BoundRequestModel boundModel;
 	BoundProductModel boundProductModel;
 	DefaultTableCellRenderer centerRenderer; // 테이블 정렬
 	
@@ -103,7 +103,7 @@ public class InboundRequestPanel extends Panel{
 	
 	private static InboundRequestPanel instance; // ✅ 정적 필드 추가
 	
-	public InboundRequestPanel(MainLayout mainLayout, User user) {
+	public InboundRequestPanel(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
 		
@@ -134,7 +134,7 @@ public class InboundRequestPanel extends Panel{
         p_center = new JPanel(new BorderLayout());
 		
 		// 좌측 중앙 - 테이블
-		table = new JTable(new InboundModel("now")); // 입고할 상품 리스트 테이블에 출력		
+		table = new JTable(new BoundRequestModel("now")); // 입고할 상품 리스트 테이블에 출력		
 		
 		// 테이블 헤더 스타일
 		table.setRowHeight(25);
@@ -393,7 +393,7 @@ public class InboundRequestPanel extends Panel{
 					int modelRow = table.convertRowIndexToModel(viewRow);  // 실제 모델 인덱스
 
 		            // 모델에서 정확한 데이터 가져오기
-		            model = (InboundModel) table.getModel();
+		            model = (BoundRequestModel) table.getModel();
 		            Stock selectedStock = model.list.get(modelRow); // ✅ 반드시 modelRow 사용
 
 		            BoundProduct bp = new BoundProduct();
@@ -408,7 +408,7 @@ public class InboundRequestPanel extends Panel{
 		// 저장 버튼 클릭 이벤트 ------------------------------------------------------------
 		bt_save.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				saveInboundRequest(userId);
+				saveBoundRequest(userId);
 			}
 			
 			public void mouseEntered(MouseEvent e) {
@@ -427,10 +427,10 @@ public class InboundRequestPanel extends Panel{
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                 	Branch branch= (Branch) cb_branch.getSelectedItem();
                     if (branch.getBr_id() != 0) {
-                        inboundModel = new InboundModel(branch);
-                        table.setModel(inboundModel);
+                    	boundModel = new BoundRequestModel(branch);
+                        table.setModel(boundModel);
                     } else {
-                        table.setModel(new InboundModel("now"));
+                        table.setModel(new BoundRequestModel("now"));
                     }
                     setTableWidth(table); // 테이블 너비 재설정
 
@@ -479,14 +479,14 @@ public class InboundRequestPanel extends Panel{
 	    // ✅ 초기에 테이블도 해당 지점으로 세팅
 	    Branch firstBranch = (Branch) cb_branch.getSelectedItem();
 	    if (firstBranch != null) {
-	        inboundModel = new InboundModel(firstBranch);
-	        table.setModel(inboundModel);
+	    	boundModel = new BoundRequestModel(firstBranch);
+	        table.setModel(boundModel);
 
 	        setTableWidth(table);
 	    }
     }
 
-    private void saveInboundRequest(int userId) {
+    private void saveBoundRequest(int userId) {
  
         selectedDate = dateChooser.getDate();
 
@@ -555,7 +555,7 @@ public class InboundRequestPanel extends Panel{
 		    return; // 저장 중단
 		} else {
 			// 저장하기
-			insertDAO = new InboundDAO();
+			insertDAO = new BoundDAO();
 			insertDAO.insertInbound(userId, managerId, brId, requestDate, memo, productList);
 			
 			
@@ -634,8 +634,8 @@ public class InboundRequestPanel extends Panel{
         // 테이블 모델 새로고침
         Branch selectedBranch = (Branch) cb_branch.getSelectedItem();
         if (selectedBranch != null) {
-            inboundModel = new InboundModel(selectedBranch);
-            table.setModel(inboundModel);
+        	boundModel = new BoundRequestModel(selectedBranch);
+            table.setModel(boundModel);
             setTableWidth(table); // 컬럼 너비 재설정
         }
 
