@@ -12,7 +12,7 @@ public class Bound {
 	private Date request_date;
 	private Date approve_date;
 	private String comment;
-	private String boundFlag;
+	private String bound_flag;
 	
 	public int getBound_id() {
 		return bound_id;
@@ -62,10 +62,10 @@ public class Bound {
 	public void setComment(String comment) {
 		this.comment = comment;
 	}
-	public String getBoundFlag() {
-		return boundFlag;
+	public String getBound_flag() {
+		return bound_flag;
 	}
-	public void setBoundFlag(String boundFlag) {
-		this.boundFlag = boundFlag;
+	public void setBound_flag(String bound_flag) {
+		this.bound_flag = bound_flag;
 	} 
 }

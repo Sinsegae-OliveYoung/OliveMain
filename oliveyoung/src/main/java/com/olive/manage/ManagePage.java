@@ -1,6 +1,7 @@
 package com.olive.manage;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -19,6 +20,9 @@ import com.olive.common.model.Member;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
+import com.olive.manage.approval.ApprovalListPanel;
+import com.olive.manage.user.UserDetailPanel;
+import com.olive.manage.user.UserListPanel;
 
 //슬라이드 기능 (접었다 폈다)
 public class ManagePage extends Page{
@@ -30,7 +34,8 @@ public class ManagePage extends Page{
 	JButton bt_approval_list;
 	JPanel p_content;
 	Panel[] panels;
-
+	CardLayout cardLayout;
+	
 	public ManagePage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
@@ -42,7 +47,8 @@ public class ManagePage extends Page{
 		la_approval = new JLabel("결재 관리");
 		bt_approval_list = new JButton("  결재 목록");
 		
-		p_content = new JPanel();
+		cardLayout = new CardLayout();
+		p_content = new JPanel(cardLayout);
 		
 		//style
 		Font topFont = new Font("Noto Sans KR", Font.BOLD, 18);
@@ -101,40 +107,35 @@ public class ManagePage extends Page{
 				      /*--------------
 				       *  테스트용
 				       * -------------*/
-				      if (source == bt_user_list)
-				    	  showPanel(0);
+				      if (source == bt_user_list) {
+				    	  showPanel(ManageConfig.USER_LIST);
+				    	  
+				      }
+				      else if (source == bt_approval_list) {
+				    	  showPanel(ManageConfig.USER_DETAIL);
+				      }
+				    	  
 				}
 			});
 		}
 	
 		createPanel();
-		showPanel(-1);
 	}
 	
 	public void createPanel() {
 		
-		panels = new Panel[2];
+		// 카드레이아웃
+		p_content.add(new UserListPanel(mainLayout, this), ManageConfig.USER_LIST);
+		p_content.add(new UserDetailPanel(mainLayout, "사용자 목록"), ManageConfig.USER_DETAIL);
 		
-		panels[0] = new UserListPanel(mainLayout, this);
-		p_content.add(panels[0]);
+
 	}
 	
-	public void showUserDetailPanel(Member member) {
-		if(panels[1] != null) {
-			p_content.remove(panels[1]);
-		}
-		panels[1] = new UserDetailPanel(mainLayout, member);
-		p_content.add(panels[1]);
-		showPanel(1);
-		revalidate(); // 새 패널 UI 반영
-		repaint();
-	}
-	
-	public void showPanel(int target) {
-		for (int i = 0; i < panels.length; i++) {
-			if(panels[i] == null) continue;
-			panels[i].setVisible((i == target) ? true : false);
-		}
+
+	public void showPanel(String key) {
+		cardLayout.show(p_content, key);
+	   	p_content.revalidate();  // 레이아웃 다시 계산
+	   	p_content.repaint();  
 	}
 	
 }

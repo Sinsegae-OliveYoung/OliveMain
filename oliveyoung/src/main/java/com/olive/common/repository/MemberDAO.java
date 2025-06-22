@@ -12,7 +12,7 @@ import com.olive.common.model.Member;
 import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
-import com.olive.manage.MemberFilterDTO;
+import com.olive.manage.user.MemberFilterDTO;
 
 public class MemberDAO {
 

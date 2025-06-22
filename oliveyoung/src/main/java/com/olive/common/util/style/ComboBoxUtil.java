@@ -8,7 +8,9 @@ import java.util.List;
 import javax.swing.JComboBox;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.BoundState;
 import com.olive.common.model.Role;
+import com.olive.common.repository.BoundStateDAO;
 import com.olive.common.repository.RoleDAO;
 
 public class ComboBoxUtil {
@@ -29,6 +31,28 @@ public class ComboBoxUtil {
 		
 		JComboBox<Role> cb = new JComboBox<Role>();
 		applyDefaultStyle(cb);
+		
+		
+		Role r = new Role();
+		r.setRole_name("전체");
+		cb.addItem(r);
+		
+		for(int i = 0; i < list.size(); i++) {
+			cb.addItem(list.get(i));
+		}
+		return cb;
+	}
+	
+	public static JComboBox<BoundState> createBoundStateComboBox() {
+		BoundStateDAO boundStateDAO = new BoundStateDAO();
+		List<BoundState> list = boundStateDAO.selectAll();
+		
+		JComboBox<BoundState> cb = new JComboBox<>();
+		applyDefaultStyle(cb);
+		
+		BoundState bs = new BoundState();
+		bs.setBo_state_name("전체");
+		cb.addItem(bs);
 		
 		for(int i = 0; i < list.size(); i++) {
 			cb.addItem(list.get(i));

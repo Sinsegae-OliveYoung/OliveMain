@@ -1,4 +1,4 @@
-package com.olive.manage;
+package com.olive.manage.user;
 
 import java.awt.FlowLayout;
 import java.nio.channels.Pipe.SourceChannel;
