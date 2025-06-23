@@ -40,6 +40,7 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import com.olive.common.config.Config;
+import com.olive.common.exception.ProductException;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
@@ -419,14 +420,20 @@ public class ProductListPanel extends Panel {
 			System.out.println("codeMaker : " + codeMaker.toString());
 			
 			if(active.equals("y")) {
-				
+				int maxOptionNo = productOptionDAO.selectMaxOptionNo(product_id);
+			    optionNum = maxOptionNo + 1;
 			} else if(active.equals("n")){
-				
+				optionNum = 99;
 			}
-//			productOption.setOption_no();
-
+			productOption.setOption_no(optionNum);
+			
+//			productOptionDAO.insert(pros)
+			
+			con.commit();
 			
 		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (ProductException e){ 
 			e.printStackTrace();
 		} finally {
 			try {

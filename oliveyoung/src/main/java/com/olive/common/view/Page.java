@@ -19,4 +19,7 @@ public class Page extends JPanel {
 		setPreferredSize(new Dimension(Config.LAYOUT_W, Config.CONTENT_H));
 		setVisible(false);
 	}
+
+	public void refreshAll() {		
+	}
 }

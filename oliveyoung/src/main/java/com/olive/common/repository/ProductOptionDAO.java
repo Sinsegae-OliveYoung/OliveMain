@@ -138,4 +138,62 @@ public class ProductOptionDAO {
 		}
 		return pk;
  	}
+ 	
+ 	public int selectMaxOptionNo(int product_id) {
+ 	    int max = 0;
+ 	    Connection con = null;
+ 	    PreparedStatement pstmt = null;
+ 	    ResultSet rs = null;
+
+ 	    String sql = "SELECT MAX(option_no) FROM product_option WHERE product_id = ? AND option_active = 'y'";
+
+ 	    try {
+ 	        con = dbManager.getConnection();
+ 	        pstmt = con.prepareStatement(sql);
+ 	        pstmt.setInt(1, product_id);
+ 	        rs = pstmt.executeQuery();
+ 	        if (rs.next()) {
+ 	            max = rs.getInt(1); // 없으면 0 반환
+ 	        }
+ 	    } catch (SQLException e) {
+ 	        e.printStackTrace();
+ 	    } finally {
+ 	        dbManager.release(pstmt, rs);
+ 	    }
+
+ 	    return max;
+ 	}
+ 	
+//	productOption.setOption_active(active);
+//	productOption.setOption_name(tfOptionName.getText());
+//	productOption.setPrice(Integer.parseInt(tfPrice.getText()));
+//	productOption.setProduct(product);
+//	productOption.setOption_id(productOption_id);
+////	productOption.setOption_code(codeMaker.toString());
+////	productOption.setOption_no(optionNum);
+//
+// 	public void insert(ProductOption productOption) {
+// 		Connection con=null;
+//		PreparedStatement pstmt=null;
+//		
+//		con=dbManager.getConnection();
+//		StringBuffer sql = new StringBuffer();
+//		sql.append("insert into product_option(option_id, product_id, option_no, option_name"
+//				+ " color_id) values(?,?)");
+//		
+//		try {
+//			pstmt=con.prepareStatement(sql.toString());
+//			pstmt.setInt(1, productColor.getProduct().getProduct_id());
+//			pstmt.setInt(2, productColor.getColor().getColor_id());
+//			int result=pstmt.executeUpdate();//DML 실행
+//			if (result == 0) {
+//				throw new ProductColorException("상품의 색상이 등록되지 않았어요");
+//			}
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			throw new ProductColorException("상품의 색상 등록시 문제가 발생하였습니다", e);
+//		}finally {
+//			dbManager.release(pstmt);
+//		}
+// 	}
 } 

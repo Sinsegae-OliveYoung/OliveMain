@@ -55,7 +55,7 @@ public class StockUpdatePanel extends Panel{
 	        topPanel.setBackground(StockConfig.bgColor);
 
 	        // 테이블 생성
-	        model = new UpdateModel(stockPage, mainLayout.user);
+	        model = new UpdateModel(stockPage, mainLayout, mainLayout.user);
 	        table = new JTable(model);
 	        
 

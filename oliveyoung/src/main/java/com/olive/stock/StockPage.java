@@ -223,15 +223,14 @@ public class StockPage extends Page {
 		}
 	}
 	
-	public void showPanel(int target) {
-		 if (isDataDirty) {
-		        for (Panel panel : panels) {
-		            panel.refresh(); // refresh()가 오버라이딩된 패널만 동작
-		          
-		        }
-		        isDataDirty = false;
-		    }
-		
+	@Override
+	public void refreshAll() {
+	    for (Panel panel : panels) {
+	        panel.refresh(); // 각 Panel에서 refresh() 오버라이드 가능
+	    }
+	}
+	
+	public void showPanel(int target) {	
 		for (int i = 0; i < panels.length; i++)
 			panels[i].setVisible((i == target) ? true : false);
 	}
