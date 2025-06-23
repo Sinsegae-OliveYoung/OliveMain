@@ -42,5 +42,13 @@ public class Branch {
 	public String toString() {
 		return this.br_name;
 	}
+	
+	// branch 객체 간 비교 후 같은 값이 있는지 확인하기 위해 오버라이딩
+	public boolean equals(Object obj) {
+		if (this == obj) return true;		// 현재 객체와 매개변수 객체가 같은 주소를 가지면 true
+		if (!(obj instanceof Branch)) return false; // 매개변수 객체가 Branch 타입이 아니면 false
+		Branch branch = (Branch) obj;	// 매개변수 객체가 Branch 타입에 속하면 캐스팅해서
+		return br_id == branch.br_id;	// 같은 타입이 된 객체끼리 비교하여 결과값 반환
+	}
 }
 
