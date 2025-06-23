@@ -22,6 +22,7 @@ import com.olive.common.config.Config;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
+import com.olive.product.view.ProductListPanel;
 
 public class ProductPage extends Page {
 	
@@ -47,7 +48,7 @@ public class ProductPage extends Page {
 		p_side = new JPanel();
 		
 		la_menu1 = new JLabel("상품 관리");
-		bt_menu1 = new JButton("  -");
+		bt_menu1 = new JButton("상품 리스트");
 		bt_menu2 = new JButton("  -");
 		
 		la_menu2 = new JLabel("출고 관리");
@@ -149,21 +150,21 @@ public class ProductPage extends Page {
 
 	public void createPanel() {
 		
-		panels = new Panel[4];
+		panels = new Panel[1];
 
-		panels[0] = new InboundRequestPanel(null);		// 입고 요청서
-		panels[1] = new InboundShowPanel(null);			// 입고 요청 내역 조회
-		panels[2] = new OutboundRequestPanel(null);	// 출고 요청서
-		//panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회
-		panels[3] = new InboundShowPanel(null);
+		panels[0] = new ProductListPanel(mainLayout);		// 입고 요청서
+//		panels[1] = new InboundShowPanel(null);			// 입고 요청 내역 조회
+//		panels[2] = new OutboundRequestPanel(null);	// 출고 요청서
+//		panels[3] = new InboundShowPanel(null);
 		
-//		for (int i = 0; i < panels.length; i++)
-//			p_content.add(panels[i]);
+		for (int i = 0; i < panels.length; i++)
+			p_content.add(panels[i]);
+
 	}
 	
 	public void showPanel(int target) {
-			for (int i = 0; i < panels.length; i++)
-				panels[i].setVisible((i == target) ? true : false);
+//		for (int i = 0; i < panels.length; i++)
+//			panels[i].setVisible((i == target) ? true : false);
 	}
 	
 }

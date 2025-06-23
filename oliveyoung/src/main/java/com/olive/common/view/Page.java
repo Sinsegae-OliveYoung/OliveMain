@@ -20,4 +20,6 @@ public class Page extends JPanel {
 		setVisible(false);
 	}
 
+	public void refreshAll() {		
+	}
 }

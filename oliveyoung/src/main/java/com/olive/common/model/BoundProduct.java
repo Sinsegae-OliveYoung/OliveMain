@@ -32,4 +32,13 @@ public class BoundProduct {
 		this.bound = bound;
 	}
 	
+	@Override
+	public String toString() {
+	    return "BoundProduct{" +
+	            "b_pd_id=" + b_pd_id +
+	            ", b_count=" + b_count +
+	            ", option_id=" + (productOption != null ? productOption.getOption_id() : "null") +
+	            ", product_name=" + (productOption != null && productOption.getProduct() != null ? productOption.getProduct().getProduct_name() : "null") +
+	            '}';
+	}
 }

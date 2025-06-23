@@ -20,6 +20,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.LabelUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
@@ -31,6 +32,7 @@ public class OldAlertPanel extends Panel{
 	
 	  JTable table;
 	    ListModel model;
+	    MainLayout mainLayout;
 	    
 	    @Override
 	    public void refresh() {
@@ -40,20 +42,24 @@ public class OldAlertPanel extends Panel{
 
 	    public OldAlertPanel(MainLayout mainLayout) {
 	        super(mainLayout);
+	        this.mainLayout = mainLayout;
 	        setLayout(new BorderLayout());
+	        setBackground(Config.WHITE);
 
 	        // 상단 패널
 	        JPanel topPanel = new JPanel(new BorderLayout());
-	        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+	        StockConfig.panelStyle(topPanel);
+	        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
 
 	        JLabel titleLabel = new JLabel("오래된 재고 알림");
-	        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
-	        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
+	        LabelUtil.applyTitleStyle(titleLabel);
 	        topPanel.add(titleLabel, BorderLayout.WEST);
-	        topPanel.setBackground(StockConfig.bgColor);
 
 	        // 버튼 패널
 	        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+	        buttonPanel.setOpaque(false);
+	        buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 20));
+
 	        Font buttonFont = new Font("SansSerif", Font.PLAIN, 13);
 	        Dimension buttonSize = new Dimension(130, 30);
 
@@ -76,8 +82,6 @@ public class OldAlertPanel extends Panel{
 	            btn.setBorder(BorderFactory.createLineBorder(new Color(150, 200, 120))); // 테두리도 조화롭게
 	            buttonPanel.add(btn);
 	        }
-
-	        topPanel.add(buttonPanel, BorderLayout.EAST);
 
 	        // 테이블 생성
 	        model = new ListModel("oldAlert", mainLayout.user);
@@ -122,9 +126,14 @@ public class OldAlertPanel extends Panel{
 
 	        JScrollPane scroll = new JScrollPane(table);
 	        scroll.getViewport().setBackground(Color.WHITE);
-	        
-	        // 전체 레이아웃 구성
-	        add(topPanel, BorderLayout.NORTH);
+
+	        // 전체 조립
+	        JPanel topContainer = new JPanel(new BorderLayout());
+	        topContainer.setOpaque(false);
+	        topContainer.add(topPanel, BorderLayout.NORTH);
+	        topContainer.add(buttonPanel, BorderLayout.CENTER);
+
+	        add(topContainer, BorderLayout.NORTH);
 	        add(scroll, BorderLayout.CENTER);
 	        
 	        // 정렬 기능 구현

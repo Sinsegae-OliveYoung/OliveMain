@@ -18,24 +18,9 @@ public class MemberDAO {
 
 	DBManager dbManager = DBManager.getInstance();
 	
-	// create 
-	
-	// update
-
-	//select 
-	
-	// delete 
-	
-	
-	
-	
-	
-	
 	//로그인한 사용자가 관리하는 지점에 속한 member 조회 
 	//동적 쿼리: UserListPanel에서 조건 걸고 검색 
 	public List<Member> select(MemberFilterDTO filter, int curPage, int pageSize){
-		
-		System.out.println("MemberDAO.select().filter.userid: " + filter.getUser_id());
 		
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -85,7 +70,7 @@ public class MemberDAO {
 		}
 		
 		sql.append(" order by br_name, r.role_id asc");
-//		
+		
 //		sql.append(" limit ? offset ?");
 //		params.add(pageSize);
 //		params.add(curPage);

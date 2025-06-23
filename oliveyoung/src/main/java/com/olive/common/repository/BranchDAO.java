@@ -12,6 +12,7 @@ import com.olive.common.model.Branch;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
+import com.olive.common.model.Member;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
 import com.olive.common.model.Role;
@@ -149,52 +150,52 @@ public class BranchDAO {
 	}
 
 	// 모든 지점의 정보 가져오기
-		public List selectBranch() {
-			Connection con = null;
-			PreparedStatement pstmt = null;
-			ResultSet rs = null;
-			ArrayList<Branch> list = new ArrayList();
-			
-			con = dbManager.getConnection();
-			
-			StringBuffer sql = new StringBuffer();
+	public List selectBranch() {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		ArrayList<Branch> list = new ArrayList();
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
 
 //			sql.append("select br_id as '등록 번호', br_name as '지점명', user_name as '담당자', br_address as '주소', br_tel as '연락처' from user u inner join branch b on u.user_id = b.user_id order by br_id");
-			sql.append("SELECT br_id AS '등록 번호',"
-					+ " br_name AS '지점명',"
-					+ " user_name AS '담당자',"
-					+ " br_address AS '주소',"
-					+ " br_tel AS '연락처'"
-					+ " FROM user u INNER JOIN branch b"
-					+ " ON u.user_id = b.user_id"
-					+ " ORDER BY br_id");
+		sql.append("SELECT br_id AS '등록 번호',"
+				+ " br_name AS '지점명',"
+				+ " user_name AS '담당자',"
+				+ " br_address AS '주소',"
+				+ " br_tel AS '연락처'"
+				+ " FROM user u INNER JOIN branch b"
+				+ " ON u.user_id = b.user_id"
+				+ " ORDER BY br_id");
+		
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			rs = pstmt.executeQuery();
+			list = new ArrayList();
 			
-			try {
-				pstmt = con.prepareStatement(sql.toString());
-				rs = pstmt.executeQuery();
-				list = new ArrayList();
+			while (rs.next()) {
+				Branch branch = new Branch();
+				branch.setBr_id(rs.getInt("등록 번호"));
+				branch.setBr_name(rs.getString("지점명"));
+				branch.setBr_address(rs.getString("주소"));
+				branch.setBr_tel(rs.getString("연락처"));
 				
-				while (rs.next()) {
-					Branch branch = new Branch();
-					branch.setBr_id(rs.getInt("등록 번호"));
-					branch.setBr_name(rs.getString("지점명"));
-					branch.setBr_address(rs.getString("주소"));
-					branch.setBr_tel(rs.getString("연락처"));
-					
-					// 사원 (User) 카테고리
-					User user = new User();
-					user.setUser_name(rs.getString("담당자"));
-					branch.setUser(user);
-					
-					list.add(branch);
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			} finally {
-				dbManager.release(pstmt, rs);
+				// 사원 (User) 카테고리
+				User user = new User();
+				user.setUser_name(rs.getString("담당자"));
+				branch.setUser(user);
+				
+				list.add(branch);
 			}
-			return list;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
 		}
+		return list;
+	}
 		
 	// 한 지점의 상품 재고 페이지 출력
 	public List selectBranchStock(String br_name) {
@@ -206,7 +207,29 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select br_name as '지점명', bd_name as '브랜드', ct_name as '상위 카테고리', ct_dt_name as '하위 카테고리', product_name as '상품명', st_quantity as '재고', st_update as '최근 수정일' from brand b inner join product p inner join product_option o inner join stock s inner join category c inner join category_detail cd inner join branch bh on bh.br_id=s.br_id and b.bd_id=p.bd_id and p.product_id=o.product_id and o.option_id=s.option_id and p.ct_dt_id=cd.ct_dt_id and c.ct_id=cd.ct_id and bh.br_name=?");
+		
+		sql.append("select br_name 	as '지점명'"
+				+ ", bd_name 		as '브랜드'"
+				+ ", ct_name 		as '상위 카테고리'"
+				+ ", ct_dt_name 	as '하위 카테고리'"
+				+ ", product_name 	as '상품명'"
+				+ ", st_quantity 	as '재고', st_update as '최근 수정일'"
+				+ " from 	   brand b"
+				+ " inner join product p"
+				+ " inner join product_option o"
+				+ " inner join stock s"
+				+ " inner join category c"
+				+ " inner join category_detail cd"
+				+ " inner join branch bh"
+				+ " on 	bh.br_id 		= s.br_id"
+				+ " and b.bd_id	 		= p.bd_id"
+				+ " and p.product_id 	= o.product_id"
+				+ " and o.option_id 	= s.option_id"
+				+ " and p.ct_dt_id 		= cd.ct_dt_id"
+				+ " and c.ct_id		 	= cd.ct_id"
+				+ " and bh.br_name 		= ? "
+		);
+		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, br_name);
@@ -262,14 +285,19 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("SELECT br_name AS '지점명',"
-				+ " br_address AS '매장 주소',"
-				+ " br_tel AS '매장 전화',"
-				+ " user_name AS '담당자',"
-				+ " tel AS '연락처',"
-				+ " email AS '이메일'"
-				+ " FROM user u INNER JOIN branch b"
-				+ " ON u.user_id=b.user_id AND br_name=?");
+		sql.append("SELECT"
+				+ " br_name 	AS '지점명',"
+				+ " br_address 	AS '매장 주소',"
+				+ " br_tel 		AS '매장 전화',"
+				+ " user_name 	AS '담당자',"
+				+ " tel 		AS '연락처',"
+				+ " email 		AS '이메일'"
+				+ " FROM 	   user u"
+				+ " INNER JOIN branch b"
+				+ " ON u.user_id = b.user_id"
+				+ " AND br_name  = ?"
+		);
+		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setString(1, br_name);
@@ -301,7 +329,6 @@ public class BranchDAO {
 	
 	// 로그인한 user가 관리하는 branch 목록 반환
 	public List<Branch> getBranchList(int user_id){
-		System.out.println("BranchDAO.getBranchList()");
 		
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -311,40 +338,54 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select b.br_id, br_name, br_address, br_tel");
-		sql.append(", u.user_id, user_name, tel, hiredate, email");
-		sql.append(", r.role_id, role_name, role_code");
-		sql.append(" from branch b");
-		sql.append(" inner join member m");
-		sql.append(" join user u");
-		sql.append(" join role r");
-		sql.append(" on b.br_id = m.br_id");
-		sql.append(" and u.user_id = m.user_id");
-		sql.append(" and u.role_id = r.role_id");
-		sql.append(" where m.user_id = ?");
+		
+		sql.append("SELECT "
+		        + "  b.br_id AS br_id"  // 명확한 별칭
+		        + ", b.br_name AS br_name"
+		        + ", b.br_address AS br_address"
+		        + ", b.br_tel AS br_tel"
+		        + ", u.user_id AS user_id"
+		        + ", u.user_name AS user_name"
+		        + ", u.tel AS user_tel"
+		        + ", u.hiredate AS hiredate"
+		        + ", u.email AS email"
+		        + ", r.role_id AS role_id"
+		        + ", r.role_name AS role_name"
+		        + ", r.role_code AS role_code"
+		        + ", m.br_id"
+		        + ", u.user_id"
+		        + " FROM branch b"
+		        + " INNER JOIN member m ON b.br_id = m.br_id"
+		        + " INNER JOIN user u ON u.user_id = m.user_id"
+		        + " INNER JOIN role r ON u.role_id = r.role_id"
+		        + " WHERE m.user_id = ?");
 	
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setInt(1, user_id);  
 			rs = pstmt.executeQuery();
 			
-			while(rs.next()) {
+			while(rs.next()) {				
 				
 				Role role = new Role();
-				role.setRole_id(rs.getInt("r.role_id"));
-				role.setRole_code(rs.getString("r.role_code"));
-				role.setRole_name(rs.getString("r.role_name"));
-				
+				role.setRole_id(rs.getInt("role_id"));         // r.role_id → role_id
+				role.setRole_code(rs.getString("role_code"));
+				role.setRole_name(rs.getString("role_name"));
+
 				User user = new User();
-				user.setUser_id(rs.getInt("u.user_id"));
+				user.setUser_id(rs.getInt("user_id"));         // u.user_id → user_id
 				user.setUser_name(rs.getString("user_name"));
-				user.setTel(rs.getString("tel"));
+				user.setTel(rs.getString("user_tel"));         // u.tel → user_tel
 				user.setHiredate(rs.getDate("hiredate"));
 				user.setEmail(rs.getString("email"));
 				user.setRole(role);
+
+				Member member = new Member();
+				member.setMem_id(rs.getInt("br_id"));
+				member.setUser(user);
 				
 				Branch branch = new Branch();
-				branch.setBr_id(rs.getInt("b.br_id"));
+				branch.setBr_id(rs.getInt("br_id"));
 				branch.setBr_name(rs.getString("br_name"));
 				branch.setBr_address(rs.getString("br_address"));
 				branch.setBr_tel(rs.getString("br_tel"));

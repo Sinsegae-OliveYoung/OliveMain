@@ -65,7 +65,7 @@ public class MainLayout extends JFrame {
 	JPanel p_content;
 
 	Page[] pages; // 페이지 담을 배열
-	
+
 	public User user;
 	BranchDAO branchDAO;
 
@@ -73,7 +73,7 @@ public class MainLayout extends JFrame {
 		this.user = user;
 		
 		branchDAO = new BranchDAO();
-		
+
 		// create
 		p_navi = new JPanel();
 
@@ -95,10 +95,9 @@ public class MainLayout extends JFrame {
 		bt_ma = new JButton("관리");
 
 		p_my = new JPanel();
-		
-		
-		lb_me = new JLabel(setProfile());			
- 		bt_lo = new JButton("로그아웃");
+
+		lb_me = new JLabel(setProfile());
+		bt_lo = new JButton("로그아웃");
 
 		p_content = new JPanel();
 
@@ -167,7 +166,7 @@ public class MainLayout extends JFrame {
 		bt_lo.setBorder(null);
 
 		p_content.setBackground(Config.GREEN);
-		
+
 		// assemble
 		p_title.add(bt_title);
 		p_navi.add(p_title, BorderLayout.WEST);
@@ -194,7 +193,7 @@ public class MainLayout extends JFrame {
 		add(p_content, BorderLayout.CENTER);
 
 		createPage();
-		
+
 		// listener
 		for (JButton btn : new JButton[] { bt_pd, bt_title, bt_io, bt_st, bt_cl, bt_sh, bt_ma, bt_lo }) {
 			btn.addMouseListener(new MouseAdapter() {
@@ -208,16 +207,25 @@ public class MainLayout extends JFrame {
 
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
-					
-					if (source == bt_title) showPage(Config.MAIN_PAGE); 
-					else if (source == bt_pd) showPage(Config.PRODUCT_PAGE); 
-					else if (source == bt_io) showPage(Config.BOUND_PAGE); 
-					else if (source == bt_st) showPage(Config.STOCK_PAGE);
-					else if (source == bt_sh) showPage(Config.STORE_PAGE);
-					else if (source == bt_ma) showPage(Config.MANAGE_PAGE);
+
+					if (source == bt_title)
+						showPage(Config.MAIN_PAGE);
+					else if (source == bt_pd)
+						showPage(Config.PRODUCT_PAGE);
+					else if (source == bt_io)
+						showPage(Config.BOUND_PAGE);
+					else if (source == bt_st)
+						showPage(Config.STOCK_PAGE);
+					else if (source == bt_sh)
+						showPage(Config.STORE_PAGE);
+					else if (source == bt_ma)
+						showPage(Config.MANAGE_PAGE);
+
 					else if (source == bt_lo) {
-						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
+						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
+								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
 							setVisible(false);
+
 							dispose();
 							new LoginPage();
 						}
@@ -225,47 +233,68 @@ public class MainLayout extends JFrame {
 				}
 			});
 		}
-		
+
 		showPage(Config.MAIN_PAGE);
-		
+
 		getContentPane().setBackground(Config.WHITE);
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
-		setLocationRelativeTo(null); 
+		setLocationRelativeTo(null);
 		setVisible(true);
 	}
 
 	public void createPage() {
 		pages = new Page[6];
-		
-		pages[0] = new MainPage(this);    
+
+		pages[0] = new MainPage(this);
 		pages[1] = new ProductPage(this);
 		pages[2] = new BoundPage(this);
 		pages[3] = new StockPage(this);
 		pages[4] = new StorePage(this);
 		pages[5] = new ManagePage(this);
-		
-		for(int i = 0; i < pages.length; i++) {
+
+		for (int i = 0; i < pages.length; i++) {
 			p_content.add(pages[i]);
 		}
 	}
 
+	private boolean isDataDirty = false;
+
+	public void setDataDirty(boolean dataDirty) {
+		this.isDataDirty = dataDirty;
+	}
+
+	public boolean isDataDirty() {
+		return isDataDirty;
+	}
+
+	/** 데이터 변경 시 필요한 페이지들을 새로고침 */
+	public void refreshIfDirty() {
+		if (isDataDirty) {
+			for (Page page : pages) {
+				page.refreshAll();
+			}
+			isDataDirty = false;
+		}
+	}
+
 	public void showPage(int target) {
+		refreshIfDirty(); // ← 새로고침 시점은 페이지 전환 직전
 		for (int i = 0; i < pages.length; i++)
 			pages[i].setVisible((i == target) ? true : false);
 	}
-	
+
 	public String setProfile() {
 		String profile = null;
 		
 		profile = user.getUser_name()  
 				+ " "
 				+ user.getRole().getRole_name()
-				+ "님 :)";
+				+ "님 *´︶`*";
 		
 		if (user.getRole().getRole_id() != 1) {
 			profile = branchDAO.getBranchList(user.getUser_id()) + " " + profile;
 		}
-		
+
 		return profile;
 	}
 }
