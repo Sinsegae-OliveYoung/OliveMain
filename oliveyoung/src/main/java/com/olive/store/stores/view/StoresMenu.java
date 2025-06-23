@@ -68,7 +68,7 @@ public class StoresMenu extends Panel {
 		lb_title.setFont(new Font("Noto Sans KR", Font.BOLD, 26));
 		lb_title.setHorizontalAlignment(JLabel.RIGHT);
 
-		p_details.setPreferredSize(new Dimension(Config.CONTENT_W, 80));
+		p_details.setPreferredSize(new Dimension(Config.CONTENT_W, 100));
 		p_details.setBorder(BorderFactory.createEmptyBorder(0, 500, 0, 50));
 		p_details.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		p_details.setOpaque(false);

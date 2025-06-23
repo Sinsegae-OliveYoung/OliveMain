@@ -2,19 +2,18 @@ package com.olive.store.stores.submit.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -23,12 +22,14 @@ import javax.swing.border.LineBorder;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import com.olive.common.config.Config;
+import com.olive.common.exception.BranchException;
+import com.olive.common.exception.UserException;
 import com.olive.common.model.Branch;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
-import com.olive.common.util.style.ComboBoxUtil;
+import com.olive.store.StorePage;
 import com.olive.store.StorePage;
 import com.olive.store.storeconfig.view.StoreConfigMenu;
 
@@ -41,7 +42,7 @@ public class RegistFrame extends JFrame {
 	JLabel lb_tel;
 	JTextField t_tel;
 	JLabel lb_userNo;
-	JComboBox<User> cb_userNo;
+	JComboBox cb_userNo;
 
 	JPanel p_bt;
 	JButton bt_regist;
@@ -109,9 +110,10 @@ public class RegistFrame extends JFrame {
 		lb_userNo.setHorizontalAlignment(JLabel.RIGHT);
 		lb_userNo.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
-		cb_userNo.setToolTipText("사원 번호 - 담당자 이름");
 		cb_userNo.setPreferredSize(d2);
-		cb_userNo.setUI(new ComboBoxUtil());
+		cb_userNo.setToolTipText("사원 번호 - 담당자 이름");
+		cb_userNo.setUI(new CustomComboBoxUI());
+		cb_userNo.setBackground(Config.LIGHT_GRAY);
 		cb_userNo.setBorder(new LineBorder(Color.GRAY, 1, true));
 
 		p_bt.setBackground(Config.WHITE);
@@ -139,7 +141,7 @@ public class RegistFrame extends JFrame {
 		p_bt.add(bt_regist);
 		add(p_bt);
 
-		setCombobox();
+		getUserNo();
 
 		bt_regist.addActionListener(e -> {
 			regist();
@@ -150,50 +152,56 @@ public class RegistFrame extends JFrame {
 		setVisible(true);
 	}
 
-	public void setCombobox() {
-		List<User> userList = userDAO.selectAll(); // 모든 유저 불러오기
+	public void getUserNo() {
+		List<User> userList = userDAO.selectAll();
 
-		// 콤보박스 미선택 시 보여줄 더미 객체 생성 및 배치
 		User dummy = new User();
-		dummy.setUser_name("사원 번호 - 담당자명");
-		cb_userNo.addItem(dummy);
+		cb_userNo.addItem("사원 번호 - 담당자명");
 
-		// 콤보박스에 모든 유저객체 추가
 		for (User user : userList)
-			cb_userNo.addItem(user);
-
-		// 콤보박스를 위한 렌더러 설정 (표시할 항목 설정)
-		cb_userNo.setRenderer(new DefaultListCellRenderer() {
-			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
-					boolean cellHasFocus) {
-				if (value instanceof User) {
-					User user = (User) value;
-					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
-						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
-				}
-				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			}
-		});
+			cb_userNo.addItem(user.getUser_no() + " - " + user.getUser_name().toString());
 	}
 
-	// 한 개의 지점 등록
 	public void insert() {
-		User user = (User) cb_userNo.getSelectedItem();		// 선택된 유저를 User로 캐스팅
+		Connection con = dbManager.getConnection();
+		try {
+			con.setAutoCommit(false);
 
-		// 지점 정보 세팅
-		Branch branch = new Branch();
-		branch.setBr_name(t_name.getText());
-		branch.setBr_address(t_address.getText());
-		branch.setBr_tel(t_tel.getText());
-		branch.setUser(user);
+			User user = (User) cb_userNo.getSelectedItem();
+			int userId = user.getUser_id();
 
-		branchDAO.insert(branch);	// 쿼리문 날리기
+			Branch branch = new Branch();
+			branch.setBr_name(t_name.getText());
+			branch.setBr_address(t_address.getText());
+			branch.setBr_tel(t_tel.getText());
+			branch.setUser(user);
 
-		JOptionPane.showMessageDialog(this, "지점이 등록되었습니다");
-		storeConfigMenu.loadData();	// 테이블 재출력
-		((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
-		storePage.showPanel(0);
-		dispose();		// 현재 창 종료
+			branchDAO.insert(branch);
+
+			con.commit();
+			JOptionPane.showMessageDialog(this, "지점이 등록되었습니다");
+			storeConfigMenu.loadData();
+			 ((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
+			 storePage.showPanel(0);
+			 dispose();
+		} catch (BranchException | UserException e) {
+			try {
+				con.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				con.setAutoCommit(true);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
 	}
 
 	public void regist() {
@@ -212,6 +220,17 @@ public class RegistFrame extends JFrame {
 					return;
 				}
 			insert();
+		}
+	}
+
+	class CustomComboBoxUI extends BasicComboBoxUI {
+		@Override
+		protected JButton createArrowButton() {
+			JButton button = new JButton("▼");
+			button.setBackground(Config.LIGHT_GREEN);
+			button.setForeground(Color.BLACK);
+			button.setBorder(BorderFactory.createEmptyBorder());
+			return button;
 		}
 	}
 }

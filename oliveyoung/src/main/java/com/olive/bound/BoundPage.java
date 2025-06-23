@@ -17,7 +17,9 @@ import javax.swing.JPanel;
 import com.olive.bound.view.InboundRequestPanel;
 import com.olive.bound.view.InboundShowPanel;
 import com.olive.bound.view.OutboundRequestPanel;
+import com.olive.bound.view.OutboundShowPanel;
 import com.olive.common.config.Config;
+import com.olive.common.model.User;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -38,9 +40,15 @@ public class BoundPage extends Page {
 	
 	Panel[] panels;			// 하위 메뉴 패널들을 담을 배열
 	
+	MainLayout mainLayout;
+	User user;
+	
 	public BoundPage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
+		
+		this.mainLayout = mainLayout;
+		user = mainLayout.user;
 			
 		// create
 		p_side = new JPanel();
@@ -153,8 +161,7 @@ public class BoundPage extends Page {
 		panels[0] = new InboundRequestPanel(mainLayout);		// 입고 요청서
 		panels[1] = new InboundShowPanel(mainLayout);			// 입고 요청 내역 조회
 		panels[2] = new OutboundRequestPanel(mainLayout);	// 출고 요청서
-		//panels[3] = new OutboundShowPanel(this);		// 출고 요청 내역 조회
-		panels[3] = new InboundShowPanel(mainLayout);
+		panels[3] = new OutboundShowPanel(mainLayout);		// 출고 요청 내역 조회
 		
 		for (int i = 0; i < panels.length; i++)
 			p_content.add(panels[i]);
