@@ -20,7 +20,6 @@ import javax.swing.JPanel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
-import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;

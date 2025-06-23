@@ -1,5 +1,7 @@
 package com.olive.common.model;
 
+import java.util.Objects;
+
 public class Branch {
 
 	private int br_id;
@@ -41,6 +43,20 @@ public class Branch {
 	
 	public String toString() {
 		return this.br_name;
+	}
+	
+	// br_id로만 동등성 판단하도록 정의
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (obj == null || getClass() != obj.getClass()) return false;
+	    Branch other = (Branch) obj;
+	    return this.br_id == other.br_id;
+	}
+
+	@Override
+	public int hashCode() {
+	    return Objects.hash(br_id);
 	}
 }
 

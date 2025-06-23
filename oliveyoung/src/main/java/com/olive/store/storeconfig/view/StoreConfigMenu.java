@@ -6,8 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -24,8 +22,6 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
 import com.olive.common.config.Config;
-import com.olive.common.exception.BranchException;
-import com.olive.common.exception.UserException;
 import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.DBManager;
