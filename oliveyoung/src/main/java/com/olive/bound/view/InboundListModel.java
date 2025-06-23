@@ -6,6 +6,10 @@ import javax.swing.table.AbstractTableModel;
 
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
+<<<<<<< HEAD:oliveyoung/src/main/java/com/olive/bound/view/InboundListModel.java
+=======
+import com.olive.common.model.Branch;
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list):oliveyoung/src/main/java/com/olive/bound/model/InboundListModel.java
 import com.olive.common.repository.InboundDAO;
 
 public class InboundListModel extends AbstractTableModel{
@@ -14,6 +18,7 @@ public class InboundListModel extends AbstractTableModel{
 	
 	String[] column = {"날짜", "작성자", "입고상태"};
 	
+<<<<<<< HEAD:oliveyoung/src/main/java/com/olive/bound/view/InboundListModel.java
 	// 첫 화면 조회 -> 추후 로그인한 계정에 따른 지점 선택 추가
 	public InboundListModel (String str) {
 		inboundDAO = new InboundDAO();
@@ -27,6 +32,11 @@ public class InboundListModel extends AbstractTableModel{
 	public InboundListModel(BoundProduct boundproduct) {
 		inboundDAO = new InboundDAO();
     	list = inboundDAO.selectInbound(boundproduct);
+=======
+	public InboundListModel(List<Branch> branchList) {
+        inboundDAO = new InboundDAO();
+        list = inboundDAO.selectInboundByBranches(branchList);
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list):oliveyoung/src/main/java/com/olive/bound/model/InboundListModel.java
     }
 
 	@Override

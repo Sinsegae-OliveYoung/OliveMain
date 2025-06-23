@@ -21,11 +21,25 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
+<<<<<<< HEAD
+=======
+import com.olive.bound.dialog.ProductAddDialog;
+import com.olive.bound.model.BoundShowModel;
+import com.olive.bound.model.InboundListModel;
+import com.olive.bound.model.InboundModel;
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
+<<<<<<< HEAD
 import com.olive.common.repository.InboundDAO;
+=======
+import com.olive.common.model.User;
+import com.olive.common.repository.BranchDAO;
+import com.olive.common.repository.InboundDAO;
+import com.olive.common.repository.UserDAO;
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
 import com.toedter.calendar.JDateChooser;
@@ -58,6 +72,23 @@ public class InboundShowPanel extends Panel{
     JTable table_detail;
     JScrollPane scrollPane;
 	
+<<<<<<< HEAD
+=======
+    User user;
+	Bound bound;
+	InboundModel inboundModel;
+	InboundListModel model;
+	BoundShowModel model_detail;
+	
+	UserDAO userDAO;
+    InboundDAO inboundDAO = new InboundDAO();
+    BranchDAO branchDAO;
+    List<Branch> branchList; // 지점 목록
+    List<BoundProduct> boundProductList; // 상품 목록
+    List<Branch> userBranches; // 사용자 소유 지점 목록
+    
+    BoundProduct selected; // 선택된 요청서 객체
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 
 	Bound bound;
 	InboundListModel model;
@@ -115,7 +146,11 @@ public class InboundShowPanel extends Panel{
         bound = new Bound();
 //        model = new InboundListModel(bound);  // # 입고 요청서 model 연결
         
+<<<<<<< HEAD
         model = new InboundListModel("now");  // # 입고 요청서 model 연결
+=======
+        model = new InboundListModel(userBranches);
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
         table_list = new JTable(model);
 
         // 리스트 테이블 헤더 스타일
@@ -235,8 +270,34 @@ public class InboundShowPanel extends Panel{
                 
         
         
+<<<<<<< HEAD
      // JTable 클릭 이벤트 처리
         table_list.addMouseListener(new MouseAdapter() {
+=======
+        // ------------------------------------------------------------
+        // 테이블 헤더 클릭 이벤트 추가
+//        JTableHeader header_re = table_detail.getTableHeader();
+//        header_re.addMouseListener(new java.awt.event.MouseAdapter() {
+//        	@Override
+//        	public void mouseClicked(java.awt.event.MouseEvent e) {
+//        		int columnIndex = header_re.columnAtPoint(e.getPoint());
+//        		String columnName = table_detail.getColumnName(columnIndex);
+//        		System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+//        		
+//        		// 예: 제품명 컬럼 클릭시만 처리
+//        		if ("상품명".equals(columnName)) {
+//        			javax.swing.JOptionPane.showMessageDialog(null, "상품명 컬럼 클릭됨");
+//        		}
+//        	}
+//        });
+     // 1. 정렬 기능 설정
+        TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table_list.getModel());
+        table_list.setRowSorter(sorter_list);
+
+        // 2. 헤더 클릭 이벤트로 정렬 상태 출력
+        JTableHeader header_list = table_list.getTableHeader();
+        header_list.addMouseListener(new MouseAdapter() {
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
             @Override
             public void mouseClicked(MouseEvent e) {
                 int row = table_list.getSelectedRow();
@@ -246,6 +307,94 @@ public class InboundShowPanel extends Panel{
                 }
             }
         });
+<<<<<<< HEAD
+=======
+        
+        // JTable 클릭 이벤트 처리
+        table_list.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mouseClicked(MouseEvent e) {
+//        		int row = table_list.getSelectedRow();
+        		int viewRow = table_list.getSelectedRow();
+        		if (viewRow != -1) {
+        			int modelRow = table_list.convertRowIndexToModel(viewRow); // ✅ 핵심
+        			selected = model.getBoundAt(modelRow);
+        			showDetail(selected);
+        			bt_add.setEnabled(true); // 상품 추가 버튼 활성화
+        			
+        			
+        			originalProductList = inboundDAO
+        					.selectBoundProductListByBoundId(selected.getBound().getBound_id())
+        					.stream()
+        					.map(bp -> {
+        						BoundProduct copy = new BoundProduct();
+        						copy.setB_count(bp.getB_count());
+        						copy.setProductOption(bp.getProductOption()); // option_id 기반 비교용
+        						return copy;
+        					})
+        					.collect(Collectors.toList());
+        		}
+        		
+        	}
+        });
+
+        bt_add.addActionListener(e -> {
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            ProductAddDialog dialog = new ProductAddDialog(parentFrame, selected);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true); // 다이얼로그 실행
+
+            // ✅ 추가 버튼을 눌러서 확정한 경우에만 반영
+            if (dialog.isConfirmed()) {
+                List<BoundProduct> updatedList = dialog.getSelectedProducts();
+                if (updatedList != null && !updatedList.isEmpty()) {
+                    List<BoundProduct> filteredList = updatedList.stream()
+                        .filter(bp -> bp.getB_count() > 0)
+                        .toList();
+                    model_detail.setBoundProductList(filteredList);
+                }
+            }
+            // ❌ bt_close로 닫았거나 아무것도 선택 안 했으면 기존 데이터 유지
+        });
+        
+        bt_add.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				bt_add.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_add.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+        
+        bt_delete.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				deleteInbound(selected);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				bt_delete.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_delete.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+        
+        bt_save.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				saveInbound(selected);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				bt_save.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_save.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 
     }
     
@@ -260,8 +409,210 @@ public class InboundShowPanel extends Panel{
         
         System.out.println(bound.getComment());
 
+<<<<<<< HEAD
         // DAO에서 해당 bound_id의 상세 상품 리스트 조회
         List<BoundProduct> boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
         model_detail.setBoundProductList(boundProductList);
+=======
+        // 상품 리스트 불러오기
+        boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
+        model_detail.setBoundProductList(boundProductList);
+
+        // 요청서에 연결된 지점
+        Branch requestBranch = bound.getBranch();
+
+        // userBranches 중 이름이 같은 지점을 찾아 대체 (정상 br_id 포함된 객체로)
+        for (Branch b : userBranches) {
+            if (b.getBr_name().equals(requestBranch.getBr_name())) {
+                requestBranch = b;
+                break;
+            }
+        }
+
+        cb_branch.removeAllItems();
+        cb_branch.addItem(requestBranch);
+
+        for (Branch userBranch : userBranches) {
+            if (userBranch.getBr_id() != requestBranch.getBr_id()) {
+                cb_branch.addItem(userBranch);
+            }
+        }
+
+        cb_branch.setSelectedItem(requestBranch);
+
+        
+        Branch selectedBranch = (Branch) cb_branch.getSelectedItem();       
+        
+        // 결재자
+        cb_appuser.removeAllItems();
+        User approver = bound.getApprover();
+        if (approver != null) {
+            cb_appuser.addItem(approver);
+            cb_appuser.setSelectedItem(approver);
+        }
+        
+        
+    }
+    
+    private void deleteInbound(BoundProduct boundProduct) {
+    	if (boundProduct == null) return;
+
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+            null,
+            "정말로 선택한 입고 요청서를 삭제하시겠습니까?",
+            "삭제 확인",
+            javax.swing.JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+            int boundId = boundProduct.getBound().getBound_id();
+            inboundDAO.deleteInbound(boundId);
+
+            javax.swing.JOptionPane.showMessageDialog(null, "입고 요청서가 삭제되었습니다.");
+
+            // 목록 새로고침
+            refreshStaticList();
+        }
+    }
+
+    private void saveInbound(BoundProduct boundProduct) {
+        if (selected == null) return;
+
+        // 1. 현재 선택된 요청서 정보 추출
+        
+        // 기존의 요청서
+        Bound currentBound = selected.getBound();
+        
+        // 수정된 요청서
+        User newApprover = (User) cb_appuser.getSelectedItem();
+        Date newRequestDate = dateChooser.getDate();
+        String newMemo = t_memo.getText().trim();
+        List<BoundProduct> newProductList = model_detail.getBoundProductList();
+        
+        Branch newBranch = (Branch) cb_branch.getSelectedItem();
+        if (newBranch == null) {
+            JOptionPane.showMessageDialog(null, "지점을 선택해주세요.");
+            return;
+        }
+
+        boolean isBoundModified = false;
+        boolean isProductModified = false;
+
+        // Bound 정보 비교
+        if (!currentBound.getBranch().equals(newBranch) ||
+            !currentBound.getApprover().equals(newApprover) ||
+            !currentBound.getRequest_date().equals(newRequestDate) ||
+            !currentBound.getComment().equals(newMemo)) {
+            isBoundModified = true;
+        }
+
+        // 상품 리스트 비교
+        if (originalProductList.size() != newProductList.size()) {
+            isProductModified = true;
+        } else {
+            for (BoundProduct newBP : newProductList) {
+                boolean found = false;
+                for (BoundProduct originalBP : originalProductList) {
+                    if (newBP.getProductOption().getOption_id() == originalBP.getProductOption().getOption_id()
+                        && newBP.getB_count() == originalBP.getB_count()) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    isProductModified = true;
+                    break;
+                }
+            }
+        }
+
+        // 아무것도 변경 안 됐으면
+        if (!isBoundModified && !isProductModified) {
+            JOptionPane.showMessageDialog(null, "변경된 사항이 없습니다.");
+            return;
+        }
+        
+        for (BoundProduct bp : newProductList) {
+            if (bp.getProductOption() == null) {
+                System.err.println("productOption이 null입니다. bp: " + bp);
+                return;
+            }
+        }
+        // --- 3. 사용자 확인 ---
+        int totalCount = newProductList.stream().mapToInt(BoundProduct::getB_count).sum();
+        int totalPrice = newProductList.stream()
+            .mapToInt(bp -> bp.getB_count() * bp.getProductOption().getPrice())
+            .sum();
+
+        String requesterName = user.getUser_name();
+        String approverName = newApprover.getUser_name();
+        String requestDateStr = new SimpleDateFormat("yyyy-MM-dd").format(newRequestDate);
+
+        boolean confirmed = showConfirmationDialog(requesterName, approverName, totalCount, totalPrice, requestDateStr);
+        if (!confirmed) return;
+
+        // 4. 변경사항이 있으면 저장
+        if (isBoundModified) {
+            currentBound.setBranch(newBranch);
+            currentBound.setApprover(newApprover);
+            currentBound.setRequest_date(newRequestDate);
+            currentBound.setComment(newMemo);
+            inboundDAO.updateBound(currentBound);
+        }
+
+        if (isProductModified) {
+            inboundDAO.deleteBoundProductsByBoundId(currentBound.getBound_id());
+            for (BoundProduct bp : newProductList) {
+                bp.setBound(currentBound);
+                inboundDAO.insertBoundProduct(bp);
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, "요청서가 성공적으로 저장되었습니다.");
+
+        // 테이블 새로고침
+        refreshStaticList();
+    }
+    
+    
+    // 요청서 저장 확인 폼
+    private boolean showConfirmationDialog(String requesterName, String approverName, int totalCount, int totalPrice, String requestDate) {
+        String message = String.format(
+            "<html><body>" +
+            "<b>입고 요청 정보를 확인해주세요.</b><br><br>" +
+            "요청자 :&nbsp;&nbsp;&nbsp;%s<br><br>" +
+            "결재자 :&nbsp;&nbsp;&nbsp;%s<br><br>" +
+            "총 상품 수량 :&nbsp;&nbsp;&nbsp;%d개<br><br>" +
+            "총 상품 금액 :&nbsp;&nbsp;&nbsp;%,d원<br><br>" +
+            "입고 요청일 :&nbsp;&nbsp;&nbsp;%s<br><br><br>" +
+            "<b>정말 요청하시겠습니까?</b>" +
+            "</body></html>",
+            requesterName, approverName, totalCount, totalPrice, requestDate
+        );
+
+        int result = JOptionPane.showConfirmDialog(this, message, "입고 요청 확인", JOptionPane.YES_NO_OPTION);
+        return result == JOptionPane.YES_OPTION;
+    }
+
+    // 테이블 새로고침을 위함
+    public static void refreshStaticList() {
+        if (instance != null) {
+            instance.refreshList(); // ✅ 내부 리프레시 메서드 호출
+        }
+    }
+
+    public void refreshList() {
+    	this.model = new InboundListModel(userBranches);
+        table_list.setModel(model);
+        table_list.revalidate();
+        table_list.repaint();
+
+        // 상세내용 초기화
+        model_detail.setBoundProductList(List.of());
+        t_memo.setText("");
+        dateChooser.setDate(null);
+        cb_branch.setSelectedIndex(-1);
+        cb_appuser.setSelectedIndex(-1);
+>>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
     }
 }
