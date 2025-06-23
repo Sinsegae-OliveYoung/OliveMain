@@ -3,7 +3,6 @@ package com.olive.manage.user;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -16,8 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -34,45 +31,47 @@ import com.olive.common.model.Role;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.MemberDAO;
 import com.olive.common.repository.RoleDAO;
+import com.olive.common.util.DateUtil;
 import com.olive.common.util.ImageUtil;
+import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.common.util.style.TableUtil;
-import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
-import com.olive.manage.DatePicker;
+import com.olive.manage.BasePanel;
+import com.olive.manage.DatePickerPanel;
+import com.olive.manage.ManageConfig;
 import com.olive.manage.ManagePage;
 
-public class UserListPanel extends Panel{
+public class UserListPanel extends BasePanel{
 	
-	MemberDAO memberDAO;
-	BranchDAO branchDAO;
-	RoleDAO roleDAO;
+	ImageUtil imgUtil = new ImageUtil();
+	
+	MemberDAO memberDAO = new MemberDAO();
+	BranchDAO branchDAO = new BranchDAO();
+	RoleDAO roleDAO = new RoleDAO();
 	MemberFilterDTO filter;
 	Member selectedMember; 
 	
+	//타이틀 아래 영역 
+	JPanel p_content;
 	
-	JPanel p_north1;
-	JLabel lb_menu;
-	
-	JPanel p_north;
+	//필터: 입사일, 지점, 직급, 이름
+	JPanel p_filter;
 	JLabel lb_filter;
-	JPanel p_start;
-	JLabel lb_start;
-	JButton bt_start;
-	
-	JPanel p_end;
-	JLabel lb_end;
-	JButton bt_end;
-	
-	JComboBox<Branch> cb_branch;   //지점 콤보박스
+	DatePickerPanel p_startdate;
+	DatePickerPanel p_enddate;
+	JComboBox<Branch> cb_branch;  
 	JComboBox<Role> cb_role;
 	JTextField t_name;
 	JButton bt_search;
 	
-	JPanel p_table; 
+	//센터 : 테이블
+	JPanel p_center; 
 	JTable table;
 	JScrollPane scroll;
 	MemberModel memberModel;
 	
+	
+	// 하단 페이지 번호 영역 
 	JPanel p_south;   //페이징 
 	JButton bt_prev;  //이전 페이지 
 	JButton bt_next;   //다음 페이지 
@@ -82,9 +81,6 @@ public class UserListPanel extends Panel{
 	int pageSize = 3;
 	int totalPageSize = 0;
 
-	ImageUtil imgUtil = new ImageUtil();
-	ManagePage managePage;	
-	
 	public void createPageButton() {
 		for(int i = 0; i < pageSize; i++) {
 			bt_list.add(new JButton());
@@ -97,11 +93,6 @@ public class UserListPanel extends Panel{
 		int count = memberDAO.countSelect(filter);
 		totalPageSize = count / pageSize;
 		if(count % pageSize != 0) totalPageSize++;
-	}
-	
-	
-	public void setPageRange() {
-		 
 	}
 	
 	public void setPageButton() {
@@ -121,77 +112,98 @@ public class UserListPanel extends Panel{
 				  btn.setVisible(false);
 			}
 		}
-		
 	}
-	
-	public UserListPanel(MainLayout mainLayout, ManagePage managePage) {
-		super(mainLayout);
-		this.managePage = managePage;
+
+	@Override
+	public JPanel createContent() {
+		p_content = new JPanel(new BorderLayout());
 		
-		memberDAO = new MemberDAO();
-		branchDAO = new BranchDAO();
-		roleDAO = new RoleDAO();
+		//필터 패널 (north)
+		p_filter = new JPanel();
+		p_content.add(p_filter, BorderLayout.NORTH);
+		
+		lb_filter = new JLabel("필터");
+		p_filter.add(lb_filter);    
+		
+		p_startdate = new DatePickerPanel("yyyy.mm.dd");
+		p_filter.add(p_startdate);
+		
+		LocalDate ld = LocalDate.now();
+		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
+		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
+		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
+		//수정 필요 : 오늘 날짜인데 숫자가 10 이하이면 0붙이기 
+		p_enddate = new DatePickerPanel(LocalDate.now().toString());  // 오늘날짜로 지정 
+		p_filter.add(p_enddate);
+		
+		cb_branch= ComboBoxUtil.createBranchComboBox();
+		cb_branch.setPreferredSize(new Dimension(100, 30));
+		p_filter.add(cb_branch);
+		
+		cb_role = ComboBoxUtil.createRoleComboBox();
+		cb_role.setPreferredSize(new Dimension(100, 30));
+		p_filter.add(cb_role);
+		
+		t_name = new JTextField("이름");
+		t_name.setPreferredSize(new Dimension(100, 30));
+		p_filter.add(t_name);
+		
+		bt_search = new JButton("검색");
+		bt_search.setPreferredSize(new Dimension(60, 30));
+		p_filter.add(bt_search);
+		
+		
+		//테이블 패널 (center)
+		p_center = new JPanel(new BorderLayout());
+		p_content.add(p_center, BorderLayout.CENTER);
+		
+		//테이블 
 		filter = new MemberFilterDTO();
+		filter.setUser_id(mainLayout.user.getUser_id());
+		memberModel = new MemberModel(filter, currentPage, pageSize);
+		table = new JTable(memberModel);
+		TableUtil.applyStyle(table);
 		
-		filter.setUser_id(mainLayout.user.getUser_id());  
-		setTotalPageSize();
-		setStyle();
+		scroll = new JScrollPane(table);
+		scroll.getViewport().setBackground(Color.WHITE);
+		scroll.setPreferredSize(new Dimension(1000, 500));
+		p_center.add(scroll);
 		
-		getBranch();
-		getRole();
 		
 		// 이벤트 연결 
-		bt_start.addActionListener(e -> {
-			new DatePicker(lb_start);
-		});
-		
-		bt_end.addActionListener(e -> {
-			new DatePicker(lb_end);
-		});
-		
 		bt_search.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				setFilter();
-				
-				DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-				if(!lb_start.getText().equals("yyyy.mm.dd")) {
-					filter.setStart_date(Date.valueOf(LocalDate.parse(lb_start.getText(), formatter))); 
-				}
-				
-				if(!lb_end.getText().equals("yyyy.mm.dd")) {
-					filter.setEnd_date(Date.valueOf(LocalDate.parse(lb_end.getText(), formatter))); 
-				}
-				
 				memberModel.list = memberDAO.select(filter, currentPage, pageSize);
 				table.updateUI();
 			}
 		});
 		
-		bt_next.addActionListener(e -> {
-			currentPage++;
-			bt_prev.setEnabled(true);
-			if(currentPage == totalPageSize) {
-				bt_next.setEnabled(false);
-			}
-			
-			if(currentPage % pageSize == 1) {
-				setPageButton();
-			}
-		});
-		
-		bt_prev.addActionListener(e -> {
-			currentPage--;
-			bt_next.setEnabled(true);
-			if(currentPage == 1) {
-				bt_prev.setEnabled(false);
-			}
-			
-			if(currentPage % pageSize == 0) {
-				setPageButton();
-			}
-		});
-		
+//		bt_next.addActionListener(e -> {
+//			currentPage++;
+//			bt_prev.setEnabled(true);
+//			if(currentPage == totalPageSize) {
+//				bt_next.setEnabled(false);
+//			}
+//			
+//			if(currentPage % pageSize == 1) {
+//				setPageButton();
+//			}
+//		});
+//		
+//		bt_prev.addActionListener(e -> {
+//			currentPage--;
+//			bt_next.setEnabled(true);
+//			if(currentPage == 1) {
+//				bt_prev.setEnabled(false);
+//			}
+//			
+//			if(currentPage % pageSize == 0) {
+//				setPageButton();
+//			}
+//		});
+//		
 		//이름 textfield의 placeholder 제거 이벤트 
 		t_name.addFocusListener(new FocusListener() {
 			@Override
@@ -215,11 +227,39 @@ public class UserListPanel extends Panel{
 		        int row = table.getSelectedRow();  // 클릭된 row index
 
 		        // 모델에서 사용자 정보 추출
-		        selectedMember = memberModel.list.get(row);  // ← 너가 만든 MemberModel의 list 사용
+		        selectedMember = memberModel.list.get(row);  
 		        managePage.showUserDetailPanel(selectedMember);
 		    }
 		});
 		
+		
+		return p_content;
+	}
+	
+	public UserListPanel(MainLayout mainLayout, String title, ManagePage managePage) {
+		super(mainLayout, ManageConfig.USER_LIST_TITLE, managePage);
+		setButtonVisible(false);
+		
+		//페이징 
+//		p_south = new JPanel();
+//		bt_prev = new JButton("<");
+//		bt_prev.setEnabled(false);
+//		bt_next = new JButton(">");
+//		
+//		//스타일
+//		
+//		cb_role.setPreferredSize(new Dimension(100, 30));
+//	     
+//		p_south.setPreferredSize(new Dimension(800, 100));
+//		p_south.setBackground(Color.red);
+//		
+//		// 조립 
+//		p_south.add(bt_prev);
+//		createPageButton();  // 5개 페이지 버튼에 대응되는 버튼 생성
+//		setPageButton();
+//		p_south.add(bt_next);
+//		add(p_south, BorderLayout.SOUTH);
+//		
 	}
 	
 	public void setFilter() {
@@ -227,150 +267,8 @@ public class UserListPanel extends Panel{
 		filter.setRole_id(((Role)cb_role.getSelectedItem()).getRole_id());
 		filter.setUser_id(mainLayout.user.getUser_id());  
 		filter.setUser_name(t_name.getText());
+		filter.setStart_date(DateUtil.stringToDate(p_startdate.lb_date.getText()));
+		filter.setEnd_date(DateUtil.stringToDate(p_enddate.lb_date.getText()));
 	}
-	
-	public void setStyle() {
-		setLayout(new BorderLayout());
-		
-//		p_north1 = new JPanel();
-//		p_north1.setPreferredSize(new Dimension(100, 100));
-//		add(p_north1, BorderLayout.NORTH);
-//		lb_menu = new JLabel("사용자 목록");
-//	    lb_menu.setFont(new Font("SansSerif", Font.BOLD, 22));
-//	    lb_menu.setHorizontalAlignment(SwingConstants.LEFT);
-//	    p_north1.add(lb_menu);
-	    
-		p_north = new JPanel();
-		lb_filter = new JLabel("필터");
-		p_north.add(lb_filter);
-		p_start = new JPanel(new BorderLayout());
-		lb_start = new JLabel("yyyy.mm.dd");
-		Image img = imgUtil.getImage("images/calendar_icon.png", 20, 20);
-		bt_start = new JButton(new ImageIcon(img));
-		bt_start.setBorderPainted(false);       // 테두리 없애기
-		bt_start.setContentAreaFilled(false);   // 배경 채우기 제거
-		//bt_cal.setFocusPainted(false);        // 포커스 테두리 제거
-		bt_start.setOpaque(false);              // 불투명 해제 (배경 투명화)
-		 
-		
-		
-		p_end = new JPanel(new BorderLayout());
-		LocalDate ld = LocalDate.now();
-		
-		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
-		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
-		
-		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
-		lb_end = new JLabel(today);  // 오늘 날짜 바로 나오게 
-		
-		Image img2 = imgUtil.getImage("images/calendar_icon.png", 20, 20);
-		bt_end = new JButton(new ImageIcon(img2));
-		bt_end.setBorderPainted(false);       // 테두리 없애기
-		bt_end.setContentAreaFilled(false);   // 배경 채우기 제거
-		//bt_cal.setFocusPainted(false);        // 포커스 테두리 제거
-		bt_end.setOpaque(false); 
-		
-		cb_branch = new JComboBox<>();
-		cb_role = new JComboBox<>();
-		t_name = new JTextField("이름");
-		bt_search = new JButton("검색");
-		
-		p_table = new JPanel();
-	
-		table = new JTable(memberModel = new MemberModel(filter, currentPage, pageSize));
-		TableUtil.applyStyle(table);
-	
-	
-		//셀 내용 가운데 정렬 
-		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-        
-        scroll = new JScrollPane(table);
-		scroll.getViewport().setBackground(Color.WHITE);
-		scroll.setPreferredSize(new Dimension(1000, 500));
-		
-		p_south = new JPanel();
-		bt_prev = new JButton("<");
-		bt_prev.setEnabled(false);
-		bt_next = new JButton(">");
-		
-		
-		//스타일
-		p_start.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		p_end.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-		cb_branch.setPreferredSize(new Dimension(100, 30));
-		cb_role.setPreferredSize(new Dimension(100, 30));
-		t_name.setPreferredSize(new Dimension(100, 30));
-		bt_search.setPreferredSize(new Dimension(60, 30));
-	     
-		lb_start.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // top, left, bottom, right
-		lb_end.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0)); // top, left, bottom, right
-		//bt_cal.setPreferredSize(new Dimension(30, 30));
-		bt_start.setHorizontalAlignment(SwingConstants.RIGHT);
-		//bt_cal.setIconTextGap(5); // 텍스트와 아이콘 사이 간격
-		
-		
-		p_south.setPreferredSize(new Dimension(800, 100));
-		p_south.setBackground(Color.red);
-		
-		
-		// 조립 
-		p_north.add(p_start);
-		p_start.add(lb_start, BorderLayout.WEST);
-		p_start.add(bt_start, BorderLayout.EAST);
-		p_north.add(p_end);
-		p_end.add(lb_end, BorderLayout.WEST);
-		p_end.add(bt_end, BorderLayout.EAST);
-		p_north.add(cb_branch);
-		p_north.add(cb_role);
-		p_north.add(t_name);
-		p_north.add(bt_search);
-		add(p_north, BorderLayout.NORTH);
-		
-		p_table.add(scroll);
-		add(p_table);
-		
-		p_south.add(bt_prev);
-		createPageButton();  // 5개 페이지 버튼에 대응되는 버튼 생성
-		setPageButton();
-		p_south.add(bt_next);
-		add(p_south, BorderLayout.SOUTH);
-		
-	}
-	
-	
-	// 지점, 직급 콤보박스 채우기 
-	public void getBranch() {
-		System.out.println("UserListPanel.getBranch()");
-		List<Branch> br_list = branchDAO.getBranchList(mainLayout.user.getUser_id());  
-		Branch dummy = new Branch();
-		dummy.setBr_id(0);
-		dummy.setBr_name("지점");
-		
-		cb_branch.addItem(dummy);
-		for(Branch br : br_list) {
-			cb_branch.addItem(br);
-		}
-	}
-	
-	public void getRole() {
-		List<Role> role_list = roleDAO.selectAll();
-		
-		Role dummy = new Role();
-		dummy.setRole_id(0);
-		dummy.setRole_name("직급");
-		
-		cb_role.addItem(dummy);
-		for(Role role : role_list) {
-			cb_role.addItem(role);
-		}
-	}
-	
-	
-	
-	
 	
 }

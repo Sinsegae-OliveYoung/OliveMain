@@ -15,8 +15,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.table.TableModel;
 
+import com.olive.common.model.Bound;
 import com.olive.common.model.BoundState;
 import com.olive.common.repository.BoundDAO;
 import com.olive.common.util.DateUtil;
@@ -25,6 +25,7 @@ import com.olive.common.util.style.TableUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.manage.BasePanel;
 import com.olive.manage.DatePickerPanel;
+import com.olive.manage.ManagePage;
 
 public class ApprovalListPanel extends BasePanel{
 	
@@ -47,9 +48,10 @@ public class ApprovalListPanel extends BasePanel{
 	
 	BoundFilterDTO filter;
 	BoundDAO boundDAO = new BoundDAO();
+	Bound selectedBound;
 	
-	public ApprovalListPanel(MainLayout mainLayout, String title) {
-		super(mainLayout, title);
+	public ApprovalListPanel(MainLayout mainLayout, String title, ManagePage managePage) {
+		super(mainLayout, title, managePage);
 		super.setButtonVisible(false);
 	}
 	
@@ -93,9 +95,7 @@ public class ApprovalListPanel extends BasePanel{
 		scroll = new JScrollPane(table);
 		p_center.add(scroll);
 		
-		
 		// 페이징 패널 (south)  구현할지 말지.?
-		
 		
 		//요청자 필드 포커스 이벤트
 		t_submitter.addFocusListener(new FocusListener() {
@@ -125,8 +125,8 @@ public class ApprovalListPanel extends BasePanel{
 		        int row = table.getSelectedRow();  // 클릭된 row index
 
 		        // 모델에서 사용자 정보 추출
-		        selectedMember = memberModel.list.get(row);  // ← 너가 만든 MemberModel의 list 사용
-		        managePage.showUserDetailPanel(selectedMember);
+		        selectedBound = model.list.get(row);
+		        managePage.showApprovalDetailPanel(selectedBound);
 		    }
 		});
 		

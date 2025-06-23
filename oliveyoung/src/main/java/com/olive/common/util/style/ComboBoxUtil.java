@@ -9,8 +9,10 @@ import javax.swing.JComboBox;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.BoundState;
+import com.olive.common.model.Branch;
 import com.olive.common.model.Role;
 import com.olive.common.repository.BoundStateDAO;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.RoleDAO;
 
 public class ComboBoxUtil {
@@ -57,6 +59,24 @@ public class ComboBoxUtil {
 		for(int i = 0; i < list.size(); i++) {
 			cb.addItem(list.get(i));
 		}
+		return cb;
+	}
+	
+	public static JComboBox<Branch> createBranchComboBox(){
+		BranchDAO branchDAO = new BranchDAO();
+		List<Branch> list = branchDAO.selectAll();
+		
+		JComboBox<Branch> cb = new JComboBox<>();
+		applyDefaultStyle(cb);
+		
+		Branch br = new Branch();
+		br.setBr_name("전체");
+		cb.addItem(br);
+		
+		for(int i = 0; i < list.size(); i++) {
+			cb.addItem(list.get(i));
+		}
+		
 		return cb;
 	}
 }

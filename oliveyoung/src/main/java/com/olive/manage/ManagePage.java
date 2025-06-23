@@ -16,10 +16,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.Bound;
 import com.olive.common.model.Member;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
+import com.olive.manage.approval.ApprovalDetailPanel;
 import com.olive.manage.approval.ApprovalListPanel;
 import com.olive.manage.user.UserDetailPanel;
 import com.olive.manage.user.UserListPanel;
@@ -34,11 +36,25 @@ public class ManagePage extends Page{
 	JButton bt_approval_list;
 	JPanel p_content;
 	Panel[] panels;
+	
 	CardLayout cardLayout;
+	String previousKey;  //이전 페이지 기억하기 위한 키(cardlayout의 key)
+	String currentKey = ManageConfig.USER_LIST_KEY;
+	
+	UserListPanel userListPanel;
+	UserDetailPanel userDetailPanel;
+	ApprovalListPanel approvalListPanel;
+	ApprovalDetailPanel approvalDetailPanel;
+	
 	
 	public ManagePage(MainLayout mainLayout) {
 		super(mainLayout);
 		setLayout(new BorderLayout());
+		
+		userListPanel = new UserListPanel(mainLayout, ManageConfig.USER_LIST_TITLE, this);
+		userDetailPanel = new UserDetailPanel(mainLayout, ManageConfig.USER_DETAIL_TITLE, this);
+		approvalListPanel = new ApprovalListPanel(mainLayout, ManageConfig.APPROVAL_LIST_TITLE, this); 
+		approvalDetailPanel = new ApprovalDetailPanel(mainLayout, ManageConfig.APPROVAL_DETAIL_TITLE, this);
 		
 		// create
 		p_side = new JPanel();
@@ -95,26 +111,14 @@ public class ManagePage extends Page{
 				public void mouseClicked(MouseEvent e) {
 				      JButton source = (JButton) e.getSource();
 				      
-				     /* if (source == bt_menu1)
-				    	  showPanel(0);
-				      else if (source == bt_menu2)
-				    	  showPanel(1);
-				      else if (source == bt_menu3)
-				    	  showPanel(2);
-				      else if (source == bt_menu4)
-				    	  showPanel(3);*/
-				      
-				      /*--------------
-				       *  테스트용
-				       * -------------*/
 				      if (source == bt_user_list) {
-				    	  showPanel(ManageConfig.USER_LIST);
-				    	  
+				    	  showPanel(ManageConfig.USER_LIST_KEY);
+				    	  currentKey = ManageConfig.USER_LIST_KEY;
 				      }
 				      else if (source == bt_approval_list) {
-				    	  showPanel(ManageConfig.USER_DETAIL);
+				    	  showPanel(ManageConfig.APPROVAL_LIST_KEY);
+				    	  currentKey = ManageConfig.APPROVAL_LIST_KEY;
 				      }
-				    	  
 				}
 			});
 		}
@@ -122,20 +126,39 @@ public class ManagePage extends Page{
 		createPanel();
 	}
 	
+	// 카드레이아웃인 p_content에 패널 담아두기 
 	public void createPanel() {
-		
-		// 카드레이아웃
-		p_content.add(new UserListPanel(mainLayout, this), ManageConfig.USER_LIST);
-		p_content.add(new UserDetailPanel(mainLayout, "사용자 목록"), ManageConfig.USER_DETAIL);
-		
-
+		p_content.add(userListPanel, ManageConfig.USER_LIST_KEY);
+		p_content.add(userDetailPanel, ManageConfig.USER_DETAIL_KEY);
+		p_content.add(approvalListPanel, ManageConfig.APPROVAL_LIST_KEY);
+		p_content.add(approvalDetailPanel, ManageConfig.APPROVAL_DETAIL_KEY);
 	}
 	
-
 	public void showPanel(String key) {
+		previousKey = currentKey;
+		currentKey = key;
 		cardLayout.show(p_content, key);
-	   	p_content.revalidate();  // 레이아웃 다시 계산
-	   	p_content.repaint();  
+		p_content.revalidate();  // 레이아웃 다시 계산
+		p_content.repaint();  
 	}
 	
+	// 보여줄 사용자로 userDetailPanel 세팅
+	public void showUserDetailPanel(Member member) {
+		userDetailPanel.setMember(member); 
+		showPanel(ManageConfig.USER_DETAIL_KEY);
+	}
+	
+	public void showApprovalDetailPanel(Bound bound) {
+		approvalDetailPanel.setBound(bound);
+		showPanel(ManageConfig.APPROVAL_DETAIL_KEY);
+	}
+	
+	 public void back() {
+        if (previousKey != null) {
+	        showPanel(previousKey);
+        }
+	 }
+	 
+	 
+
 }
