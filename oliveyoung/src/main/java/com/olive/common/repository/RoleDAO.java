@@ -15,7 +15,7 @@ import com.olive.common.util.DBManager;
 public class RoleDAO {
 	DBManager dbManager = DBManager.getInstance();
 
-	public List selectAll() {
+	public List<Role> selectAll() {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;

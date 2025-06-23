@@ -4,7 +4,8 @@ import java.awt.Color;
 import java.awt.Font;
 
 import javax.swing.JTable;
-import javax.swing.table.TableModel;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.config.Config;
 
@@ -19,6 +20,6 @@ public class TableUtil{
       table.getTableHeader().setFont(headerFont);
       table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
       table.getTableHeader().setForeground(Color.DARK_GRAY);
+      
    }
-   
 }

@@ -12,7 +12,7 @@ import com.olive.common.model.Member;
 import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
-import com.olive.manage.MemberFilterDTO;
+import com.olive.manage.user.MemberFilterDTO;
 
 public class MemberDAO {
 
@@ -20,7 +20,7 @@ public class MemberDAO {
 	
 	//로그인한 사용자가 관리하는 지점에 속한 member 조회 
 	//동적 쿼리: UserListPanel에서 조건 걸고 검색 
-	public List<Member> select(MemberFilterDTO filter){
+	public List<Member> select(MemberFilterDTO filter, int curPage, int pageSize){
 		
 		Connection con = null;
 		PreparedStatement pstmt = null;
@@ -36,8 +36,11 @@ public class MemberDAO {
 		sql.append(" on m.user_id = u.user_id");
 		sql.append(" and m.br_id = b.br_id");
 		sql.append(" and u.role_id = r.role_id");
-		sql.append(" where m.br_id in (");
+		sql.append(" where u.user_id != ?");
+		sql.append(" and m.br_id in (");
 		sql.append(" select br_id from member where user_id = ?)");
+		
+		params.add(filter.getUser_id());
 		params.add(filter.getUser_id());
 		
 		// 조건이 선택되었다면 sql where절에 추가  
@@ -66,6 +69,15 @@ public class MemberDAO {
 			params.add(filter.getEnd_date());
 		}
 		
+		sql.append(" order by br_name, r.role_id asc");
+		
+//		sql.append(" limit ? offset ?");
+//		params.add(pageSize);
+//		params.add(curPage);
+//		
+		
+		
+		System.out.println(sql.toString());
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			for(int i = 0; i < params.size(); i++) {
@@ -110,6 +122,89 @@ public class MemberDAO {
 		}
 		
 		return list;
+	}
+	
+	// count용 쿼리 
+	public int countSelect(MemberFilterDTO filter){
+		
+		System.out.println("MemberDAO.countSelect()");
+		
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		List<Object> params = new ArrayList<>();
+		int result = 0;
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select count(mem_id) as count");
+		sql.append(" from member m inner join user u inner join branch b inner join role r");
+		sql.append(" on m.user_id = u.user_id");
+		sql.append(" and m.br_id = b.br_id");
+		sql.append(" and u.role_id = r.role_id");
+		sql.append(" where u.user_id != ?");
+		sql.append(" and m.br_id in (");
+		sql.append(" select br_id from member where user_id = ?)");
+		
+		params.add(filter.getUser_id());
+		params.add(filter.getUser_id());
+		
+		// 조건이 선택되었다면 sql where절에 추가  
+		if(filter.getBr_id() != 0) {
+			sql.append(" and b.br_id = ?");
+			params.add(filter.getBr_id());
+		}
+		
+		if(filter.getRole_id() != 0) {
+			sql.append(" and r.role_id = ?");
+			params.add(filter.getRole_id());
+		}
+		
+		if(!filter.getUser_name().equals("이름")) {
+			sql.append(" and user_name = ?");
+			params.add(filter.getUser_name());
+		}
+		
+		if(filter.getStart_date() != null) {
+			sql.append(" and hiredate >= ?");
+			params.add(filter.getStart_date());
+		}
+		
+		if(filter.getEnd_date() != null) {
+			sql.append(" and hiredate <= ?");
+			params.add(filter.getEnd_date());
+		}
+		
+		System.out.println(sql.toString());
+		
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			for(int i = 0; i < params.size(); i++) {
+				pstmt.setObject(i+1, params.get(i));
+			}
+			
+			rs = pstmt.executeQuery();
+			while(rs.next()) {
+				result = rs.getInt("count");
+			}
+		
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
+		}
+		
+		return result; 
+	}
+	
+	public static void main(String[] args) {
+		MemberDAO m = new MemberDAO();
+		MemberFilterDTO f = new MemberFilterDTO();
+		f.setUser_id(1);
+		f.setRole_id(2);
+		System.out.println(m.countSelect(f));
+		
 	}
 	
 }
