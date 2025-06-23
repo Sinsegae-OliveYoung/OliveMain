@@ -37,15 +37,15 @@ import javax.swing.table.TableRowSorter;
 
 import com.olive.bound.dialog.ProductAddDialog;
 import com.olive.bound.model.BoundShowModel;
-import com.olive.bound.model.BoundListModel;
-import com.olive.bound.model.BoundRequestModel;
+import com.olive.bound.model.InboundListModel;
+import com.olive.bound.model.InboundModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
-import com.olive.common.repository.BoundDAO;
+import com.olive.common.repository.InboundDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -81,11 +81,12 @@ public class InboundShowPanel extends Panel{
 	
     User user;
 	Bound bound;
-	BoundListModel model;
+	InboundModel inboundModel;
+	InboundListModel model;
 	BoundShowModel model_detail;
 	
 	UserDAO userDAO;
-    BoundDAO boundDAO = new BoundDAO();
+    InboundDAO inboundDAO = new InboundDAO();
     BranchDAO branchDAO;
     List<Branch> branchList; // 지점 목록
     List<BoundProduct> boundProductList; // 상품 목록
@@ -161,7 +162,7 @@ public class InboundShowPanel extends Panel{
         // 리스트 테이블 생성
         bound = new Bound();
         
-        model = new BoundListModel(userBranches, "in");
+        model = new InboundListModel(userBranches);
         table_list = new JTable(model);
 
         // 리스트 테이블 헤더 스타일
@@ -321,8 +322,21 @@ public class InboundShowPanel extends Panel{
         
         // ------------------------------------------------------------
         // 테이블 헤더 클릭 이벤트 추가
-
-        // 1. 정렬 기능 설정
+//        JTableHeader header_re = table_detail.getTableHeader();
+//        header_re.addMouseListener(new java.awt.event.MouseAdapter() {
+//        	@Override
+//        	public void mouseClicked(java.awt.event.MouseEvent e) {
+//        		int columnIndex = header_re.columnAtPoint(e.getPoint());
+//        		String columnName = table_detail.getColumnName(columnIndex);
+//        		System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+//        		
+//        		// 예: 제품명 컬럼 클릭시만 처리
+//        		if ("상품명".equals(columnName)) {
+//        			javax.swing.JOptionPane.showMessageDialog(null, "상품명 컬럼 클릭됨");
+//        		}
+//        	}
+//        });
+     // 1. 정렬 기능 설정
         TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table_list.getModel());
         table_list.setRowSorter(sorter_list);
 
@@ -394,7 +408,7 @@ public class InboundShowPanel extends Panel{
         			bt_add.setEnabled(true); // 상품 추가 버튼 활성화
         			
         			
-        			originalProductList = boundDAO
+        			originalProductList = inboundDAO
         					.selectBoundProductListByBoundId(selected.getBound().getBound_id())
         					.stream()
         					.map(bp -> {
@@ -440,7 +454,7 @@ public class InboundShowPanel extends Panel{
         
         bt_delete.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				deleteBound(selected);
+				deleteInbound(selected);
 			}
 			
 			public void mouseEntered(MouseEvent e) {
@@ -454,7 +468,7 @@ public class InboundShowPanel extends Panel{
         
         bt_save.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				saveBound(selected);
+				saveInbound(selected);
 			}
 			
 			public void mouseEntered(MouseEvent e) {
@@ -478,7 +492,7 @@ public class InboundShowPanel extends Panel{
         t_memo.setText(bound.getComment());
 
         // 상품 리스트 불러오기
-        boundProductList = boundDAO.selectBoundProductListByBoundId(bound.getBound_id());
+        boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
         model_detail.setBoundProductList(boundProductList);
 
         // 요청서에 연결된 지점
@@ -517,7 +531,7 @@ public class InboundShowPanel extends Panel{
         
     }
     
-    private void deleteBound(BoundProduct boundProduct) {
+    private void deleteInbound(BoundProduct boundProduct) {
     	if (boundProduct == null) return;
 
         int confirm = javax.swing.JOptionPane.showConfirmDialog(
@@ -529,7 +543,7 @@ public class InboundShowPanel extends Panel{
 
         if (confirm == javax.swing.JOptionPane.YES_OPTION) {
             int boundId = boundProduct.getBound().getBound_id();
-            boundDAO.deleteBound(boundId);
+            inboundDAO.deleteInbound(boundId);
 
             javax.swing.JOptionPane.showMessageDialog(null, "입고 요청서가 삭제되었습니다.");
 
@@ -538,7 +552,7 @@ public class InboundShowPanel extends Panel{
         }
     }
 
-    private void saveBound(BoundProduct boundProduct) {
+    private void saveInbound(BoundProduct boundProduct) {
         if (selected == null) return;
 
         // 1. 현재 선택된 요청서 정보 추출
@@ -620,18 +634,14 @@ public class InboundShowPanel extends Panel{
             currentBound.setApprover(newApprover);
             currentBound.setRequest_date(newRequestDate);
             currentBound.setComment(newMemo);
-            
-            // 진짜 저장
-            boundDAO.updateBound(currentBound);
+            inboundDAO.updateBound(currentBound);
         }
 
         if (isProductModified) {
-        	boundDAO.deleteBoundProductsByBoundId(currentBound.getBound_id());
+            inboundDAO.deleteBoundProductsByBoundId(currentBound.getBound_id());
             for (BoundProduct bp : newProductList) {
                 bp.setBound(currentBound);
-                
-                // 진짜 저장
-                boundDAO.insertBoundProduct(bp);
+                inboundDAO.insertBoundProduct(bp);
             }
         }
 
@@ -669,17 +679,10 @@ public class InboundShowPanel extends Panel{
     }
 
     public void refreshList() {
-    	this.model = new BoundListModel(userBranches, "in");
+    	this.model = new InboundListModel(userBranches);
         table_list.setModel(model);
         table_list.revalidate();
         table_list.repaint();
-        
-        // 리스트 테이블 셀 가운데 정렬
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        for (int i = 0; i < table_list.getColumnCount(); i++) {
-        	table_list.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
 
         // 상세내용 초기화
         model_detail.setBoundProductList(List.of());

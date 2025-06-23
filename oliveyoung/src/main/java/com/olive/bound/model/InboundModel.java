@@ -8,14 +8,14 @@ import com.olive.common.model.Branch;
 import com.olive.common.model.Stock;
 import com.olive.common.repository.ProductDAO;
 
-public class BoundRequestModel extends AbstractTableModel{
+public class InboundModel extends AbstractTableModel{
 	
 	ProductDAO productDAO;
 	public List<Stock> list;
 	
 	String[] column = {"카테고리", "상세카테고리", "브랜드", "제품명",  "호수",  "가격", "재고수량"	};
 	
-	public BoundRequestModel (String str) {
+	public InboundModel (String str) {
 		productDAO = new ProductDAO();
 		
 		// 화면 첫 로딩 시 보이는 테이블 내용 -> 로그인한 계정의 소속지점.
@@ -25,7 +25,7 @@ public class BoundRequestModel extends AbstractTableModel{
 	}
 	
 	// 콤보 박스 선택시 지점 변경 -> 테이블 값 변경 br_id = branch
-	public BoundRequestModel(Branch branch) {
+	public InboundModel(Branch branch) {
 		productDAO = new ProductDAO();
     	list = productDAO.listNewBranch(branch);
     }

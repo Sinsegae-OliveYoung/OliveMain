@@ -9,11 +9,11 @@ import javax.swing.table.AbstractTableModel;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.ProductOption;
 import com.olive.common.model.Stock;
-import com.olive.common.repository.BoundDAO;
+import com.olive.common.repository.InboundDAO;
 
 public class BoundProductEditModel extends AbstractTableModel{
 	
-	BoundDAO boundDAO;
+	InboundDAO inboundDAO;
 	public List<BoundProduct> list;
 	List<Stock> stockList;
 	
@@ -23,11 +23,11 @@ public class BoundProductEditModel extends AbstractTableModel{
 	
 	// 요청서 id로 해당 지점의 재고 및 요청서의 제품 정보 가져오기
 	public BoundProductEditModel(int bound_id) {
-		boundDAO = new BoundDAO();
-        this.list = boundDAO.boundEditProduct(bound_id); // BoundProduct만 리턴
+		inboundDAO = new InboundDAO();
+        this.list = inboundDAO.boundEditProduct(bound_id); // BoundProduct만 리턴
 
         // 재고 수량 따로 가져오기
-        stockList = boundDAO.selectStockForBound(bound_id);
+        stockList = inboundDAO.selectStockForBound(bound_id);
         for (Stock stock : stockList) {
             stockMap.put(stock.getProductOption().getOption_id(), stock.getSt_quantity());
         }
