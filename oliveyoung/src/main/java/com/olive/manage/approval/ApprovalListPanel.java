@@ -44,7 +44,7 @@ public class ApprovalListPanel extends BasePanel{
 	JPanel p_center;
 	JScrollPane scroll;
 	JTable table;
-	ApprovalModel model;
+	public ApprovalModel model;
 	
 	BoundFilterDTO filter;
 	BoundDAO boundDAO = new BoundDAO();
@@ -72,7 +72,11 @@ public class ApprovalListPanel extends BasePanel{
 		p_startdate = new DatePickerPanel("yyyy.mm.dd");
 		p_filter.add(p_startdate);
 		
-		p_enddate = new DatePickerPanel(LocalDate.now().toString());  // 오늘날짜로 지정 
+		LocalDate ld = LocalDate.now();
+		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
+		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
+		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
+		p_enddate = new DatePickerPanel(today);   
 		p_filter.add(p_enddate);
 		
 		cb_status = ComboBoxUtil.createBoundStateComboBox();
@@ -129,16 +133,33 @@ public class ApprovalListPanel extends BasePanel{
 		        managePage.showApprovalDetailPanel(selectedBound);
 		    }
 		});
-		
-		
 		return p_content;
 	}	
 	
 	public void setFilter() {
 		filter.setBoundstate_id(((BoundState)cb_status.getSelectedItem()).getBo_state_id());
-		filter.setStart_date(DateUtil.stringToDate(p_startdate.lb_date.getText()));
+		if(!p_startdate.lb_date.getText().equals("yyyy.mm.dd")) {
+			filter.setStart_date(DateUtil.stringToDate(p_startdate.lb_date.getText()));
+		}
 		filter.setEnd_date(DateUtil.stringToDate(p_enddate.lb_date.getText()));
 		filter.setBr_id(0);  //수정 필요 
 		filter.setSubmitter_name(t_submitter.getText());
+	}
+	
+	public void clearFilter() {
+		t_submitter.setText("이름");
+		p_startdate.lb_date.setText("yyyy.mm.dd");
+		
+		LocalDate ld = LocalDate.now();
+		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
+		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
+		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
+		p_enddate.lb_date.setText(today);
+		cb_status.setSelectedIndex(0);		
+	}
+	
+	public void refresh() {
+		model.list = boundDAO.select(filter);
+		table.updateUI();
 	}
 }

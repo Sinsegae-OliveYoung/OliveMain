@@ -8,6 +8,8 @@ public class ManageConfig {
 	 * 폰트
 	 */
 	public static final Font TITLE_FONT = new Font("SansSerif", Font.BOLD, 22);
+	public static final Font PLAIN_FONT = new Font("Noto Sans KR", Font.PLAIN, 16);
+	public static final Font BOLD_FONT = new Font("Noto Sans KR", Font.BOLD, 16);
 	
 	/**
 	 * 이미지 경로 

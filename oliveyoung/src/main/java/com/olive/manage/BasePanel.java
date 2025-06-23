@@ -1,6 +1,7 @@
 package com.olive.manage;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ public abstract class BasePanel extends Panel{
 		
 		//상단 타이틀 패널
 		p_top = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		p_top.setBackground(Color.white);
 		add(p_top, BorderLayout.NORTH);
 		
 		//뒤로가기 버튼 

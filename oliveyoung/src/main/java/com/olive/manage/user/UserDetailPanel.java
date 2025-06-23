@@ -14,6 +14,7 @@ import com.olive.common.model.Member;
 import com.olive.common.repository.UserDAO;
 import com.olive.mainlayout.MainLayout;
 import com.olive.manage.BasePanel;
+import com.olive.manage.ManageConfig;
 import com.olive.manage.ManagePage;
 
 public class UserDetailPanel extends BasePanel{
@@ -38,9 +39,7 @@ public class UserDetailPanel extends BasePanel{
 	
 	public UserDetailPanel(MainLayout mainLayout, String title, ManagePage managePage) {
 		super(mainLayout, title, managePage);
-		this.member = member;
 		super.setButtonVisible(true);
-		
 	}
 	
 	public void setMember(Member member) {
@@ -82,22 +81,20 @@ public class UserDetailPanel extends BasePanel{
 		
 		String[] column = {"이름", "사번", "소속매장", "직급", "연락처", "이메일", "입사일"};
 		JLabel[] lbs = {lb_name, lb_user_no, lb_branch, lb_role, lb_tel, lb_email, lb_hiredate};
-		Font plainFont = new Font("Noto Sans KR", Font.PLAIN, 16);
-		Font boldFont = new Font("Noto Sans KR", Font.BOLD, 16);
 		
 		for(int i = 0; i < p_item.length; i++) {
 			lbs[i] = new JLabel();
-			lbs[i].setFont(boldFont);
+			lbs[i].setFont(ManageConfig.BOLD_FONT);
 			lbs[i].setPreferredSize(new Dimension(300, 60));
+			
 			p_item[i] = new JPanel(new FlowLayout(FlowLayout.LEFT));
 			p_item[i].setPreferredSize(new Dimension(460, 60));
-			Color lightGrayLine = new Color(220, 220, 220); // 밝은 회색
-			p_item[i].setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, lightGrayLine));
+			p_item[i].setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(220, 220, 220)));
 			p_item[i].setBackground(Color.white);
 			
 			
 			JLabel lb = new JLabel(column[i]);
-			lb.setFont(plainFont);
+			lb.setFont(ManageConfig.PLAIN_FONT);
 			lb.setPreferredSize(new Dimension(100, 60));
 			p_item[i].add(lb);
 			if(i == 3) {

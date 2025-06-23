@@ -132,8 +132,8 @@ public class UserListPanel extends BasePanel{
 		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
 		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
 		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
-		//수정 필요 : 오늘 날짜인데 숫자가 10 이하이면 0붙이기 
-		p_enddate = new DatePickerPanel(LocalDate.now().toString());  // 오늘날짜로 지정 
+		//수정 필요 : 오늘 날짜인데 숫자가 10 이하이면 0붙이기, yyyy.mm.dd 형식
+		p_enddate = new DatePickerPanel(today);  // 오늘날짜로 지정 
 		p_filter.add(p_enddate);
 		
 		cb_branch= ComboBoxUtil.createBranchComboBox();
@@ -267,7 +267,10 @@ public class UserListPanel extends BasePanel{
 		filter.setRole_id(((Role)cb_role.getSelectedItem()).getRole_id());
 		filter.setUser_id(mainLayout.user.getUser_id());  
 		filter.setUser_name(t_name.getText());
-		filter.setStart_date(DateUtil.stringToDate(p_startdate.lb_date.getText()));
+		
+		if(!p_startdate.lb_date.getText().equals("yyyy.mm.dd")) {
+			filter.setStart_date(DateUtil.stringToDate(p_startdate.lb_date.getText()));
+		}
 		filter.setEnd_date(DateUtil.stringToDate(p_enddate.lb_date.getText()));
 	}
 	
