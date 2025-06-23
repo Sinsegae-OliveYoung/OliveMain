@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.olive.common.exception.ProductException;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
@@ -211,4 +212,67 @@ public class ProductDAO {
 
         return list;
     }
+    
+    public void insert(Product product) throws ProductException{
+    	Connection con=null;
+		PreparedStatement pstmt=null;
+		int result=0; //쿼리 실행 성공 여부 결정짓는 변수 
+		
+		con=dbManager.getConnection();
+		
+		StringBuffer sql=new StringBuffer();
+		sql.append("insert into product(product_name, ct_id, ct_dt_id, bd_id)");
+		sql.append(" values(?,?,?,?)");
+		
+		try {
+			pstmt=con.prepareStatement(sql.toString());
+			
+			//모델 객체에 채워진 데이터를 꺼내서, 바인드 변수에 대입하기!! 
+			pstmt.setString(1, product.getProduct_name());
+			pstmt.setInt(2, product.getCategory().getCt_id());
+			pstmt.setInt(3, product.getCategory_detail().getCt_dt_id());
+			pstmt.setInt(4, product.getBrand().getBd_id());
+			
+			//쿼리수행 
+			result = pstmt.executeUpdate(); //DML 실행
+			if(result == 0) {
+				throw new ProductException("등록이 되지 않았어요");
+			}
+			
+		} catch (SQLException e) {
+			// e.printStackTrace()에서 처리만 해버리면, 바깥쪽 즉 유저가 사용하는 프로그램에서는
+			// 에러의 원인을 알 수 없으므로, 신뢰성 떨어짐.. 따라서 에러가 발생하면, 이 영역에서만 처리를
+			// 국한시키지 말고, 외부 영역까지 에러 원인을 전달해야 한다.
+			e.printStackTrace();
+			throw new ProductException("등록에 실패하였습니다.\n 이용에 불편을 드려 죄송합니다", e);
+		}finally {
+			dbManager.release(pstmt);
+		}
+    }
+    
+    public int selectRecentPk() {
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		int pk=0;
+		
+		con=dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select last_insert_id() as product_id");
+		
+		try {
+			pstmt=con.prepareStatement(sql.toString());
+			rs=pstmt.executeQuery(); //쿼리실행 및 결과표 반환.
+			
+			if(rs.next()) { //조회된 결과가 있다면..
+				pk=rs.getInt("product_id");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			dbManager.release(pstmt, rs);
+		}
+		return pk;
+	}
 }

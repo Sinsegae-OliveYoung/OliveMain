@@ -112,4 +112,30 @@ public class ProductOptionDAO {
  		
  		return resultID;
  	}
+ 	
+ 	public int selectRecentPk() {
+ 		Connection con=null;
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		int pk=0;
+		
+		con=dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("select last_insert_id() as option_id");
+		
+		try {
+			pstmt=con.prepareStatement(sql.toString());
+			rs=pstmt.executeQuery(); //쿼리실행 및 결과표 반환.
+			
+			if(rs.next()) { //조회된 결과가 있다면..
+				pk=rs.getInt("option_id");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			dbManager.release(pstmt, rs);
+		}
+		return pk;
+ 	}
 } 

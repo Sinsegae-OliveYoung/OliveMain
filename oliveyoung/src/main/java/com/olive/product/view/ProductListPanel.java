@@ -13,11 +13,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -26,16 +31,26 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
+import com.olive.common.model.Product;
+import com.olive.common.model.ProductOption;
 import com.olive.common.repository.BrandDAO;
 import com.olive.common.repository.CategoryDAO;
 import com.olive.common.repository.CategoryDetailDAO;
+import com.olive.common.repository.ProductDAO;
+import com.olive.common.repository.ProductOptionDAO;
+import com.olive.common.util.DBManager;
 import com.olive.common.util.TableUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.common.view.Panel;
@@ -46,9 +61,22 @@ import com.olive.stock.StockConfig;
 public class ProductListPanel extends Panel {
 
     JTable table;
-    JComboBox<CategoryDetail> cbCategoryDetail;
     ProductModel model;
+    
+    JTextField tfName;
+    JTextField tfPrice;
+    JTextField tfOptionName;
+   
+    JComboBox<String> cbActive;
+    JComboBox<String> cbBrand;
+    
+    JComboBox<Category> cbCategory;
+    JComboBox<CategoryDetail> cbCategoryDetail;
+    ProductDAO productDAO;
+    
     CategoryDetailDAO categoryDetailDAO;
+    ProductOptionDAO productOptionDAO;
+    DBManager dbManager = DBManager.getInstance();
 
     public ProductListPanel(MainLayout mainLayout) {
         super(mainLayout);
@@ -129,7 +157,7 @@ public class ProductListPanel extends Panel {
             public void actionPerformed(ActionEvent e) {
                 JDialog dialog = new JDialog();
                 dialog.setTitle("상품 등록");
-                dialog.setSize(500, 400);
+                dialog.setSize(600, 500);
                 dialog.setLocationRelativeTo(null);
                 dialog.setModal(true);
 
@@ -139,14 +167,17 @@ public class ProductListPanel extends Panel {
                 gbc.fill = GridBagConstraints.HORIZONTAL;
 
                 JLabel lblBrand = new JLabel("브랜드명:");
-                JComboBox<String> cbBrand = new JComboBox<>();
+                cbBrand = new JComboBox<>();
+                cbBrand.setPreferredSize(new Dimension(200, 30));
                 for (Brand b : new BrandDAO().selectAll()) cbBrand.addItem(b.getBd_name());
 
                 JLabel lblName = new JLabel("상품명:");
-                JTextField tfName = new JTextField();
+                tfName = new JTextField();
+                tfName.setPreferredSize(new Dimension(200, 30));
 
                 JLabel lblCategory = new JLabel("카테고리:");
-                JComboBox<Category> cbCategory = new JComboBox<>();
+                cbCategory = new JComboBox<>();
+                cbCategory.setPreferredSize(new Dimension(200, 30));
                 List<Category> categories = new CategoryDAO().selectAll();
                 for (Category c : categories) cbCategory.addItem(c);
                 
@@ -164,12 +195,47 @@ public class ProductListPanel extends Panel {
 
                 JLabel lblCategoryDetail = new JLabel("상세 카테고리:");
                 cbCategoryDetail = new JComboBox<>();
+                cbCategoryDetail.setPreferredSize(new Dimension(200, 30));
+                
+                JLabel lblOptionName = new JLabel("상품 옵션명:");
+                tfOptionName = new JTextField();
+                tfOptionName.setPreferredSize(new Dimension(200, 30));
 
                 JLabel lblPrice = new JLabel("가격:");
-                JTextField tfPrice = new JTextField();
+                tfPrice = new JTextField();
+                tfPrice.setPreferredSize(new Dimension(200, 30));
 
                 JLabel lblActive = new JLabel("활성화:");
-                JComboBox<String> cbActive = new JComboBox<>(new String[]{"y", "n"});
+                cbActive = new JComboBox<>(new String[]{"y", "n"});
+                cbActive.setPreferredSize(new Dimension(200, 30));
+                
+                // 콤보박스 가운데 정렬 렌더러
+                DefaultListCellRenderer centerRenderer = new DefaultListCellRenderer();
+                centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+                cbBrand.setRenderer(centerRenderer);
+                cbCategory.setRenderer(centerRenderer);
+                cbCategoryDetail.setRenderer(centerRenderer);
+                cbActive.setRenderer(centerRenderer);
+                
+                // 스타일
+                Color dialogBgColor = new Color(250, 252, 255);
+                Color labelColor = new Color(60, 60, 60);
+
+                contentPanel.setBackground(dialogBgColor);
+                lblBrand.setForeground(labelColor);
+                lblName.setForeground(labelColor);
+                lblCategory.setForeground(labelColor);
+                lblCategoryDetail.setForeground(labelColor);
+                lblOptionName.setForeground(labelColor);
+                lblPrice.setForeground(labelColor);
+                lblActive.setForeground(labelColor);
+
+                // 텍스트 필드 가운데 정렬
+                tfName.setHorizontalAlignment(SwingConstants.CENTER);
+                tfPrice.setHorizontalAlignment(SwingConstants.CENTER);
+                tfOptionName.setHorizontalAlignment(SwingConstants.CENTER);
+
 
                 gbc.gridx = 0; gbc.gridy = 0; contentPanel.add(lblBrand, gbc);
                 gbc.gridx = 1; contentPanel.add(cbBrand, gbc);
@@ -185,6 +251,10 @@ public class ProductListPanel extends Panel {
                 gbc.gridx = 0; gbc.gridy++;
                 contentPanel.add(lblCategoryDetail, gbc);
                 gbc.gridx = 1; contentPanel.add(cbCategoryDetail, gbc);
+                
+                gbc.gridx = 0; gbc.gridy++;
+                contentPanel.add(lblOptionName, gbc);
+                gbc.gridx = 1; contentPanel.add(tfOptionName, gbc);
 
                 gbc.gridx = 0; gbc.gridy++;
                 contentPanel.add(lblPrice, gbc);
@@ -194,12 +264,89 @@ public class ProductListPanel extends Panel {
                 contentPanel.add(lblActive, gbc);
                 gbc.gridx = 1; contentPanel.add(cbActive, gbc);
 
+                JPanel btnPanel = new JPanel();
+                
                 JButton btnSave = new JButton("저장");
                 gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2;
-                contentPanel.add(btnSave, gbc);
+                
+                // 저장 버튼 스타일
+                btnSave.setPreferredSize(new Dimension(100, 35));
+                btnSave.setFont(new Font("SansSerif", Font.BOLD, 13));
+                btnSave.setBackground(new Color(130, 180, 250));
+                btnSave.setForeground(Color.WHITE);
+                btnSave.setFocusPainted(false);
+                btnSave.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
+                btnSave.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                
+                btnSave.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                    	
+                    	insert();
+                    }
+                });
 
+                // 저장 버튼 위치 설정 (기존 설정 변경)
+                gbc.anchor = GridBagConstraints.WEST;
+                gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
+                gbc.weightx = 0;                    // 공간 분배 없음
+                btnPanel.add(btnSave, gbc);
+
+                JButton btnCancel = new JButton("취소");
+                gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2;
+                
+                // 취소 버튼 스타일
+                btnCancel.setPreferredSize(new Dimension(100, 35));
+                btnCancel.setFont(new Font("SansSerif", Font.BOLD, 13));
+                btnCancel.setBackground(Color.gray);
+                btnCancel.setForeground(Color.WHITE);
+                btnCancel.setFocusPainted(false);
+                btnCancel.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
+                btnCancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+                // 취소 버튼 위치 설정 (기존 설정 변경)
+                gbc.anchor = GridBagConstraints.EAST;
+                gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
+                gbc.weightx = 0;                    // 공간 분배 없음
+                btnPanel.add(btnCancel, gbc);
+
+                gbc.anchor = GridBagConstraints.SOUTH;
+                contentPanel.add(btnPanel, gbc);
                 dialog.add(contentPanel);
                 dialog.setVisible(true);
+            }
+        });
+        
+     // 1. 정렬 기능 설정
+        TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table.getModel());
+        table.setRowSorter(sorter_list);
+
+        // 2. 헤더 클릭 이벤트로 정렬 상태 출력
+        JTableHeader header_list = table.getTableHeader();
+        header_list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int columnIndex = header_list.columnAtPoint(e.getPoint());
+                String columnName = table.getColumnName(columnIndex);
+                SortOrder order = getSortOrder(sorter_list, columnIndex);
+
+//                System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+//                if (order == SortOrder.ASCENDING) {
+//                    System.out.println("정렬 방향: 오름차순");
+//                } else if (order == SortOrder.DESCENDING) {
+//                    System.out.println("정렬 방향: 내림차순");
+//                } else {
+//                    System.out.println("정렬 방향 없음");
+//                }
+            }
+
+            private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+                for (RowSorter.SortKey key : sorter.getSortKeys()) {
+                    if (key.getColumn() == columnIndex) {
+                        return key.getSortOrder();
+                    }
+                }
+                return SortOrder.UNSORTED;
             }
         });
     }
@@ -222,4 +369,84 @@ public class ProductListPanel extends Panel {
 			cbCategoryDetail.addItem(categoryDetail);
 		}
 	};
+	
+	public void insert() {
+		// mysql에서 트랜잭션이 적용되려면, 4개의 DAO 모두 같은 Connection이어야 한다
+		Connection con = dbManager.getConnection();
+		
+		try { 
+			con.setAutoCommit(false);
+			
+			Category category = (Category)cbCategory.getSelectedItem();
+			CategoryDetail categoryDetail = (CategoryDetail)cbCategoryDetail.getSelectedItem();
+			Brand brand = (Brand) cbBrand.getSelectedItem();
+			String active = (String)cbActive.getSelectedItem();
+			int optionNum = 0;
+			
+			Product product = new Product();
+			
+			product.setCategory(category);
+			product.setProduct_name(tfName.getText());
+			product.setCategory_detail(categoryDetail);
+			product.setBrand(brand);
+			
+			productDAO.insert(product);
+			
+			int product_id=productDAO.selectRecentPk();
+			product.setProduct_id(product_id);//구해온 최신 pk를 Product에 반영 
+			
+			ProductOption productOption = new ProductOption();
+			
+			productOption.setOption_active(active);
+			productOption.setOption_name(tfOptionName.getText());
+			productOption.setPrice(Integer.parseInt(tfPrice.getText()));
+			productOption.setProduct(product);
+		
+			int productOption_id = productOptionDAO.selectRecentPk();
+			productOption.setOption_id(productOption_id);
+			
+			StringBuffer codeMaker = new StringBuffer();
+			codeMaker.append(category.getCt_id());
+			codeMaker.append("-");
+			codeMaker.append(categoryDetail.getCt_dt_id());
+			codeMaker.append("-");
+			codeMaker.append(brand.getBd_id());
+			codeMaker.append("-");
+			codeMaker.append(product_id + "00");
+			codeMaker.append(productOption_id);
+			
+			productOption.setOption_code(codeMaker.toString());
+			System.out.println("codeMaker : " + codeMaker.toString());
+			
+			if(active.equals("y")) {
+				
+			} else if(active.equals("n")){
+				
+			}
+//			productOption.setOption_no();
+
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				con.setAutoCommit(true);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
