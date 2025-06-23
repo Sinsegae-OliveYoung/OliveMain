@@ -29,6 +29,7 @@ import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
@@ -36,16 +37,15 @@ import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 
 import com.olive.bound.dialog.ProductAddDialog;
-import com.olive.bound.model.BoundShowModel;
 import com.olive.bound.model.BoundListModel;
-import com.olive.bound.model.BoundRequestModel;
+import com.olive.bound.model.BoundShowModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.model.User;
-import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.BoundDAO;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -76,6 +76,7 @@ public class InboundShowPanel extends Panel{
     JLabel la_appuser;
     JLabel la_date;
     JTextField t_memo;
+    JButton bt_add;
     JTable table_detail;
     JScrollPane scrollPane;
 	
@@ -276,7 +277,7 @@ public class InboundShowPanel extends Panel{
         addButtonPanel.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 10, 35));
         addButtonPanel.setBackground(Config.WHITE);
 
-        JButton bt_add = new JButton("+");
+        bt_add = new JButton("+");
         bt_add.setPreferredSize(new Dimension(42, 30));
         bt_add.setBackground(Config.LIGHT_GRAY);
         bt_add.setFont(new Font("SansSerif", Font.PLAIN, 13));
@@ -385,13 +386,39 @@ public class InboundShowPanel extends Panel{
         table_list.addMouseListener(new MouseAdapter() {
         	@Override
         	public void mouseClicked(MouseEvent e) {
-//        		int row = table_list.getSelectedRow();
         		int viewRow = table_list.getSelectedRow();
+        		
         		if (viewRow != -1) {
-        			int modelRow = table_list.convertRowIndexToModel(viewRow); // ✅ 핵심
-        			selected = model.getBoundAt(modelRow);
-        			showDetail(selected);
-        			bt_add.setEnabled(true); // 상품 추가 버튼 활성화
+        			
+    				int modelRow = table_list.convertRowIndexToModel(viewRow);
+    				selected = model.getBoundAt(modelRow);
+    				showDetail(selected);
+    				bt_add.setEnabled(true);
+
+    				// setToolTipText를 비활성화 상태에서 동작되도록 설정
+    				UIManager.put("ToolTipManager.enableToolTipOnDisabledComponents", Boolean.TRUE);
+    				
+    				// ✅ 입고 완료 여부 확인 (bo_state_id == 2 or 4, 즉 입고완료 및 승인거부 이면 비활성화)
+    				boolean isCompleted = selected.getBound().getBoundState().getBo_state_id() == 2 
+    						|| selected.getBound().getBoundState().getBo_state_id() == 4;
+
+    				cb_branch.setEnabled(!isCompleted);
+				    dateChooser.setEnabled(!isCompleted);
+				    t_memo.setEnabled(!isCompleted);
+				    bt_add.setEnabled(!isCompleted);
+				    bt_save.setEnabled(!isCompleted);
+				    bt_delete.setEnabled(!isCompleted);
+    				
+    				bt_save.setEnabled(!isCompleted);
+					bt_delete.setEnabled(!isCompleted);
+
+					if (isCompleted) {
+					    bt_save.setToolTipText("입고 완료 혹은 승인 거부 상태에서는 저장할 수 없습니다.");
+					    bt_delete.setToolTipText("입고 완료 혹은 승인 거부 상태에서는 삭제할 수 없습니다.");
+					} else {
+					    bt_save.setToolTipText(null);   // ✅ 툴팁 제거
+					    bt_delete.setToolTipText(null); // ✅ 툴팁 제거
+					}
         			
         			
         			originalProductList = boundDAO
@@ -440,6 +467,7 @@ public class InboundShowPanel extends Panel{
         
         bt_delete.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				if (!bt_delete.isEnabled()) return; // ✅ 버튼이 비활성화 상태면 무시
 				deleteBound(selected);
 			}
 			
@@ -454,6 +482,7 @@ public class InboundShowPanel extends Panel{
         
         bt_save.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
+				if (!bt_save.isEnabled()) return; // ✅ 버튼이 비활성화 상태면 무시
 				saveBound(selected);
 			}
 			
@@ -535,6 +564,9 @@ public class InboundShowPanel extends Panel{
 
             // 목록 새로고침
             refreshStaticList();
+            
+            mainLayout.setDataDirty(true); 
+            mainLayout.refreshIfDirty();
         }
     }
 
@@ -639,6 +671,9 @@ public class InboundShowPanel extends Panel{
 
         // 테이블 새로고침
         refreshStaticList();
+        
+        mainLayout.setDataDirty(true); 
+        mainLayout.refreshIfDirty();
     }
     
     

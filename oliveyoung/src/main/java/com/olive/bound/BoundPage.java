@@ -172,4 +172,11 @@ public class BoundPage extends Page {
 				panels[i].setVisible((i == target) ? true : false);
 	}
 	
+	@Override
+	public void refreshAll() {
+	    for (Panel panel : panels) {
+	        panel.refresh(); // 각 Panel에서 refresh() 오버라이드 가능
+	    }
+	}
+	
 }
