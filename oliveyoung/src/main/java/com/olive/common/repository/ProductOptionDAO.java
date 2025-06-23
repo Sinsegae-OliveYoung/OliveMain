@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.olive.common.util.DBManager;
+import com.olive.common.exception.ProductOptionException;
 import com.olive.common.model.*;
 
 public class ProductOptionDAO {
@@ -164,36 +165,32 @@ public class ProductOptionDAO {
  	    return max;
  	}
  	
-//	productOption.setOption_active(active);
-//	productOption.setOption_name(tfOptionName.getText());
-//	productOption.setPrice(Integer.parseInt(tfPrice.getText()));
-//	productOption.setProduct(product);
-//	productOption.setOption_id(productOption_id);
-////	productOption.setOption_code(codeMaker.toString());
-////	productOption.setOption_no(optionNum);
-//
-// 	public void insert(ProductOption productOption) {
-// 		Connection con=null;
-//		PreparedStatement pstmt=null;
-//		
-//		con=dbManager.getConnection();
-//		StringBuffer sql = new StringBuffer();
-//		sql.append("insert into product_option(option_id, product_id, option_no, option_name"
-//				+ " color_id) values(?,?)");
-//		
-//		try {
-//			pstmt=con.prepareStatement(sql.toString());
-//			pstmt.setInt(1, productColor.getProduct().getProduct_id());
-//			pstmt.setInt(2, productColor.getColor().getColor_id());
-//			int result=pstmt.executeUpdate();//DML 실행
-//			if (result == 0) {
-//				throw new ProductColorException("상품의 색상이 등록되지 않았어요");
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			throw new ProductColorException("상품의 색상 등록시 문제가 발생하였습니다", e);
-//		}finally {
-//			dbManager.release(pstmt);
-//		}
-// 	}
+ 	public void insert(ProductOption productOption) {
+ 		Connection con=null;
+		PreparedStatement pstmt=null;
+		
+		con=dbManager.getConnection();
+		StringBuffer sql = new StringBuffer();
+		sql.append("insert into product_option(product_id, option_no, option_name,"
+				+ " option_code, price, option_active) values(?,?,?,?,?,?)");
+	
+		try {
+			pstmt=con.prepareStatement(sql.toString());
+			pstmt.setInt(1, productOption.getProduct().getProduct_id());
+			pstmt.setInt(2, productOption.getOption_no());
+			pstmt.setString(3, productOption.getOption_name());
+			pstmt.setString(4, productOption.getOption_code());
+			pstmt.setInt(5, productOption.getPrice());
+			pstmt.setString(6, productOption.getOption_active());
+			int result=pstmt.executeUpdate();//DML 실행
+			if (result == 0) {
+				throw new ProductOptionException("상품의 색상이 등록되지 않았어요");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ProductOptionException("상품의 색상 등록시 문제가 발생하였습니다", e);
+		}finally {
+			dbManager.release(pstmt);
+		}
+ 	}
 } 

@@ -8,18 +8,28 @@ import com.olive.common.model.ProductOption;
 import com.olive.common.model.User;
 import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.ProductOptionDAO;
+import com.olive.common.repository.StockLogDAO;
 
 public class ProductModel extends AbstractTableModel {
 
     String[] column = {"상품코드", "브랜드명", "상품명", "상품분류", "가격", "활성화"};
     List<ProductOption> list;
     User user;
+    
+    ProductOptionDAO dao;
 
     public ProductModel(User user) {
-        ProductOptionDAO dao = new ProductOptionDAO();
+        dao = new ProductOptionDAO();
+        this.user = user;
         list = dao.selectAllWithDetails(user); // 브랜드명, 분류 포함하여 조인된 리스트
     }
 
+    public void reload() {
+    	dao = new ProductOptionDAO();
+    	list = dao.selectAllWithDetails(user); 
+     	fireTableDataChanged();
+    }
+    
     @Override
     public int getRowCount() {
         return list.size();
@@ -48,4 +58,5 @@ public class ProductModel extends AbstractTableModel {
         }
         return null;
     }
+    
 }

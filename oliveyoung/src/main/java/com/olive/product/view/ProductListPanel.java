@@ -27,6 +27,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -69,20 +70,28 @@ public class ProductListPanel extends Panel {
     JTextField tfOptionName;
    
     JComboBox<String> cbActive;
-    JComboBox<String> cbBrand;
+    JComboBox<Brand> cbBrand;
     
     JComboBox<Category> cbCategory;
     JComboBox<CategoryDetail> cbCategoryDetail;
-    ProductDAO productDAO;
     
-    CategoryDetailDAO categoryDetailDAO;
+    ProductDAO productDAO;
     ProductOptionDAO productOptionDAO;
+    CategoryDetailDAO categoryDetailDAO;
     DBManager dbManager = DBManager.getInstance();
+    
+    @Override
+    public void refresh() {
+    	model.reload();     // ListModel에서 최신 데이터 로드
+        table.updateUI();   // 테이블 UI 갱신
+    }
 
     public ProductListPanel(MainLayout mainLayout) {
         super(mainLayout);
         setLayout(new BorderLayout());
         
+        productDAO = new ProductDAO();
+        productOptionDAO = new ProductOptionDAO();
         categoryDetailDAO = new CategoryDetailDAO();
 
         Color bgColor = new Color(245, 248, 250);
@@ -170,7 +179,7 @@ public class ProductListPanel extends Panel {
                 JLabel lblBrand = new JLabel("브랜드명:");
                 cbBrand = new JComboBox<>();
                 cbBrand.setPreferredSize(new Dimension(200, 30));
-                for (Brand b : new BrandDAO().selectAll()) cbBrand.addItem(b.getBd_name());
+                for (Brand b : new BrandDAO().selectAll()) cbBrand.addItem(b);
 
                 JLabel lblName = new JLabel("상품명:");
                 tfName = new JTextField();
@@ -179,6 +188,12 @@ public class ProductListPanel extends Panel {
                 JLabel lblCategory = new JLabel("카테고리:");
                 cbCategory = new JComboBox<>();
                 cbCategory.setPreferredSize(new Dimension(200, 30));
+                
+                Category dummy = new Category();
+        		dummy.setCt_name("카테고리를 선택하세요");
+        		dummy.setCt_id(0);
+        		cbCategory.addItem(dummy);
+                
                 List<Category> categories = new CategoryDAO().selectAll();
                 for (Category c : categories) cbCategory.addItem(c);
                 
@@ -282,8 +297,13 @@ public class ProductListPanel extends Panel {
                 btnSave.addActionListener(new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                    	
                     	insert();
+                    	
+                    	mainLayout.setDataDirty(true); 
+                        mainLayout.refreshIfDirty();
+                    	
+                    	JOptionPane.showMessageDialog(dialog, "상품이 등록되었습니다.");
+                    	dialog.dispose();    
                     }
                 });
 
@@ -304,6 +324,13 @@ public class ProductListPanel extends Panel {
                 btnCancel.setFocusPainted(false);
                 btnCancel.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
                 btnCancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                
+                btnCancel.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                    	dialog.dispose();
+                    }
+                });
 
                 // 취소 버튼 위치 설정 (기존 설정 변경)
                 gbc.anchor = GridBagConstraints.EAST;
@@ -427,7 +454,7 @@ public class ProductListPanel extends Panel {
 			}
 			productOption.setOption_no(optionNum);
 			
-//			productOptionDAO.insert(pros)
+			productOptionDAO.insert(productOption);
 			
 			con.commit();
 			
