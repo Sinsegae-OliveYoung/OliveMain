@@ -1,14 +1,6 @@
 package com.olive.common.repository;
 
 import java.sql.Connection;
-<<<<<<< HEAD
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-
-=======
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,216 +10,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.olive.common.exception.BoundException;
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.BoundState;
 import com.olive.common.model.Branch;
-<<<<<<< HEAD
-import com.olive.common.model.Product;
-import com.olive.common.model.ProductOption;
-=======
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
 import com.olive.common.model.Product;
 import com.olive.common.model.ProductOption;
 import com.olive.common.model.Stock;
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 import com.olive.common.model.User;
 import com.olive.common.util.DBManager;
 
-public class InboundDAO {
+public class BoundDAO {
 
     DBManager dbManager = DBManager.getInstance();
     
-<<<<<<< HEAD
-    public List<BoundProduct> selectInbound() {
-    	Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        List<BoundProduct> list = new ArrayList<>();
-
-        StringBuffer sql = new StringBuffer();
-        
-        sql.append("select"
-        		+ "		bd.request_date"
-        		+ "	   ,bd.user_id"
-        		+ "	   ,u.user_name"
-        		+ "	   ,bo.bo_state_id"
-        		+ "	   ,bo.bo_state_name"
-        		+ "	   ,br.br_name"
-        		+ "	   ,bd.bound_id"
-        		+ "	   ,bd.comment"
-        		+ " from 	bound bd"
-        		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
-        		+ " inner join user u			on u.user_id = bd.user_id"
-        		+ " inner join branch br 		on br.br_id  = bd.br_id"
-        		+ " where	1 = 1"
-        		+ " and 	bd.bound_flag = \"in\""
-        		+ " and		bd.br_id in (1, 2, 3, 4, 5)"
-        		+ " order by bd.request_date desc"
-        );
-        
-        try {
-            con = dbManager.getConnection();
-            pstmt = con.prepareStatement(sql.toString());
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-            	// User 객체 생성
-            	User user = new User();
-            	user.setUser_name(rs.getString("user_name"));
-            	
-            	// Branch 객체 생성
-            	Branch branch = new Branch();
-            	branch.setBr_name(rs.getString("br_name"));
-            	
-            	// BoundState 객체 생성
-            	BoundState boundState = new BoundState();
-            	boundState.setBo_state_name(rs.getString("bo_state_name"));
-            	
-                // Inbound 객체 생성
-            	Bound bound = new Bound();
-            	bound.setBound_id(rs.getInt("bound_id"));
-            	bound.setRequest_date(rs.getDate("request_date"));
-            	bound.setComment(rs.getString("comment"));
-            	bound.setUser(user);
-            	bound.setBranch(branch);
-            	bound.setBoundState(boundState);
-            	
-            	BoundProduct boundProduct = new BoundProduct();
-            	boundProduct.setBound(bound);
-
-                list.add(boundProduct);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            dbManager.release(pstmt, rs);
-        }
-
-        return list;
-    }
-
-    
-    public List<BoundProduct> selectInbound(BoundProduct inbo) {
-    	Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-        List<BoundProduct> list = new ArrayList<>();
-
-        StringBuffer sql = new StringBuffer();
-        
-        sql.append("select"
-        		+ "		bd.request_date"
-        		+ "	   ,bd.user_id"
-        		+ "	   ,u.user_name"
-        		+ "	   ,bo.bo_state_id"
-        		+ "	   ,bo.bo_state_name"
-        		+ "	   ,br.br_name"
-        		+ "	   ,bd.bound_id"
-        		+ "	   ,bd.comment"
-        		+ " from 	bound bd"
-        		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
-        		+ " inner join user u			on u.user_id = bd.user_id"
-        		+ " inner join branch br 		on br.br_id  = bd.br_id"
-        		+ " where	1 = 1"
-        		+ " and 	bd.bound_flag = \"in\""
-        		+ " and		bd.br_id in (1, 2, 3, 4, 5)"
-        		+ " order by bd.request_date desc")
-        ;
-        
-        try {
-            con = dbManager.getConnection();
-            pstmt = con.prepareStatement(sql.toString());
-            rs = pstmt.executeQuery();
-
-            while (rs.next()) {
-            	// User 객체 생성
-            	User user = new User();
-            	user.setUser_name(rs.getString("user_name"));
-            	
-            	// Branch 객체 생성
-            	Branch branch = new Branch();
-            	branch.setBr_name(rs.getString("br_name"));
-            	
-            	// BoundState 객체 생성
-            	BoundState boundState = new BoundState();
-            	boundState.setBo_state_name(rs.getString("bo_state_name"));
-            	
-                // Inbound 객체 생성
-            	Bound bound = new Bound();
-            	bound.setBound_id(rs.getInt("bound_id"));
-            	bound.setRequest_date(rs.getDate("request_date"));
-            	bound.setComment(rs.getString("comment"));
-            	bound.setUser(user);
-            	bound.setBranch(branch);
-            	bound.setBoundState(boundState);
-            	
-            	BoundProduct boundProduct = new BoundProduct();
-            	boundProduct.setBound(bound);
-
-                list.add(boundProduct);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            dbManager.release(pstmt, rs);
-        }
-
-        return list;
-    }
-
-    public void insertInbound(int user_id, java.sql.Date ib_date, String comment, List<BoundProduct> products) {
-        Connection con = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
-        String inboundSql = "INSERT INTO inbound (user_id, ib_date, comment, bo_state_id) VALUES (?, ?, ?, 1)";
-        String inboundProductSql = "INSERT INTO inbound_product (ib_id, option_id, ib_pd_count) VALUES (?, ?, ?)";
-
-        try {
-            con = dbManager.getConnection();
-            con.setAutoCommit(false); // 트랜잭션 시작
-
-            // inbound insert
-            pstmt = con.prepareStatement(inboundSql, PreparedStatement.RETURN_GENERATED_KEYS);
-            pstmt.setInt(1, user_id);
-            pstmt.setDate(2, ib_date);
-            pstmt.setString(3, comment);
-            pstmt.executeUpdate();
-
-            rs = pstmt.getGeneratedKeys();
-            int ib_id = 0;
-            if (rs.next()) {
-                ib_id = rs.getInt(1);
-            }
-            rs.close();
-            pstmt.close();
-
-            // inbound_product insert
-            pstmt = con.prepareStatement(inboundProductSql);
-            for (BoundProduct boundProduct : products) {
-                pstmt.setInt(1, ib_id);
-                pstmt.setInt(2, boundProduct.getProductOption().getOption_id());
-                pstmt.setInt(3, boundProduct.getB_count());
-                pstmt.addBatch();
-            }
-            pstmt.executeBatch();
-
-            con.commit();
-        } catch (SQLException e) {
-            try { if (con != null) con.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-        } finally {
-            dbManager.release(pstmt, rs);
-            try { if (con != null) con.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-        }
-    }
-    
-=======
-    
+    // 입고 요청서 리스트
     public List<BoundProduct> selectInboundByBranches(List<Branch> branchList) {
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -289,7 +89,93 @@ public class InboundDAO {
             	BoundState boundState = new BoundState();
             	boundState.setBo_state_name(rs.getString("bo_state_name"));
             	
-                // Inbound 객체 생성
+                // Bound 객체 생성
+            	Bound bound = new Bound();
+            	bound.setBound_id(rs.getInt("bound_id"));
+            	bound.setRequest_date(rs.getDate("request_date"));
+            	bound.setComment(rs.getString("comment"));
+            	bound.setUser(user);
+            	bound.setApprover(approver);
+            	bound.setBranch(branch);
+            	bound.setBoundState(boundState);
+            	
+            	BoundProduct boundProduct = new BoundProduct();
+            	boundProduct.setBound(bound);
+
+                list.add(boundProduct);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt, rs);
+        }
+
+        return list;
+    }
+    
+    // 출고 요청서 리스트
+    public List<BoundProduct> selectOutboundByBranches(List<Branch> branchList) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        List<BoundProduct> list = new ArrayList<>();
+
+        // br_id 리스트를 쿼리 IN 절에 넣기 위한 처리
+        StringBuilder branchIds = new StringBuilder();
+        for (int i = 0; i < branchList.size(); i++) {
+            branchIds.append(branchList.get(i).getBr_id());
+            if (i < branchList.size() - 1) branchIds.append(", ");
+        }
+
+        StringBuffer sql = new StringBuffer();
+        sql.append("select"
+        		+ "		bd.request_date"
+        		+ "	   ,bd.user_id"
+        		+ "	   ,bd.approver_id"
+        		+ "	   ,au.user_name 	as approver_name"
+        		+ "	   ,u.user_id"
+        		+ "	   ,u.user_name"
+        		+ "	   ,bo.bo_state_id"
+        		+ "	   ,bo.bo_state_name"
+        		+ "	   ,br.br_name"
+        		+ "	   ,bd.bound_id"
+        		+ "	   ,bd.comment"
+        		+ " from 	bound bd"
+        		+ " inner join Bound_state bo 	on bo.bo_state_id = bd.bo_state_id"
+        		+ " inner join user u			on u.user_id = bd.user_id"
+        		+ " inner join branch br 		on br.br_id  = bd.br_id"
+        		+ " LEFT JOIN user au 			ON au.user_id = bd.approver_id" // 결재자(user) 테이블 다시 조인
+        		+ " WHERE bd.bound_flag = 'out'"
+                + " AND bd.br_id IN (" + branchIds.toString() + ")"
+        		+ " order by bd.request_date desc, bd.bound_id DESC"
+        );
+        
+
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+            	// User 객체 생성
+            	User user = new User();
+            	user.setUser_id(rs.getInt("user_id"));
+            	user.setUser_name(rs.getString("user_name"));
+            	
+            	User approver = new User();
+            	approver.setUser_id(rs.getInt("approver_id"));
+            	approver.setUser_name(rs.getString("approver_name"));
+            	
+            	
+            	// Branch 객체 생성
+            	Branch branch = new Branch();
+            	branch.setBr_name(rs.getString("br_name"));
+            	
+            	// BoundState 객체 생성
+            	BoundState boundState = new BoundState();
+            	boundState.setBo_state_name(rs.getString("bo_state_name"));
+            	
+                // Bound 객체 생성
             	Bound bound = new Bound();
             	bound.setBound_id(rs.getInt("bound_id"));
             	bound.setRequest_date(rs.getDate("request_date"));
@@ -313,7 +199,6 @@ public class InboundDAO {
         return list;
     }
 
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
     public List<BoundProduct> selectBoundProductListByBoundId(int boundId) {
     	Connection con = null;
         PreparedStatement pstmt = null;
@@ -334,12 +219,6 @@ public class InboundDAO {
         		+ "		, b.bound_id"
         		+ "		, b.request_date"
         		+ "		, b.comment "
-<<<<<<< HEAD
-        		+ "FROM   bound_product bp "
-        		+ "JOIN   product_option po ON bp.option_id = po.option_id "
-        		+ "JOIN   product p ON po.product_id = p.product_id "
-        		+ "JOIN   bound b ON bp.bound_id = b.bound_id "
-=======
         		+ "		, br.br_id"
         		+ "		, br.br_name "
         		+ "FROM   	  bound_product bp "
@@ -347,7 +226,6 @@ public class InboundDAO {
         		+ "INNER JOIN product p 		ON po.product_id = p.product_id "
         		+ "INNER JOIN bound b 			ON bp.bound_id = b.bound_id "
         		+ "INNER JOIN branch br			ON br.br_id  = b.br_id "
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
         		+ "WHERE  bp.bound_id = ?"
         );
         
@@ -374,22 +252,16 @@ public class InboundDAO {
                 option.setPrice(rs.getInt("price"));
                 option.setProduct(product);
 
-<<<<<<< HEAD
-=======
                 Branch branch = new Branch();
                 branch.setBr_id(rs.getInt("br_id"));
                 branch.setBr_name(rs.getString("br_name"));
                 
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
                 // Bound 생성 (필요한 정보만)
                 Bound bound = new Bound();
                 bound.setBound_id(rs.getInt("bound_id"));
                 bound.setRequest_date(rs.getDate("request_date"));
                 bound.setComment(rs.getString("comment"));
-<<<<<<< HEAD
-=======
                 bound.setBranch(branch);
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 
                 // BoundProduct 생성
                 BoundProduct bp = new BoundProduct();
@@ -397,10 +269,7 @@ public class InboundDAO {
                 bp.setB_count(rs.getInt("b_count"));
                 bp.setProductOption(option);
                 bp.setBound(bound);
-<<<<<<< HEAD
-=======
                 
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 
                 list.add(bp);
             }
@@ -413,9 +282,6 @@ public class InboundDAO {
 
         return list;
     }
-<<<<<<< HEAD
-}
-=======
     
 	// 제품 리스트 & 선택된 요청서의 가져오기
     public List<BoundProduct> boundEditProduct(int bound_id) {
@@ -425,35 +291,6 @@ public class InboundDAO {
         List<BoundProduct> list = new ArrayList<>();
 
         StringBuffer sql = new StringBuffer();
-        
-//        sql.append(
-//        		  "SELECT"
-//        		  + "    c.ct_name,"
-//        		  + "    cd.ct_dt_name,"
-//        		  + "    b.bd_name,"
-//        		  + "    p.product_id,"
-//        		  + "    p.product_name,"
-//        		  + "    po.option_id,"
-//        		  + "    CASE WHEN po.option_no = 99 THEN '-' ELSE po.option_name END AS option_name,"
-//        		  + "    po.option_code,"
-//        		  + "    po.price,"
-//        		  + "    COALESCE(("
-//        		  + "        SELECT SUM(s.st_quantity)"
-//        		  + "        FROM stock s"
-//        		  + "        WHERE s.option_id = po.option_id"
-//        		  + "          AND s.br_id = bo.br_id"
-//        		  + "    ), 0) AS st_quantity,"
-//        		  + "    COALESCE(bp.b_count, 0) AS b_count,"
-//        		  + "	bp.option_id "
-//        		  + " FROM product p"
-//        		  + " INNER JOIN product_option po ON p.product_id = po.product_id"
-//        		  + " INNER JOIN category c ON p.ct_id = c.ct_id"
-//        		  + " INNER JOIN category_detail cd ON p.ct_dt_id = cd.ct_dt_id AND c.ct_id = cd.ct_id"
-//        		  + " INNER JOIN brand b ON p.bd_id = b.bd_id"
-//        		  + " LEFT JOIN bound_product bp ON bp.option_id = po.option_id AND bp.bound_id = ?"
-//        		  + " JOIN bound bo ON bo.bound_id = ?"
-//        		  + " ORDER BY c.ct_id ASC, cd.ct_dt_id ASC"
-//        );
         
         sql.append("SELECT ")
         .append("  c.ct_name, ")
@@ -593,7 +430,7 @@ public class InboundDAO {
         return stockList;
     }
     
-    // 요청서 신규 등록 - InboundRequestPanel
+    // 입고 요청서 신규 등록 - InboundRequestPanel
     public void insertInbound(int user_id, int managerId, int br_id, Date requestDate, String comment, List<BoundProduct> products) throws BoundException{
         Connection con = null;
         PreparedStatement pstmt = null;
@@ -668,8 +505,84 @@ public class InboundDAO {
             }
         }
     }
+    
+    // 출고 요청서 신규 등록 - OutboundRequestPanel
+    public void insertOutbound(int user_id, int managerId, int br_id, Date requestDate, String comment, List<BoundProduct> products) throws BoundException{
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        
+        con = dbManager.getConnection();
 
-    // 기존 요청 수정 - InboundShowPanel
+        StringBuffer boundSql = new StringBuffer();
+        StringBuffer boundProductSql = new StringBuffer();
+        
+        
+        // Bound Table
+        boundSql.append("INSERT INTO bound (user_id, approver_id, br_id, request_date, comment, bo_state_id, bound_flag) "
+        		+ "VALUES (?, ?, ?, ?, ?, 1, 'out')");
+        
+        // BoundProduct Table
+        boundProductSql.append("INSERT INTO bound_product (bound_id, option_id, b_count) VALUES (?, ?, ?)");
+
+        try {
+            con.setAutoCommit(false);
+            // bound insert
+            
+            pstmt = con.prepareStatement(boundSql.toString(), Statement.RETURN_GENERATED_KEYS);
+
+            pstmt.setInt(1, user_id);
+            pstmt.setInt(2, managerId);
+            pstmt.setInt(3, br_id);
+            pstmt.setDate(4, requestDate);
+            pstmt.setString(5, comment);
+            
+            int result = pstmt.executeUpdate();
+			if(result < 1) {
+				throw new BoundException("출고 요청서 등록에 실패하였습니다");				
+			}
+
+			// 생성된 bound_id 가져오기
+	        rs = pstmt.getGeneratedKeys();
+	        int bound_id = 0;
+	        if (rs.next()) {
+	            bound_id = rs.getInt(1);
+	        } else {
+	            throw new BoundException("출고 요청서 ID를 가져오지 못했습니다");
+	        }
+
+	        // 3. bound_product 테이블에 insert
+	        pstmt = con.prepareStatement(boundProductSql.toString());
+	        for (BoundProduct bp : products) {
+	            pstmt.setInt(1, bound_id);
+	            pstmt.setInt(2, bp.getProductOption().getOption_id());
+	            pstmt.setInt(3, bp.getB_count());
+	            pstmt.addBatch();
+	        }
+	        pstmt.executeBatch();
+
+            con.commit();
+        } catch (SQLException e) {
+        	e.printStackTrace();
+            try {
+                if (con != null) con.rollback();
+                throw new BoundException("출고 요청서 등록에 실패하였습니다");
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                throw new BoundException("출고 요청서 등록에 실패하였습니다");
+            }
+        } finally {
+            dbManager.release(pstmt, rs);
+            try {
+                if (con != null) con.setAutoCommit(true);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new BoundException("출고 요청서 등록에 실패하였습니다");
+            }
+        }
+    }
+
+    // 기존 요청 수정 - InboundShowPanel, OutboundShowPanel
     public void updateBound(Bound bound) {
     	Connection con = null;
         PreparedStatement pstmt = null;
@@ -693,8 +606,8 @@ public class InboundDAO {
         }
     }
     
-    // 기존 요청서 삭제 - InboundShowPanel
-    public void deleteInbound(int boundId) {
+    // 기존 요청서 삭제 - InboundShowPanel, OutboundShowPanel
+    public void deleteBound(int boundId) {
     	Connection con = null;
         PreparedStatement pstmt = null;
 
@@ -770,4 +683,3 @@ public class InboundDAO {
     }
 }
 
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)

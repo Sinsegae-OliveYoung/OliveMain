@@ -4,7 +4,7 @@ public class Role {
 	private int role_id;
 	private String role_code;
 	private String role_name;
-	
+
 	public int getRole_id() {
 		return role_id;
 	}

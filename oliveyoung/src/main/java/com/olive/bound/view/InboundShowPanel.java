@@ -5,41 +5,48 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
-<<<<<<< HEAD
-=======
 import com.olive.bound.dialog.ProductAddDialog;
 import com.olive.bound.model.BoundShowModel;
-import com.olive.bound.model.InboundListModel;
-import com.olive.bound.model.InboundModel;
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
+import com.olive.bound.model.BoundListModel;
+import com.olive.bound.model.BoundRequestModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
-<<<<<<< HEAD
-import com.olive.common.repository.InboundDAO;
-=======
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
-import com.olive.common.repository.InboundDAO;
+import com.olive.common.repository.BoundDAO;
 import com.olive.common.repository.UserDAO;
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
 import com.toedter.calendar.JDateChooser;
@@ -50,7 +57,7 @@ public class InboundShowPanel extends Panel{
 	JPanel rightButtonPanel;
 	JLabel titleLabel;
 	JComboBox<Branch> cb_branch;
-	JComboBox<Branch> cb_appuser;
+	JComboBox<User> cb_appuser;
 	JButton bt_delete;
 	JButton bt_save;
 	
@@ -72,32 +79,39 @@ public class InboundShowPanel extends Panel{
     JTable table_detail;
     JScrollPane scrollPane;
 	
-<<<<<<< HEAD
-=======
     User user;
 	Bound bound;
-	InboundModel inboundModel;
-	InboundListModel model;
+	BoundListModel model;
 	BoundShowModel model_detail;
 	
 	UserDAO userDAO;
-    InboundDAO inboundDAO = new InboundDAO();
+    BoundDAO boundDAO = new BoundDAO();
     BranchDAO branchDAO;
     List<Branch> branchList; // 지점 목록
     List<BoundProduct> boundProductList; // 상품 목록
     List<Branch> userBranches; // 사용자 소유 지점 목록
     
     BoundProduct selected; // 선택된 요청서 객체
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 
-	Bound bound;
-	InboundListModel model;
-	BoundShowModel model_detail;
-    InboundDAO inboundDAO = new InboundDAO();
-
+    private static InboundShowPanel instance; // ✅ 정적 필드 추가
+    
+    private List<BoundProduct> originalProductList = new ArrayList<>();
+    
     public InboundShowPanel(MainLayout mainLayout) {
         super(mainLayout);
         setLayout(new BorderLayout());
+        
+        instance = this; // ✅ 생성자에서 자기 자신 저장
+        
+        this.mainLayout = mainLayout;
+		this.user = mainLayout.user;
+		int userId = user.getUser_id();
+        
+		// ------------------------------------------------------------
+        // 로그인 계정의 지점 리스트 가져오기
+        branchDAO = new BranchDAO();
+        userBranches = branchDAO.getBranchList(user.getUser_id());
+        
 
         // 공통 색상 및 폰트
         Color bgColor = new Color(245, 248, 250);
@@ -106,6 +120,7 @@ public class InboundShowPanel extends Panel{
 
         setBackground(Config.WHITE);
 
+        // ------------------------------------------------------------
         // 상단 패널
         topPanel = new JPanel(new BorderLayout());
         topPanel.setBackground(Config.WHITE);
@@ -138,19 +153,15 @@ public class InboundShowPanel extends Panel{
         topPanel.add(titleLabel, BorderLayout.WEST);
         topPanel.add(rightButtonPanel, BorderLayout.EAST);
 
-        
+
+        // ------------------------------------------------------------
         // 중앙 패널
         p_center = new JPanel(new BorderLayout());
         
         // 리스트 테이블 생성
         bound = new Bound();
-//        model = new InboundListModel(bound);  // # 입고 요청서 model 연결
         
-<<<<<<< HEAD
-        model = new InboundListModel("now");  // # 입고 요청서 model 연결
-=======
-        model = new InboundListModel(userBranches);
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
+        model = new BoundListModel(userBranches, "in");
         table_list = new JTable(model);
 
         // 리스트 테이블 헤더 스타일
@@ -184,7 +195,7 @@ public class InboundShowPanel extends Panel{
         
         
         
-        
+        // ------------------------------------------------------------
         // 오른쪽 패널
         p_detail = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
         p_detail.setBackground(Config.WHITE); 
@@ -193,14 +204,20 @@ public class InboundShowPanel extends Panel{
         // 지점 선택
         cb_branch = new JComboBox<>();
         cb_branch.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        cb_branch.setBackground(Config.WHITE);
+        
         la_branch = new JLabel("지점 : "); 
         la_branch.setPreferredSize(new Dimension(80, 30));
         p_detail.add(la_branch);
         p_detail.add(cb_branch);
 
         // 결재자 선택
-        cb_appuser = new JComboBox<>();
+        cb_appuser = new JComboBox<User>();
         cb_appuser.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        cb_appuser.setBackground(Config.WHITE);
+        cb_appuser.setEnabled(false); // 비활성화
+        
+        cb_appuser.setToolTipText("지점 변경 시 자동 설정됩니다.");
         la_appuser = new JLabel("결재자 : ");
         la_appuser.setPreferredSize(new Dimension(80, 30));
         p_detail.add(la_appuser);
@@ -213,6 +230,37 @@ public class InboundShowPanel extends Panel{
         la_date.setPreferredSize(new Dimension(80, 30));
         p_detail.add(la_date);
         p_detail.add(dateChooser);
+        
+        // 오늘 날짜 기준으로 내일 날짜 설정
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.DATE, 1); // 내일
+        Date tomorrow = cal.getTime();
+        
+        // 내일로 설정
+        dateChooser.setMinSelectableDate(tomorrow);
+        
+        // 입력 필드 스타일
+        JTextField editor = (JTextField) dateChooser.getDateEditor().getUiComponent();
+        editor.setToolTipText("오늘 날짜 이후만 선택이 가능합니다.");
+        editor.setBackground(Config.WHITE);
+        editor.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        // 달력 버튼 스타일
+        JButton calendarButton = dateChooser.getCalendarButton();
+        calendarButton.setBackground(Config.WHITE);
+        calendarButton.setFocusPainted(false);
+        calendarButton.setOpaque(true);
+        calendarButton.setPreferredSize(new Dimension(30, 20));
+        
+        calendarButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                calendarButton.setBackground(Config.GREEN);
+            }
+            public void mouseExited(MouseEvent evt) {
+                calendarButton.setBackground(Config.WHITE);
+            }
+        });
 
         // 메모
         t_memo = new JTextField();
@@ -222,28 +270,26 @@ public class InboundShowPanel extends Panel{
         p_detail.add(la_memo);
         p_detail.add(t_memo);
         
+        // ------------------------------------------------------------
+        // 상품 추가 버튼 패널 (오른쪽 정렬)
+        JPanel addButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        addButtonPanel.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 10, 35));
+        addButtonPanel.setBackground(Config.WHITE);
+
+        JButton bt_add = new JButton("+");
+        bt_add.setPreferredSize(new Dimension(42, 30));
+        bt_add.setBackground(Config.LIGHT_GRAY);
+        bt_add.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        bt_add.setEnabled(false); // 목록 선택 전에는 비활성화
+
+        addButtonPanel.add(bt_add);
+        p_detail.add(addButtonPanel);
         
-        
+        // ------------------------------------------------------------
         // 상품, 상품코드, 요청수량 table
         
         model_detail = new BoundShowModel();
         table_detail = new JTable(model_detail);
-        
-        // 테이블 헤더 클릭 이벤트 추가
- 		JTableHeader header_re = table_detail.getTableHeader();
- 		header_re.addMouseListener(new java.awt.event.MouseAdapter() {
- 		    @Override
- 		    public void mouseClicked(java.awt.event.MouseEvent e) {
- 		        int columnIndex = header_re.columnAtPoint(e.getPoint());
- 		        String columnName = table_detail.getColumnName(columnIndex);
- 		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
- 		        
- 		        // 예: 제품명 컬럼 클릭시만 처리
- 		        if ("상품명".equals(columnName)) {
- 		            javax.swing.JOptionPane.showMessageDialog(null, "상품명 컬럼 클릭됨");
- 		        }
- 		    }
- 		});
  		
  		// 테이블 헤더 스타일
  		table_detail.setRowHeight(25);
@@ -251,14 +297,18 @@ public class InboundShowPanel extends Panel{
  		table_detail.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
  		table_detail.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
  		table_detail.getTableHeader().setForeground(Color.DARK_GRAY);
+ 		
+ 		centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table_detail.getColumnCount(); i++) {
+        	table_detail.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
         
         scrollPane = new JScrollPane(table_detail);
         scrollPane.getViewport().setBackground(Config.WHITE);
         
-        scrollPane.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 10, Config.CONTENT_H / 2 + 20));
+        scrollPane.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 10, Config.CONTENT_H / 2- 30));
         p_detail.add(scrollPane); // 패널에 추가      
-        
-        
         
         p_center.add(p_detail);
         
@@ -267,48 +317,69 @@ public class InboundShowPanel extends Panel{
 //        add(Box.createHorizontalStrut(10));
         add(p_center, BorderLayout.CENTER);
         
-                
         
         
-<<<<<<< HEAD
-     // JTable 클릭 이벤트 처리
-        table_list.addMouseListener(new MouseAdapter() {
-=======
         // ------------------------------------------------------------
         // 테이블 헤더 클릭 이벤트 추가
-//        JTableHeader header_re = table_detail.getTableHeader();
-//        header_re.addMouseListener(new java.awt.event.MouseAdapter() {
-//        	@Override
-//        	public void mouseClicked(java.awt.event.MouseEvent e) {
-//        		int columnIndex = header_re.columnAtPoint(e.getPoint());
-//        		String columnName = table_detail.getColumnName(columnIndex);
-//        		System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-//        		
-//        		// 예: 제품명 컬럼 클릭시만 처리
-//        		if ("상품명".equals(columnName)) {
-//        			javax.swing.JOptionPane.showMessageDialog(null, "상품명 컬럼 클릭됨");
-//        		}
-//        	}
-//        });
-     // 1. 정렬 기능 설정
+
+        // 1. 정렬 기능 설정
         TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table_list.getModel());
         table_list.setRowSorter(sorter_list);
 
         // 2. 헤더 클릭 이벤트로 정렬 상태 출력
         JTableHeader header_list = table_list.getTableHeader();
         header_list.addMouseListener(new MouseAdapter() {
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
             @Override
             public void mouseClicked(MouseEvent e) {
-                int row = table_list.getSelectedRow();
-                if (row != -1) {
-                    BoundProduct selected = model.getBoundAt(row);
-                    showDetail(selected);
+                int columnIndex = header_list.columnAtPoint(e.getPoint());
+                String columnName = table_list.getColumnName(columnIndex);
+                System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+
+                SortOrder order = getSortOrder(sorter_list, columnIndex);
+                if (order == SortOrder.ASCENDING) {
+                    System.out.println("정렬 방향: 오름차순");
+                } else if (order == SortOrder.DESCENDING) {
+                    System.out.println("정렬 방향: 내림차순");
+                } else {
+                    System.out.println("정렬 방향 없음");
+                }
+            }
+
+            private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+                for (RowSorter.SortKey key : sorter.getSortKeys()) {
+                    if (key.getColumn() == columnIndex) {
+                        return key.getSortOrder();
+                    }
+                }
+                return SortOrder.UNSORTED;
+            }
+        });
+
+        cb_branch.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    Branch selectedBranch = (Branch) cb_branch.getSelectedItem();
+                    if (selectedBranch == null || selectedBranch.getBr_id() == 0) return;
+
+                    // ✅ 해당 지점의 점장 불러오기
+                    UserDAO userDAO = new UserDAO();
+                    User manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
+
+                    // ✅ cb_appuser 초기화 및 업데이트
+                    cb_appuser.removeAllItems();
+                    if (manager != null) {
+                        cb_appuser.addItem(manager);
+                        cb_appuser.setSelectedItem(manager);
+                    } else {
+                        User dummy = new User();
+                        dummy.setUser_name("점장 없음");
+                        cb_appuser.addItem(dummy);
+                        cb_appuser.setSelectedItem(dummy);
+                    }
                 }
             }
         });
-<<<<<<< HEAD
-=======
         
         // JTable 클릭 이벤트 처리
         table_list.addMouseListener(new MouseAdapter() {
@@ -323,7 +394,7 @@ public class InboundShowPanel extends Panel{
         			bt_add.setEnabled(true); // 상품 추가 버튼 활성화
         			
         			
-        			originalProductList = inboundDAO
+        			originalProductList = boundDAO
         					.selectBoundProductListByBoundId(selected.getBound().getBound_id())
         					.stream()
         					.map(bp -> {
@@ -369,7 +440,7 @@ public class InboundShowPanel extends Panel{
         
         bt_delete.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				deleteInbound(selected);
+				deleteBound(selected);
 			}
 			
 			public void mouseEntered(MouseEvent e) {
@@ -383,7 +454,7 @@ public class InboundShowPanel extends Panel{
         
         bt_save.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent e) {
-				saveInbound(selected);
+				saveBound(selected);
 			}
 			
 			public void mouseEntered(MouseEvent e) {
@@ -394,28 +465,20 @@ public class InboundShowPanel extends Panel{
 				bt_save.setBackground(Config.LIGHT_GRAY);
 			};
 		});
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
 
     }
     
     
+    
     private void showDetail(BoundProduct boundProduct) {
-        Bound bound = boundProduct.getBound();
+    	bound = boundProduct.getBound();
 
-        cb_branch.setSelectedItem(bound.getBranch());
-        cb_appuser.setSelectedItem(bound.getUser());
+        cb_appuser.setSelectedItem(bound.getApprover());
         dateChooser.setDate(bound.getRequest_date());
         t_memo.setText(bound.getComment());
-        
-        System.out.println(bound.getComment());
 
-<<<<<<< HEAD
-        // DAO에서 해당 bound_id의 상세 상품 리스트 조회
-        List<BoundProduct> boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
-        model_detail.setBoundProductList(boundProductList);
-=======
         // 상품 리스트 불러오기
-        boundProductList = inboundDAO.selectBoundProductListByBoundId(bound.getBound_id());
+        boundProductList = boundDAO.selectBoundProductListByBoundId(bound.getBound_id());
         model_detail.setBoundProductList(boundProductList);
 
         // 요청서에 연결된 지점
@@ -454,7 +517,7 @@ public class InboundShowPanel extends Panel{
         
     }
     
-    private void deleteInbound(BoundProduct boundProduct) {
+    private void deleteBound(BoundProduct boundProduct) {
     	if (boundProduct == null) return;
 
         int confirm = javax.swing.JOptionPane.showConfirmDialog(
@@ -466,7 +529,7 @@ public class InboundShowPanel extends Panel{
 
         if (confirm == javax.swing.JOptionPane.YES_OPTION) {
             int boundId = boundProduct.getBound().getBound_id();
-            inboundDAO.deleteInbound(boundId);
+            boundDAO.deleteBound(boundId);
 
             javax.swing.JOptionPane.showMessageDialog(null, "입고 요청서가 삭제되었습니다.");
 
@@ -475,7 +538,7 @@ public class InboundShowPanel extends Panel{
         }
     }
 
-    private void saveInbound(BoundProduct boundProduct) {
+    private void saveBound(BoundProduct boundProduct) {
         if (selected == null) return;
 
         // 1. 현재 선택된 요청서 정보 추출
@@ -557,14 +620,18 @@ public class InboundShowPanel extends Panel{
             currentBound.setApprover(newApprover);
             currentBound.setRequest_date(newRequestDate);
             currentBound.setComment(newMemo);
-            inboundDAO.updateBound(currentBound);
+            
+            // 진짜 저장
+            boundDAO.updateBound(currentBound);
         }
 
         if (isProductModified) {
-            inboundDAO.deleteBoundProductsByBoundId(currentBound.getBound_id());
+        	boundDAO.deleteBoundProductsByBoundId(currentBound.getBound_id());
             for (BoundProduct bp : newProductList) {
                 bp.setBound(currentBound);
-                inboundDAO.insertBoundProduct(bp);
+                
+                // 진짜 저장
+                boundDAO.insertBoundProduct(bp);
             }
         }
 
@@ -602,10 +669,17 @@ public class InboundShowPanel extends Panel{
     }
 
     public void refreshList() {
-    	this.model = new InboundListModel(userBranches);
+    	this.model = new BoundListModel(userBranches, "in");
         table_list.setModel(model);
         table_list.revalidate();
         table_list.repaint();
+        
+        // 리스트 테이블 셀 가운데 정렬
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table_list.getColumnCount(); i++) {
+        	table_list.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
 
         // 상세내용 초기화
         model_detail.setBoundProductList(List.of());
@@ -613,6 +687,5 @@ public class InboundShowPanel extends Panel{
         dateChooser.setDate(null);
         cb_branch.setSelectedIndex(-1);
         cb_appuser.setSelectedIndex(-1);
->>>>>>> parent of 5c4965e (feat : finished to Outbound request & list)
     }
 }
