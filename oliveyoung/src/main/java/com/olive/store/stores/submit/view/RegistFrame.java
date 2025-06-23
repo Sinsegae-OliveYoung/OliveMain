@@ -161,7 +161,6 @@ public class RegistFrame extends JFrame {
 		cb_userNo.addItem("사원 번호 - 담당자명");
 
 		for (User user : userList)
-
 			cb_userNo.addItem(user);
 
 		// 콤보박스를 위한 렌더러 설정 (표시할 항목 설정)
@@ -176,6 +175,7 @@ public class RegistFrame extends JFrame {
 				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			}
 		});
+//			cb_userNo.addItem(user.getUser_no() + " - " + user.getUser_name().toString());
 	}
 
 	public void insert() {

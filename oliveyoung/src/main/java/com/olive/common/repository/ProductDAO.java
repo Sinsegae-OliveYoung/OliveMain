@@ -7,9 +7,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.olive.common.exception.ProductException;
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
-import com.olive.common.exception.ProductException;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;

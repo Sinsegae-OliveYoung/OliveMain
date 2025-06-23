@@ -153,7 +153,6 @@ public class ProductPage extends Page {
 	}
 
 	public void createPanel() {
-		
 
 		panels = new Panel[4];
 

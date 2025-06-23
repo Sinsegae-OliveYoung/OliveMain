@@ -104,7 +104,32 @@ public class UserDAO {
 	}
 	
 	// 한 건의 사원 데이터 수정
-	public void update() {
+	public void update(User user) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		con = dbManager.getConnection();
+		
+		String sql = "update user set user_no = ?, user_name = ?, role_id = ?, tel = ?, email = ?, hiredate = ? where user_id = ?";
+		System.out.println("UserDAO.update(): " + sql);
+		try {
+			pstmt = con.prepareStatement(sql);
+			
+			pstmt.setInt(1, user.getUser_no());
+			pstmt.setString(2, user.getUser_name());
+			pstmt.setInt(3, user.getRole().getRole_id());
+			pstmt.setString(4, user.getTel());
+			pstmt.setString(5, user.getEmail());
+			pstmt.setDate(6, user.getHiredate());
+			pstmt.setInt(7, user.getUser_id());
+			
+			pstmt.executeUpdate();
+			
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt);
+		}
 	}
 
 	// 한 건의 사원 데이터 삭제

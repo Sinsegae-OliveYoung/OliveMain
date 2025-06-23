@@ -17,4 +17,7 @@ public class BoundState {
 	public void setBo_state_name(String bo_state_name) {
 		this.bo_state_name = bo_state_name;
 	}
+	public String toString() {
+		return this.bo_state_name;
+	}
 }

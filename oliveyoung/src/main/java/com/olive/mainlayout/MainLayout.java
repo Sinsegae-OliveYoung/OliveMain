@@ -71,7 +71,7 @@ public class MainLayout extends JFrame {
 
 	public MainLayout(User user) {
 		this.user = user;
-
+		
 		branchDAO = new BranchDAO();
 
 		// create
@@ -208,19 +208,6 @@ public class MainLayout extends JFrame {
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
 
-					/*--------------
-					 *  병합용
-					 * -------------*/
-					/*
-					 * if (source == bt_title) showPage(Config.MAIN_PAGE); else if (source == bt_pd)
-					 * showPage(Config.PRODUCT_PAGE); else if (source == bt_io)
-					 * showPage(Config.BOUND_PAGE); else if (source == bt_st)
-					 * showPage(Config.STOCK_PAGE); else if (source == bt_cl)
-					 * showPage(Config.SCHEDULE_PAGE); else if (source == bt_sh)
-					 * showPage(Config.STORE_PAGE); else if (source == bt_ma)
-					 * showPage(Config.MANAGE_PAGE); else if (source == bt_lo) showPage(new
-					 * LoginPage());
-					 */
 
 					if (source == bt_title)
 						showPage(Config.MAIN_PAGE);
