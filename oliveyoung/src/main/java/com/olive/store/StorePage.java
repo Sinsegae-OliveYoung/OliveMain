@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
+import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -118,7 +119,6 @@ public class StorePage extends Page {
 	public void createMenus() {
 		branches = new BranchDAO().selectBranch(); // DB에서 모든 지점 목록 가져오기
 		userBranches = branchDAO.getBranchList(mainLayout.user.getUser_id()); // 유저의 지점 목록 가져오기
-		System.out.println(userBranches.getLast().getBr_name() + " dlldrjd이ㅓ기억");
 		
 		// 이전 메뉴들 초기화
 		p_side.removeAll(); // 패널에서 요소 삭제

@@ -1,4 +1,4 @@
-package com.olive.bound.model;
+package com.olive.bound.view;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +45,5 @@ public class BoundShowModel extends AbstractTableModel {
     public void setBoundProductList(List<BoundProduct> boundProductList) {
         this.boundProductList = boundProductList != null ? boundProductList : new ArrayList<>();
         fireTableDataChanged();
-    }
-    
-    public List<BoundProduct> getBoundProductList() {
-        return this.boundProductList;
     }
 }

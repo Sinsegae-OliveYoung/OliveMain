@@ -60,7 +60,6 @@ public class User {
 	public void setHiredate(Date hiredate) {
 		this.hiredate = hiredate;
 	}
-	
 	public String toString() {
 		return user_name;
 	}
