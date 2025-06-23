@@ -7,8 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.olive.common.model.Bound;
-import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
@@ -35,9 +33,7 @@ public class ProductDAO {
                 + "		c.ct_name"
                 + "		, cd.ct_dt_name"
                 + "		, b.bd_name"
-                + "		, p.product_id"
                 + "		, p.product_name"
-                + "		, po.option_id"
                 + "		, CASE 	WHEN option_no = 99"
                 + "		  		THEN '-' "
                 + "		  		ELSE option_name"
@@ -57,7 +53,7 @@ public class ProductDAO {
                 + " INNER JOIN category_detail cd 	ON p.ct_dt_id 	= cd.ct_dt_id "
                 + "								   AND c.ct_id 		= cd.ct_id "
                 + " INNER JOIN brand b 				ON p.bd_id 		= b.bd_id "
-                + " ORDER BY c.ct_id ASC, cd.ct_dt_id asc");
+                + " ORDER BY p.product_name");
         
         try {
             con = dbManager.getConnection();
@@ -93,7 +89,7 @@ public class ProductDAO {
 
                 // ProductOption 객체 생성 및 연결
                 ProductOption productOption = new ProductOption();
-                productOption.setOption_id(rs.getInt("option_id"));
+//                productOption.setOption_id(rs.getInt("option_id"));
                 productOption.setOption_code(rs.getString("option_code"));
 //                productOption.setOption_no(rs.getInt("option_no"));
                 productOption.setOption_name(rs.getString("option_name"));
@@ -132,9 +128,7 @@ public class ProductDAO {
                 + "		  c.ct_name"
                 + "		, cd.ct_dt_name"
                 + "		, b.bd_name"
-                + "		, p.product_id"
                 + "		, p.product_name"
-                + "		, po.option_id"
                 + "		, CASE WHEN option_no = 99 "
                 + "			   THEN '-' "
                 + "			   ELSE option_name "
@@ -148,14 +142,13 @@ public class ProductDAO {
                 + "    			WHERE s.option_id = po.option_id "
                 + "      		AND   br2.br_name = ?"
                 + "		  ), 0 ) AS st_quantity "
-                + "		, b.bd_id"
                 + " FROM 	   product p "
                 + " INNER JOIN product_option po 	ON p.product_id = po.product_id "
                 + " INNER JOIN category c 			ON p.ct_id 		= c.ct_id "
                 + " INNER JOIN category_detail cd 	ON p.ct_dt_id 	= cd.ct_dt_id"
                 + "								   AND c.ct_id 		= cd.ct_id "
                 + " INNER JOIN brand b 				ON p.bd_id 		= b.bd_id "
-                + " ORDER BY c.ct_id ASC, cd.ct_dt_id asc"
+                + " ORDER BY p.product_name"
         );
         
         try {
@@ -193,7 +186,7 @@ public class ProductDAO {
 
                 // ProductOption 객체 생성 및 연결
                 ProductOption productOption = new ProductOption();
-                productOption.setOption_id(rs.getInt("option_id"));
+//                productOption.setOption_id(rs.getInt("option_id"));
                 productOption.setOption_code(rs.getString("option_code"));
 //                productOption.setOption_no(rs.getInt("option_no"));
                 productOption.setOption_name(rs.getString("option_name"));
@@ -218,5 +211,4 @@ public class ProductDAO {
 
         return list;
     }
-    
 }

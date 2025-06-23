@@ -60,6 +60,7 @@ public class User {
 	public void setHiredate(Date hiredate) {
 		this.hiredate = hiredate;
 	}
+<<<<<<< HEAD
 	
 	public String toString() {
 		return user_name;
@@ -67,5 +68,12 @@ public class User {
 
 	public String getNoWithName() {
 		return user_no + " - " + user_name;
+=======
+	public Role getRole() {
+		return role;
+	}
+	public void setRole(Role role) {
+		this.role = role;
+>>>>>>> parent of bdf4ac0 (Merge pull request #22 from Sinsegae-OliveYoung/feature/bound)
 	}
 }

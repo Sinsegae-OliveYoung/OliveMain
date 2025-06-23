@@ -22,6 +22,8 @@ public class MemberDAO {
 	//동적 쿼리: UserListPanel에서 조건 걸고 검색 
 	public List<Member> select(MemberFilterDTO filter){
 		
+		System.out.println("MemberDAO.select()");
+		
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -66,6 +68,7 @@ public class MemberDAO {
 			params.add(filter.getEnd_date());
 		}
 		
+		System.out.println(sql.toString());
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			for(int i = 0; i < params.size(); i++) {

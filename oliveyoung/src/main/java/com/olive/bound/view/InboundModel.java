@@ -1,4 +1,4 @@
-package com.olive.bound.model;
+package com.olive.bound.view;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import com.olive.common.repository.ProductDAO;
 public class InboundModel extends AbstractTableModel{
 	
 	ProductDAO productDAO;
-	public List<Stock> list;
+	List<Stock> list;
 	
 	String[] column = {"카테고리", "상세카테고리", "브랜드", "제품명",  "호수",  "가격", "재고수량"	};
 	

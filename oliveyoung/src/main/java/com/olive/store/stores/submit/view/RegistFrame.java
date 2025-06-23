@@ -168,9 +168,8 @@ public class RegistFrame extends JFrame {
 					boolean cellHasFocus) {
 				if (value instanceof User) {
 					User user = (User) value;
-					if (user.getUser_id() != 0) {// 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
-						//value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
-					}
+					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
+						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
 				}
 				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			}
