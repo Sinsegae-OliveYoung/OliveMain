@@ -21,5 +21,9 @@ public class DateUtil {
         // 3. LocalDate → java.sql.Date
         return Date.valueOf(localDate);
 	}
+	
+	public static void getZeroFilledDate(String str) {
+		
+	}
 
 }

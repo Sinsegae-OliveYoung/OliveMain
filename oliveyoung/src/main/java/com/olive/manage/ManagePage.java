@@ -138,6 +138,10 @@ public class ManagePage extends Page{
 		previousKey = currentKey;
 		currentKey = key;
 		cardLayout.show(p_content, key);
+		if(key == ManageConfig.APPROVAL_LIST_KEY) {
+			approvalListPanel.clearFilter();
+			approvalListPanel.refresh();
+		}
 		p_content.revalidate();  // 레이아웃 다시 계산
 		p_content.repaint();  
 	}

@@ -43,4 +43,33 @@ DBManager dbManager = DBManager.getInstance();
 		return list;
 	};
 	
+	
+	public BoundState select(int bo_state_id) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		BoundState bs = null;
+		
+		con = dbManager.getConnection();
+		
+		try {
+			String sql = "select * from bound_state where bo_state_id = ?";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, bo_state_id);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()) {
+				bs = new BoundState();
+				bs.setBo_state_id(rs.getInt("bo_state_id"));
+				bs.setBo_state_name(rs.getString("bo_state_name"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
+		}
+		
+		return bs;
+	}
+	
 }

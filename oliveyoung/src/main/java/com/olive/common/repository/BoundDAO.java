@@ -599,13 +599,37 @@ public class BoundDAO {
             pstmt.setDate(3, new java.sql.Date(bound.getRequest_date().getTime()));
             pstmt.setString(4, bound.getComment());
             pstmt.setInt(5, bound.getBound_id());
-
             pstmt.executeUpdate();
             
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+    
+    // 기존 요청 수정 - InboundShowPanel, OutboundShowPanel
+    public void update(Bound bound) {
+    	Connection con = null;
+        PreparedStatement pstmt = null;
+
+        try {
+        	con = dbManager.getConnection();
+
+        	String sql = "UPDATE bound SET br_id = ?, approver_id = ?, request_date = ?, comment = ?, approve_date = ?, bo_state_id = ? WHERE bound_id = ?";
+        	pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, bound.getBranch().getBr_id());
+            pstmt.setInt(2, bound.getApprover().getUser_id());
+            pstmt.setDate(3, new java.sql.Date(bound.getRequest_date().getTime()));
+            pstmt.setString(4, bound.getComment());
+            pstmt.setDate(5, (Date)bound.getApprove_date());
+            pstmt.setInt(6, bound.getBoundState().getBo_state_id());
+            pstmt.setInt(7, bound.getBound_id());
+            pstmt.executeUpdate();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     
     // 기존 요청서 삭제 - InboundShowPanel, OutboundShowPanel
     public void deleteBound(int boundId) {
