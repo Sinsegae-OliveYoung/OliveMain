@@ -159,11 +159,12 @@ public class ProductPage extends Page {
 		
 		for (int i = 0; i < panels.length; i++)
 			p_content.add(panels[i]);
+
 	}
 	
 	public void showPanel(int target) {
-			for (int i = 0; i < panels.length; i++)
-				panels[i].setVisible((i == target) ? true : false);
+//		for (int i = 0; i < panels.length; i++)
+//			panels[i].setVisible((i == target) ? true : false);
 	}
 	
 }

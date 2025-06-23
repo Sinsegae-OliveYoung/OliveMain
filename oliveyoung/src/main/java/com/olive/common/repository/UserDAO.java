@@ -59,7 +59,19 @@ public class UserDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select user_id as '등록 번호', user_no as '사원 번호', user_name as '이름', role_name as '직급', role_code as '직급 코드', tel as '연락처', email as '이메일', hiredate as '입사일' from role r inner join user u on r.role_id = u.role_id order by user_no");
+		sql.append("select"
+				+ " user_id 	as '등록 번호'"
+				+ ", user_no 	as '사원 번호'"
+				+ ", user_name 	as '이름'"
+				+ ", role_name 	as '직급'"
+				+ ", role_code 	as '직급 코드'"
+				+ ", tel 		as '연락처'"
+				+ ", email 		as '이메일'"
+				+ ", hiredate 	as '입사일' "
+				+ "from role r "
+				+ "inner join user u on r.role_id = u.role_id "
+				+ "order by user_no"
+		);
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -162,9 +174,74 @@ public class UserDAO {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}
-		}		// 넘겨받은 아이디와 패스워드의 값에 해당되는 유저 반환
 
+		}		// 넘겨받은 아이디와 패스워드의 값에 해당되는 유저 반환
 		return user;
+	}
+	
+	// 로그인 한 사원이 소속된 지점의 점장 불러오기
+	public User getManagerByBranchId(int br_id) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		User user = null;
+		
+		StringBuffer sql = new StringBuffer();
+		
+	    sql.append("SELECT "
+	    		+ "		u.*"
+	    		+ "	   ,b.br_id"
+	    		+ " FROM 	user u"
+	    		+ " inner join member m on u.user_id = m.user_id"
+	    		+ " inner join branch b on b.br_id   = m.br_id"
+	    		+ " inner join role   r on r.role_id = u.role_id "
+	    		+ " WHERE 	b.br_id = ?"
+	    		+ " and 	R.role_id = 2" // 점장
+	    );
+	    
+	    try {
+	    	con = dbManager.getConnection();
+			pstmt = con.prepareStatement(sql.toString());
+			pstmt.setInt(1, br_id);
+			rs = pstmt.executeQuery();
+			
+	        
+	        if (rs.next()) {
+	        	Role role = new Role();
+	        	
+	        	user = new User();
+	        	user.setUser_id(rs.getInt("user_id"));
+	        	user.setUser_name(rs.getString("user_name"));
+	        	user.setRole(role);
+	        	
+	        	Member member = new Member();
+	        	member.setUser(user);
+	        	
+	        	Branch branch = new Branch();
+	        	branch.setBr_id(rs.getInt("br_id"));
+	        	member.setBranch(branch);
+	        	
+	            
+	            // 기타 필요한 정보 추가
+	        }
+	    } catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			if (rs != null)
+				try {
+					rs.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			if (pstmt != null)
+				try {
+					pstmt.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+		}
+	    return user;
 	}
 	
 }

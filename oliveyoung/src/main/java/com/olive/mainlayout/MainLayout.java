@@ -220,10 +220,12 @@ public class MainLayout extends JFrame {
 						showPage(Config.STORE_PAGE);
 					else if (source == bt_ma)
 						showPage(Config.MANAGE_PAGE);
+
 					else if (source == bt_lo) {
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
 								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
 							setVisible(false);
+
 							dispose();
 							new LoginPage();
 						}
@@ -283,9 +285,12 @@ public class MainLayout extends JFrame {
 
 	public String setProfile() {
 		String profile = null;
-
-		profile = user.getUser_name() + " " + user.getRole().getRole_name() + "님 :)";
-
+		
+		profile = user.getUser_name()  
+				+ " "
+				+ user.getRole().getRole_name()
+				+ "님 *´︶`*";
+		
 		if (user.getRole().getRole_id() != 1) {
 			profile = branchDAO.getBranchList(user.getUser_id()) + " " + profile;
 		}

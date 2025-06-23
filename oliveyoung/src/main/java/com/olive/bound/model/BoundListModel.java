@@ -1,32 +1,29 @@
-package com.olive.bound.view;
+package com.olive.bound.model;
 
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
-import com.olive.common.model.Bound;
 import com.olive.common.model.BoundProduct;
-import com.olive.common.repository.InboundDAO;
+import com.olive.common.model.Branch;
+import com.olive.common.repository.BoundDAO;
 
-public class InboundListModel extends AbstractTableModel{
-	InboundDAO inboundDAO;
+public class BoundListModel extends AbstractTableModel{
+	BoundDAO boundDAO;
 	List<BoundProduct> list;
 	
-	String[] column = {"날짜", "작성자", "입고상태"};
+	String[] column = {"날짜", "지점명", "작성자", "입고상태"};
 	
-	// 첫 화면 조회 -> 추후 로그인한 계정에 따른 지점 선택 추가
-	public InboundListModel (String str) {
-		inboundDAO = new InboundDAO();
-		
-		if(str.equals("now")) {
-        	list = inboundDAO.selectInbound();             	
-        } 
-	}
-	
-	// 지점 변경에 따른 테이블 조회 변화
-	public InboundListModel(BoundProduct boundproduct) {
-		inboundDAO = new InboundDAO();
-    	list = inboundDAO.selectInbound(boundproduct);
+	public BoundListModel(List<Branch> branchList, String flag) {
+        
+        if(flag == "in") {
+        	boundDAO = new BoundDAO();
+        	list = boundDAO.selectInboundByBranches(branchList);
+        }
+        else if(flag == "out") {
+        	boundDAO = new BoundDAO();
+        	list = boundDAO.selectOutboundByBranches(branchList);
+        }
     }
 
 	@Override
@@ -58,9 +55,12 @@ public class InboundListModel extends AbstractTableModel{
             	value = boundproduct.getBound().getRequest_date().toString();
                 break;
             case 1: 
-            	value = boundproduct.getBound().getUser().getUser_name();
+            	value = boundproduct.getBound().getBranch().getBr_name();
                 break;
             case 2: 
+            	value = boundproduct.getBound().getUser().getUser_name();
+                break;
+            case 3: 
             	value = boundproduct.getBound().getBoundState().getBo_state_name();
                 break;
             default: return "";
