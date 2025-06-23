@@ -14,7 +14,9 @@ import com.olive.common.model.Category;
 import com.olive.common.model.User;
 import com.olive.common.repository.CategoryDAO;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.LabelUtil;
 import com.olive.mainlayout.MainLayout;
+import com.olive.stock.StockConfig;
 import com.olive.stock.StockPage;
 import com.olive.stock.StockPanel;
 import com.olive.stock.model.ListModel;
@@ -65,12 +67,12 @@ public class StockCatPanel extends Panel {
 
         // 상단 패널
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setBackground(bgColor);
-        topPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
+        StockConfig.panelStyle(topPanel);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // 제목 라벨
         JLabel titleLabel = new JLabel("카테고리별 재고 확인");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+        LabelUtil.applyTitleStyle(titleLabel);
         titleLabel.setForeground(new Color(40, 40, 40));
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         topPanel.add(titleLabel, BorderLayout.WEST);
@@ -88,7 +90,6 @@ public class StockCatPanel extends Panel {
         cb_category.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         comboPanel.add(cb_category);
 
-        topPanel.add(comboPanel, BorderLayout.EAST);
 
         // 테이블 생성
         model = new ListModel("now", user);
@@ -113,6 +114,7 @@ public class StockCatPanel extends Panel {
 
         // 전체 레이아웃 구성
         add(topPanel, BorderLayout.NORTH);
+        add(comboPanel, BorderLayout.EAST);
         add(scroll, BorderLayout.CENTER);
 
         // 콤보박스 이벤트 연결

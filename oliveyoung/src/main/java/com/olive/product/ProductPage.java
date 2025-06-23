@@ -22,6 +22,7 @@ import com.olive.common.config.Config;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
+import com.olive.product.view.ProductListPanel;
 
 public class ProductPage extends Page {
 	
@@ -47,7 +48,7 @@ public class ProductPage extends Page {
 		p_side = new JPanel();
 		
 		la_menu1 = new JLabel("상품 관리");
-		bt_menu1 = new JButton("  -");
+		bt_menu1 = new JButton("상품 리스트");
 		bt_menu2 = new JButton("  -");
 		
 		la_menu2 = new JLabel("출고 관리");
@@ -149,6 +150,7 @@ public class ProductPage extends Page {
 
 	public void createPanel() {
 		
+
 //		panels = new Panel[4];
 //
 //		panels[0] = new InboundRequestPanel(null);		// 입고 요청서
@@ -159,6 +161,7 @@ public class ProductPage extends Page {
 //		
 //		for (int i = 0; i < panels.length; i++)
 //			p_content.add(panels[i]);
+
 	}
 	
 	public void showPanel(int target) {

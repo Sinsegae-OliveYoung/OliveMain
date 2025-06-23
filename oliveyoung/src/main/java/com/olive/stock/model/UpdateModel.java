@@ -11,6 +11,7 @@ import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.StockDAO;
 import com.olive.common.repository.StockLogDAO;
+import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockPage;
 import com.olive.stock.update.view.StockUpdatePanel;
 
@@ -21,6 +22,7 @@ public class UpdateModel extends AbstractTableModel {
     List<Stock> list;
     StockPage stockpage; // 재고 업데이트 반영을 위함
     User user;
+    MainLayout mainLayout;
 
     String[] column = {
         "상품옵션코드", "카테고리명", "상세카테고리명",
@@ -33,8 +35,9 @@ public class UpdateModel extends AbstractTableModel {
 //    		"st_quantity", "st_update"
 //    };
 
-    public UpdateModel(StockPage stockpage, User user) { // StockPage를 보관해야함 -> update 위함
+    public UpdateModel(StockPage stockpage, MainLayout mainLayout, User user) { // StockPage를 보관해야함 -> update 위함
     	this.stockpage = stockpage;
+    	this.mainLayout = mainLayout;
     	this.user = user;
         stockDAO = new StockDAO();	
         list = stockDAO.listNow(user); 
@@ -130,7 +133,9 @@ public class UpdateModel extends AbstractTableModel {
 	                stock.setSt_quantity(quantity);
 	                stockDAO.updateProductQuantity(stock.getSt_id(), quantity); // stock id에 맞게 수량 변경
 	                
-	                stockpage.setDataDirty(true);;  // isDataDirty = true
+	                // 모든 테이블 리로드
+	                mainLayout.setDataDirty(true); 
+	                mainLayout.refreshIfDirty();
 	                
 	                fireTableCellUpdated(row, col); // 화면 갱신
 	            }

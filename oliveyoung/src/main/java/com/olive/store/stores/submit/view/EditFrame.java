@@ -2,6 +2,7 @@ package com.olive.store.stores.submit.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.sql.Connection;
@@ -10,10 +11,12 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
@@ -160,7 +163,21 @@ public class EditFrame extends JFrame {
 		cb_userNo.addItem("사원 번호 - 담당자명");
 		
 		for (User user : userList)
-			cb_userNo.addItem(user.getUser_no() + " - " + user.getUser_name().toString());
+
+			cb_userNo.addItem(user);
+
+		// 콤보박스를 위한 렌더러 설정 (표시할 항목 설정)
+		cb_userNo.setRenderer(new DefaultListCellRenderer() {
+			public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+					boolean cellHasFocus) {
+				if (value instanceof User) {
+					User user = (User) value;
+//					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
+//						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
+				}
+				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			}
+		});
 	}
 	
 	// 테이블에서 누른 값 받아오기
