@@ -165,7 +165,7 @@ public class ProductOptionDAO {
  	    return max;
  	}
  	
- 	public void insert(ProductOption productOption) {
+ 	public void insert(ProductOption productOption) throws ProductOptionException {
  		Connection con=null;
 		PreparedStatement pstmt=null;
 		
@@ -193,4 +193,59 @@ public class ProductOptionDAO {
 			dbManager.release(pstmt);
 		}
  	}
+
+
+	 // 상품 옵션 수정
+	 public void update(ProductOption option){
+		Connection con=null;
+		PreparedStatement pstmt=null;
+		
+		con=dbManager.getConnection();
+		StringBuffer sql = new StringBuffer();
+	     sql.append("UPDATE product_option SET option_name = ?, price = ?, option_active = ? WHERE option_id = ?");
+	     try {
+    		 pstmt = con.prepareStatement(sql.toString()); 
+	         pstmt.setString(1, option.getOption_name());
+	         pstmt.setInt(2, option.getPrice());
+	         pstmt.setString(3, option.getOption_active());
+	         pstmt.setInt(4, option.getOption_id());
+	         pstmt.executeUpdate();
+	     } catch (SQLException e) {
+	    	 e.printStackTrace();
+	     } finally {
+	    	 dbManager.release(pstmt);
+	     }
+	 }
+	
+	 // 상품 옵션 삭제
+	 public void delete(int optionId) throws ProductOptionException, SQLException {
+		 System.out.println("optionId : " + optionId);
+	    Connection con = dbManager.getConnection();
+	    PreparedStatement pstmt1 = null;
+	    PreparedStatement pstmt2 = null;
+	    try {
+	        con.setAutoCommit(false);
+	        
+	        // 1. 자식 테이블 먼저 삭제
+	        String sql1 = "DELETE FROM bound_product WHERE option_id = ?";
+	        pstmt1 = con.prepareStatement(sql1);
+	        pstmt1.setInt(1, optionId);
+	        pstmt1.executeUpdate();
+	        
+	        // 2. 부모 테이블 삭제
+	        String sql2 = "DELETE FROM product_option WHERE option_id = ?";
+	        pstmt2 = con.prepareStatement(sql2);
+	        pstmt2.setInt(1, optionId);
+	        pstmt2.executeUpdate();
+	        
+	        con.commit();
+	    } catch (SQLException e) {
+	        con.rollback();
+	        throw new ProductOptionException("상품 옵션이 삭제되지 않았어요");
+	    } finally {
+	        con.setAutoCommit(true);
+	        dbManager.release(pstmt1);
+	        dbManager.release(pstmt2);
+	    }
+	 }
 } 

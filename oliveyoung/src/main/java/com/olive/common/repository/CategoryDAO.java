@@ -14,7 +14,7 @@ public class CategoryDAO {
 
 	DBManager dbManager = DBManager.getInstance();
 	
-	public List selectAll() {
+	public List<Category> selectAll() {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;

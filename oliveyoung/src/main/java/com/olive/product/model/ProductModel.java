@@ -19,8 +19,8 @@ public class ProductModel extends AbstractTableModel {
     ProductOptionDAO dao;
 
     public ProductModel(User user) {
+    	this.user = user;
         dao = new ProductOptionDAO();
-        this.user = user;
         list = dao.selectAllWithDetails(user); // 브랜드명, 분류 포함하여 조인된 리스트
     }
 
@@ -28,6 +28,10 @@ public class ProductModel extends AbstractTableModel {
     	dao = new ProductOptionDAO();
     	list = dao.selectAllWithDetails(user); 
      	fireTableDataChanged();
+    }
+    
+    public ProductOption getProductOptionAt(int row) {
+        return list.get(row);
     }
     
     @Override
@@ -58,5 +62,6 @@ public class ProductModel extends AbstractTableModel {
         }
         return null;
     }
+    
     
 }

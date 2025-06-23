@@ -282,4 +282,43 @@ public class ProductDAO {
 		}
 		return pk;
 	}
+    
+    public void update(Product product) throws SQLException {
+    	Connection con=null;
+		PreparedStatement pstmt=null;
+		
+		con=dbManager.getConnection();
+        StringBuffer sql = new StringBuffer();
+        sql.append("UPDATE product SET product_name = ?, ct_id = ?, ct_dt_id = ?, bd_id = ? WHERE product_id = ?");
+        try {
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setString(1, product.getProduct_name());
+            pstmt.setInt(2, product.getCategory().getCt_id());
+            pstmt.setInt(3, product.getCategory_detail().getCt_dt_id());
+            pstmt.setInt(4, product.getBrand().getBd_id());
+            pstmt.setInt(5, product.getProduct_id());
+            pstmt.executeUpdate();
+        } catch(SQLException e) {
+        	e.printStackTrace();
+        } finally {
+        	dbManager.release(pstmt);
+        }
+    }
+
+    // 상품 삭제
+    public void delete(int product_id) throws SQLException {
+    	Connection con=null;
+		PreparedStatement pstmt=null;
+        StringBuffer sql = new StringBuffer();
+        sql.append("DELETE FROM product WHERE product_id = ?");
+        try {
+        	pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, product_id);
+            pstmt.executeUpdate();
+        } catch(SQLException e) {
+        	e.printStackTrace();
+        } finally {
+        	dbManager.release(pstmt);
+        }
+    }
 }
