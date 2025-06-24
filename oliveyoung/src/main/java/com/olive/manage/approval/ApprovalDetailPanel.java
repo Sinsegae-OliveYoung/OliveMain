@@ -46,10 +46,9 @@ public class ApprovalDetailPanel extends BasePanel{
 	JLabel lb_requestDate;
 	JLabel lb_status; 
 	
-	BoundProductEditModel model;
+	ApprovalDetailModel model;
 	JTable table;
 	JScrollPane scroll;
-	
 	
 	JTextArea ta_memo;
 	JPanel p_button;
@@ -117,8 +116,9 @@ public class ApprovalDetailPanel extends BasePanel{
 		lb_items.setPreferredSize(d);
 		p_center.add(lb_items);
 		
-		model = new BoundProductEditModel(1, false);  // 최초 생성 시 임시 bound 값 
+		model = new ApprovalDetailModel(1);  // 임시 bound
 		table = new JTable(model);
+		
 		TableUtil.applyStyle(table);
 		
 		scroll = new JScrollPane(table);
@@ -257,7 +257,7 @@ public class ApprovalDetailPanel extends BasePanel{
 		lb_requestDate.setText( "요청일                " + bound.getRequest_date().toString());
 		lb_status.setText(      "요청 상태            " + bound.getBoundState().getBo_state_name());
 		// 테이블 모델 갱신
-		model = new BoundProductEditModel(bound.getBound_id(), false);
+		model = new ApprovalDetailModel(bound.getBound_id());
 		table.setModel(model); // 모델만 교체
 		
 		if(bound.getBoundState().getBo_state_id() == 1) {
