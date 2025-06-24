@@ -16,6 +16,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -25,7 +26,6 @@ import javax.swing.table.TableColumnModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
-import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Page;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -232,20 +232,17 @@ public class StorePage extends Page {
 			panels[i].setVisible((i == target) ? true : false);
 	}
 
-	public void tableStyleUtil(JTable table){
+	public void tableStyleUtil(JTable table, JScrollPane scroll, int height){
 		// 테이블 헤더
         JTableHeader header = table.getTableHeader();
         header.setBackground(Config.LIGHT_GREEN);
         header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
         header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
         header.setBorder(BorderFactory.createLineBorder(Color.WHITE));
-        //header.setBorder(BorderFactory.createMatteBorder(1, 1,0, 1, Color.GRAY));
         header.setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
         
         table.setGridColor(Color.WHITE);
-        //table.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.LIGHT_GRAY));
         table.setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
-        table.setCellSelectionEnabled(false);	// 행 선택 불가
         table.setRequestFocusEnabled(false);	// 셀 선택 불가
 		table.setBackground(Config.WHITE);	// 셀 배경색
 		table.setFont(new Font("Noto Sans KR", Font.PLAIN, 13));
@@ -267,6 +264,10 @@ public class StorePage extends Page {
 		TableColumnModel tcm = table.getColumnModel();
 		for (int i = 0; i < tcm.getColumnCount(); i++)
 			tcm.getColumn(i).setCellRenderer(dtcr);
+		
+		scroll.setBorder(BorderFactory.createEmptyBorder());
+		scroll.getViewport().setBackground(Config.WHITE);
+		scroll.setPreferredSize(new Dimension(Config.CONTENT_W - 100, height));
 	}
 
 }

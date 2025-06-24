@@ -42,7 +42,7 @@ public class RoleChangeDialog extends JDialog{
 		panel.add(cb_role);
 		
 		//저장 버튼
-		JButton bt_save = ButtonUtil.createDefaultButton("저장");
+		JButton bt_save = ButtonUtil.greenButtonUtil("저장");
 		bt_save.setBounds(100, 90, 80, 30);
 		panel.add(bt_save);
 		

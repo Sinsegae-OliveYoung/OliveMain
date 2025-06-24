@@ -2,6 +2,7 @@ package com.olive.common.util.style;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 		List<Role> list = roleDAO.selectAll();
 
 		JComboBox<Role> cb = new JComboBox<Role>();
-		applyDefaultStyle(cb);
+		cb.setUI(new ComboBoxUtil());
 
 		Role r = new Role();
 		r.setRole_name("직급");
@@ -67,7 +68,7 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 		List<BoundState> list = boundStateDAO.selectAll();
 
 		JComboBox<BoundState> cb = new JComboBox<>();
-		applyDefaultStyle(cb);
+		cb.setUI(new ComboBoxUtil());
 
 		BoundState bs = new BoundState();
 		bs.setBo_state_name("상태");
@@ -84,7 +85,7 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 		List<Branch> list = branchDAO.getBranchList(userId);
 	
 		JComboBox<Branch> cb = new JComboBox<>();
-		applyDefaultStyle(cb);
+		cb.setUI(new ComboBoxUtil());
 
 		Branch br = new Branch();
 		br.setBr_name("지점");

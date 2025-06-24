@@ -86,6 +86,7 @@ public class ApprovalListPanel extends BasePanel{
 		cb_branch = ComboBoxUtil.createBranchComboBox(mainLayout.user.getUser_id());
 		p_filter.add(cb_branch);
 		cb_status = ComboBoxUtil.createBoundStateComboBox();
+		cb_status.setPreferredSize(new Dimension(100, 30));
 		p_filter.add(cb_status);
 		
 		
@@ -93,7 +94,7 @@ public class ApprovalListPanel extends BasePanel{
 		t_submitter.setPreferredSize(new Dimension(100, 30));
 		p_filter.add(t_submitter);
 		
-		bt_search = ButtonUtil.createDefaultButton("검색");
+		bt_search = ButtonUtil.greenButtonUtil("검색");
 		
 		p_filter.add(bt_search);
 		

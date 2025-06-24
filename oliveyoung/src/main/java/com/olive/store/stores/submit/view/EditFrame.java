@@ -28,6 +28,7 @@ import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.store.StorePage;
@@ -45,7 +46,7 @@ public class EditFrame extends JFrame {
 	JComboBox<User> cb_userNo;
 
 	JPanel p_bt;
-	JButton bt_regist;
+	JButton bt_edit;
 
 	DBManager dbManager = DBManager.getInstance();
 	BranchDAO branchDAO;
@@ -75,7 +76,7 @@ public class EditFrame extends JFrame {
 		cb_userNo = new JComboBox<>();
 
 		p_bt = new JPanel();
-		bt_regist = new JButton("등록");
+		bt_edit = ButtonUtil.anotherButtonUtil("수정", 15);
 
 		branchDAO = new BranchDAO();
 		userDAO = new UserDAO();
@@ -121,10 +122,6 @@ public class EditFrame extends JFrame {
 		p_bt.setBackground(Config.WHITE);
 		p_bt.setPreferredSize(new Dimension(330, 80));
 
-		bt_regist.setPreferredSize(Config.BUTTON_SIZE);
-		bt_regist.setBackground(Config.LIGHT_GREEN);
-		bt_regist.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
-
 		// assemble
 		p_write.add(lb_name);
 		p_write.add(t_name);
@@ -140,13 +137,13 @@ public class EditFrame extends JFrame {
 		add(p_write, BorderLayout.NORTH);
 
 		p_bt.add(Box.createVerticalStrut(60));
-		p_bt.add(bt_regist);
+		p_bt.add(bt_edit);
 		add(p_bt);
 
 		setCombobox();
 		load();
 
-		bt_regist.addActionListener(e -> {
+		bt_edit.addActionListener(e -> {
 			regist();
 		});
 
