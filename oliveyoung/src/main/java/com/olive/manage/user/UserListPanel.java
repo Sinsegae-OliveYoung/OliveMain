@@ -23,6 +23,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Member;
 import com.olive.common.model.Role;
@@ -69,6 +70,7 @@ public class UserListPanel extends BasePanel{
 	JScrollPane scroll;
 	MemberModel memberModel;
 	
+	JPanel p_bottom; 
 	
 	// 하단 페이지 번호 영역 
 	JPanel p_south;   //페이징 
@@ -155,7 +157,8 @@ public class UserListPanel extends BasePanel{
 		
 		
 		//테이블 패널 (center)
-		p_center = new JPanel(new BorderLayout());
+		p_center = new JPanel();
+		p_center.setBackground(Color.white);
 		p_content.add(p_center, BorderLayout.CENTER);
 		
 		//테이블 
@@ -167,8 +170,24 @@ public class UserListPanel extends BasePanel{
 		
 		scroll = new JScrollPane(table);
 		scroll.getViewport().setBackground(Color.WHITE);
-		scroll.setPreferredSize(new Dimension(1000, 500));
+		scroll.setPreferredSize(new Dimension(1000, 550));
 		p_center.add(scroll);
+		
+		
+		p_bottom = new JPanel();
+		p_bottom.setPreferredSize(new Dimension(Config.CONTENT_W, 100));
+		p_bottom.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // 위, 좌, 아래, 우 여백
+		p_bottom.setBackground(Color.white);
+		p_content.add(p_bottom, BorderLayout.SOUTH);
+		
+		JLabel lb_regist = new JLabel("신규 사용자 등록");
+		p_bottom.add(lb_regist);
+		
+		JButton bt_regist = ButtonUtil.greenButtonUtil("+");
+		bt_regist.setPreferredSize(new Dimension(40, 30));
+		
+		p_bottom.add(bt_regist);
+		
 		
 		
 		// 이벤트 연결 

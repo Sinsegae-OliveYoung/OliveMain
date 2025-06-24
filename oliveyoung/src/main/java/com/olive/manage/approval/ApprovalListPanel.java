@@ -19,6 +19,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundState;
 import com.olive.common.model.Branch;
@@ -50,6 +51,9 @@ public class ApprovalListPanel extends BasePanel{
 	JPanel p_center;
 	JScrollPane scroll;
 	JTable table;
+	
+	JPanel p_south;
+	
 	public ApprovalModel model;
 	
 	BoundFilterDTO filter;
@@ -102,7 +106,8 @@ public class ApprovalListPanel extends BasePanel{
 
 		
 		//센터 패널 (center)
-		p_center = new JPanel(new BorderLayout());   //flowlayout으로 하면 테이블이 최소크기가 됨 
+		p_center = new JPanel();    
+		p_center.setBackground(Config.WHITE);
 		p_content.add(p_center, BorderLayout.CENTER);
 		
 		//테이블 
@@ -113,6 +118,7 @@ public class ApprovalListPanel extends BasePanel{
 		TableUtil.applyStyle(table);
 		scroll = new JScrollPane(table);
 		scroll.getViewport().setBackground(Color.white);
+		scroll.setPreferredSize(new Dimension(1000, 550));
 		p_center.add(scroll);
 		
 		// 페이징 패널 (south)  구현할지 말지.?
@@ -172,9 +178,11 @@ public class ApprovalListPanel extends BasePanel{
 		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
 		p_enddate.lb_date.setText(today);
 		cb_status.setSelectedIndex(0);		
+		cb_branch.setSelectedIndex(0);		
 	}
 	
 	public void refresh() {
+		clearFilter();
 		model.list = boundDAO.select(filter);
 		table.updateUI();
 	}

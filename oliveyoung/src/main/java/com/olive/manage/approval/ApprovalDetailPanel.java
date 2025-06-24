@@ -233,9 +233,11 @@ public class ApprovalDetailPanel extends BasePanel {
 						stockDAO.updateProductQuantity(stock.getSt_id(), stock.getSt_quantity() + bp.getB_count());
 					} else {
 						stockDAO.updateProductQuantity(stock.getSt_id(), stock.getSt_quantity() - bp.getB_count());
-					}
-					
+					}					
 				}
+				
+				mainLayout.setDataDirty(true);
+				mainLayout.refreshIfDirty();
 			}
 		});
 
