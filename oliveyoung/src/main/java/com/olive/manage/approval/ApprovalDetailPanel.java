@@ -7,7 +7,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
-import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Date;
@@ -21,16 +20,18 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import com.olive.bound.model.BoundProductEditModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
+import com.olive.common.model.BoundProduct;
 import com.olive.common.model.BoundState;
+import com.olive.common.model.ProductOption;
+import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BoundDAO;
 import com.olive.common.repository.BoundStateDAO;
+import com.olive.common.repository.StockDAO;
 import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.TableUtil;
 import com.olive.mainlayout.MainLayout;
@@ -62,6 +63,7 @@ public class ApprovalDetailPanel extends BasePanel{
 	
 	BoundDAO boundDAO = new BoundDAO();
 	BoundStateDAO boundStateDAO = new BoundStateDAO();
+	StockDAO stockDAO = new StockDAO();
 	Bound bound;
 	
 	public ApprovalDetailPanel(MainLayout mainLayout, String title, ManagePage managePage) {
@@ -208,6 +210,24 @@ public class ApprovalDetailPanel extends BasePanel{
 				confirm(bs);
 				setBound(bound);
 				boundDAO.update(bound);
+				
+				
+				// 재고 테이블에 반영 
+				for(int i = 0; i < model.list.size(); i++) {
+					// 품목 하나하나 재고 테이블에 반영 
+					BoundProduct bp = model.list.get(i);
+					// 해당 품목의 option_id, 기존 재고 가져오기,  st_quantity 
+					// bound state id == in 이면 더하기, out이면 빼기
+					
+					Stock stock = stockDAO.select(bp.getProductOption().getOption_id(), bound.getBranch().getBr_id());
+					
+					if(bound.getBound_flag().equals("in")) {
+						stockDAO.updateProductQuantity(stock.getSt_id(), stock.getSt_quantity() + bp.getB_count());
+					} else {
+						stockDAO.updateProductQuantity(stock.getSt_id(), stock.getSt_quantity() - bp.getB_count());
+					}
+					
+				}
 			}
 		});
 		
