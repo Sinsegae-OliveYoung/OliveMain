@@ -157,7 +157,11 @@ public class LoginPage extends JFrame {
 	// 로그인 정보가 맞는지 확인하는 메서드
 	public void loginCheck() {
 		// 모든 유저 정보에 입력받은 아이디와 패스워드 대입, 해당되는 유저 추출
-		user = userDAO.checkLogin(Integer.parseInt(t_id.getText()), new String(t_pwd.getPassword()));
+		try {
+			user = userDAO.checkLogin(Integer.parseInt(t_id.getText()), new String(t_pwd.getPassword()));
+		} catch (NumberFormatException e) {	// 넣은 값이 숫자가 아닐 경우 예외처리
+			e.printStackTrace();
+		}
 		
 		// 해당되는 유저가 있다면
 		if (user != null) {
@@ -170,9 +174,12 @@ public class LoginPage extends JFrame {
 			Boolean exist = false; // 아이디 존재 여부를 결정 짓는 변수
 			// 모든 유저 정보를 가져와서 비교
 			for (User users : userList)
-				// 해당하는 아이디가 있다면
-				if (Integer.toString(users.getUser_no()).equals(t_id.getText()))
-					exist = true; // 아이디 존재 여부 변수 true값으로 변경
+				try { 
+					if (Integer.toString(users.getUser_no()).equals(t_id.getText()))
+						exist = true;// 아이디 존재 여부 변수 true값으로 변경
+				} catch (NumberFormatException e) { // 넣은 값이 숫자가 아닐 경우 예외처리
+					e.printStackTrace();
+				} 
 			// 아이디가 존재하면
 			if (exist)
 				JOptionPane.showMessageDialog(this, "비밀번호를 확인해주세요");	// 비밀번호 여부만 묻기
