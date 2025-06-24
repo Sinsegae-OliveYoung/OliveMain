@@ -1,13 +1,16 @@
 package com.olive.manage.approval;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -20,6 +23,7 @@ import com.olive.common.model.Bound;
 import com.olive.common.model.BoundState;
 import com.olive.common.repository.BoundDAO;
 import com.olive.common.util.DateUtil;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.common.util.style.TableUtil;
 import com.olive.mainlayout.MainLayout;
@@ -60,14 +64,12 @@ public class ApprovalListPanel extends BasePanel{
 		p_content = new JPanel(new BorderLayout());
 		
 		// 필터 패널 (north)
-		p_filter = new JPanel();
+		p_filter.setBackground(Color.white);
+		p_filter = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));  //수평, 수직간격
+		p_filter.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0)); // 상좌하우 마진
 		p_content.add(p_filter, BorderLayout.NORTH);
 		
 		p_filter.add(new JLabel("필터"));    //필터 라벨 추가(단순 텍스트라 멤버변수 X)
-		
-		t_submitter = new JTextField("이름");
-		t_submitter.setPreferredSize(new Dimension(100, 30));
-		p_filter.add(t_submitter);
 		
 		p_startdate = new DatePickerPanel("yyyy.mm.dd");
 		p_filter.add(p_startdate);
@@ -82,9 +84,16 @@ public class ApprovalListPanel extends BasePanel{
 		cb_status = ComboBoxUtil.createBoundStateComboBox();
 		p_filter.add(cb_status);
 		
-		bt_search = new JButton("검색");
+		t_submitter = new JTextField("이름");
+		t_submitter.setPreferredSize(new Dimension(100, 30));
+		p_filter.add(t_submitter);
+		
+		bt_search = ButtonUtil.createDefaultButton("검색");
+		
 		p_filter.add(bt_search);
 		
+		
+
 		
 		//센터 패널 (center)
 		p_center = new JPanel(new BorderLayout());   //flowlayout으로 하면 테이블이 최소크기가 됨 
@@ -97,6 +106,7 @@ public class ApprovalListPanel extends BasePanel{
 		table = new JTable(model);
 		TableUtil.applyStyle(table);
 		scroll = new JScrollPane(table);
+		scroll.getViewport().setBackground(Color.white);
 		p_center.add(scroll);
 		
 		// 페이징 패널 (south)  구현할지 말지.?

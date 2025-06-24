@@ -3,18 +3,18 @@ package com.olive.manage.user;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -22,8 +22,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.table.DefaultTableCellRenderer;
 
 import com.olive.common.model.Branch;
 import com.olive.common.model.Member;
@@ -33,6 +31,7 @@ import com.olive.common.repository.MemberDAO;
 import com.olive.common.repository.RoleDAO;
 import com.olive.common.util.DateUtil;
 import com.olive.common.util.ImageUtil;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.common.util.style.TableUtil;
 import com.olive.mainlayout.MainLayout;
@@ -119,7 +118,9 @@ public class UserListPanel extends BasePanel{
 		p_content = new JPanel(new BorderLayout());
 		
 		//필터 패널 (north)
-		p_filter = new JPanel();
+		p_filter = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+		p_filter.setBackground(Color.white);
+		p_filter.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0)); // 상좌하우 마진
 		p_content.add(p_filter, BorderLayout.NORTH);
 		
 		lb_filter = new JLabel("필터");
@@ -148,7 +149,7 @@ public class UserListPanel extends BasePanel{
 		t_name.setPreferredSize(new Dimension(100, 30));
 		p_filter.add(t_name);
 		
-		bt_search = new JButton("검색");
+		bt_search = ButtonUtil.createDefaultButton("검색");
 		bt_search.setPreferredSize(new Dimension(60, 30));
 		p_filter.add(bt_search);
 		

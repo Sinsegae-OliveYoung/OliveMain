@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Role;
 import com.olive.common.repository.UserDAO;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.mainlayout.MainLayout;
 
@@ -41,7 +42,7 @@ public class RoleChangeDialog extends JDialog{
 		panel.add(cb_role);
 		
 		//저장 버튼
-		JButton bt_save = new JButton("저장");
+		JButton bt_save = ButtonUtil.createDefaultButton("저장");
 		bt_save.setBounds(100, 90, 80, 30);
 		panel.add(bt_save);
 		
