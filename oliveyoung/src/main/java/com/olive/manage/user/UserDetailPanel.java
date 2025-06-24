@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 
 import com.olive.common.model.Member;
 import com.olive.common.repository.UserDAO;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.manage.BasePanel;
 import com.olive.manage.ManageConfig;
@@ -101,7 +102,7 @@ public class UserDetailPanel extends BasePanel{
 				lb_role = new JLabel("");
 				lb_role = lbs[3];
 				lb_role.setPreferredSize(new Dimension(100, 60));
-				bt_change = new JButton("변경");
+				bt_change = ButtonUtil.createDefaultButton("변경");
 				p_item[3].add(lb_role);
 				p_item[3].add(bt_change);
 				
