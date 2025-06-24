@@ -2,6 +2,7 @@ package com.olive.bound.view;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -29,6 +30,7 @@ import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
@@ -41,8 +43,8 @@ import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
-import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.BoundDAO;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
@@ -142,6 +144,7 @@ public class OutboundRequestPanel extends Panel{
 	        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
 	        table.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
 	        table.getTableHeader().setForeground(Color.DARK_GRAY);
+	        table.getTableHeader().setToolTipText("상품을 클릭하면 상품이 요청서에 추가됩니다.");
 	        
 	        // 테이블 셀 가운데 정렬
 	        centerRenderer = new DefaultTableCellRenderer();
@@ -166,6 +169,7 @@ public class OutboundRequestPanel extends Panel{
 			table_re.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
 			table_re.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
 			table_re.getTableHeader().setForeground(Color.DARK_GRAY);
+			table_re.getTableHeader().setToolTipText("'0'을 입력 시 등록한 요청 상품이 삭제됩니다.");
 	        
 	        // 테이블 셀 가운데 정렬
 	        centerRenderer = new DefaultTableCellRenderer();
@@ -350,7 +354,7 @@ public class OutboundRequestPanel extends Panel{
 			    }
 			});
 			
-			// 테이블 생성 이후
+			// 테이블 생성 이후 ------------------------------------------------------------
 			TableRowSorter<TableModel> sorter_re = new TableRowSorter<>(table_re.getModel());
 			table_re.setRowSorter(sorter_re);
 
@@ -384,27 +388,93 @@ public class OutboundRequestPanel extends Panel{
 			    }
 			});
 			
-			// 컬럼 클릭 이벤트 -> 우측 테이블에 추가 ------------------------------------------------------------
-			table.addMouseListener(new java.awt.event.MouseAdapter() {
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-					int viewRow = table.getSelectedRow();  // 화면상 클릭한 행
-					if (viewRow >= 0) {
-						int modelRow = table.convertRowIndexToModel(viewRow);  // 실제 모델 인덱스
+			// 재고수량과 요청수량 비교하여 재고 수량보다 많을 시 재고수량 반환 --------------------------------------------
+			table_re.getModel().addTableModelListener(e -> {
+			    if (e.getType() == TableModelEvent.UPDATE) {
+			        int row = e.getFirstRow();
+			        int col = e.getColumn();
 
-			            // 모델에서 정확한 데이터 가져오기
-			            model = (BoundRequestModel) table.getModel();
-			            Stock selectedStock = model.list.get(modelRow); // ✅ 반드시 modelRow 사용
+			        if (col == 2) { // 요청수량 컬럼
+			            BoundProductModel model = (BoundProductModel) table_re.getModel();
 
-			            BoundProduct bp = new BoundProduct();
-			            bp.setProductOption(selectedStock.getProductOption());
-			            bp.setB_count(1); // 초기 수량
+			            int newQuantity;
+			            try {
+			                newQuantity = Integer.parseInt(model.getValueAt(row, col).toString());
+			            } catch (NumberFormatException ex) {
+			                return;
+			            }
 
-			            boundProductModel.addProduct(bp);
-					}
-				}
+			            if (newQuantity == 0) {
+			                model.removeRow(row); // ✨ 요청 수량이 0이면 행 삭제
+			                return;
+			            }
+
+			            // 좌측 테이블 모델에서 재고 수량 조회
+			            BoundRequestModel leftModel = (BoundRequestModel) table.getModel();
+			            String optionCode = (String) model.getValueAt(row, 1);
+
+			            int availableStock = 0;
+			            for (int i = 0; i < leftModel.getRowCount(); i++) {
+			                Stock stock = leftModel.list.get(i);
+			                if (stock.getProductOption().getOption_code().equals(optionCode)) {
+			                    availableStock = stock.getSt_quantity();
+			                    break;
+			                }
+			            }
+
+			            if (newQuantity > availableStock) {
+			                JOptionPane.showMessageDialog(null, "재고 수량 이상으로 출고할 수 없습니다.");
+			                model.setValueAt(availableStock, row, col); // 최대치로 되돌림
+			            }
+			        }
+			    }
 			});
-			
+
+			// table 상품 리스트 컬럼 클릭 이벤트 -> 우측 테이블에 추가 ------------------------------------------------------------
+			table.addMouseListener(new MouseAdapter() {
+			    @Override
+			    public void mouseClicked(MouseEvent e) {
+			        int viewRow = table.getSelectedRow();
+			        if (viewRow >= 0) {
+			            int modelRow = table.convertRowIndexToModel(viewRow);
+			            BoundRequestModel localModel = (BoundRequestModel) table.getModel();
+			            Stock selectedStock = localModel.list.get(modelRow);
+
+			            int optionId = selectedStock.getProductOption().getOption_id();
+			            int availableStock = selectedStock.getSt_quantity();
+
+			            List<BoundProduct> productList = boundProductModel.getProductList();
+			            BoundProduct existing = null;
+
+			            for (BoundProduct bp : productList) {
+			                if (bp.getProductOption().getOption_id() == optionId) {
+			                    existing = bp;
+			                    break;
+			                }
+			            }
+
+			            if (existing != null) {
+			                int newCount = existing.getB_count() + 1;
+			                if (newCount > availableStock) {
+			                    JOptionPane.showMessageDialog(null, "재고 수량 이상으로 출고할 수 없습니다.");
+			                    newCount = availableStock;
+			                }
+			                existing.setB_count(newCount);
+			                boundProductModel.updateQuantityByOptionId(optionId, newCount); // UI 업데이트용 호출
+			            } else {
+			                if (availableStock <= 0) {
+			                    JOptionPane.showMessageDialog(null, "남은 재고가 없어 출고할 수 없습니다.");
+			                    return;
+			                }
+			                BoundProduct bp = new BoundProduct();
+			                bp.setProductOption(selectedStock.getProductOption());
+			                bp.setB_count(1);
+			                boundProductModel.addProduct(bp);
+			            }
+			        }
+			    }
+			});
+
 			// 저장 버튼 클릭 이벤트 ------------------------------------------------------------
 			bt_save.addMouseListener(new MouseAdapter() {
 				public void mouseClicked(MouseEvent e) {
@@ -420,36 +490,54 @@ public class OutboundRequestPanel extends Panel{
 				};
 			});
 			
-			// 콤보박스 이벤트 연결 ------------------------------------------------------------
+			// 지점 콤보박스 이벤트 연결 ------------------------------------------------------------
 			cb_branch.addItemListener(new ItemListener() {
-	            @Override
-	            public void itemStateChanged(ItemEvent e) {
-	                if (e.getStateChange() == ItemEvent.SELECTED) {
-	                	Branch branch= (Branch) cb_branch.getSelectedItem();
-	                    if (branch.getBr_id() != 0) {
-	                    	boundModel = new BoundRequestModel(branch);
-	                        table.setModel(boundModel);
-	                    } else {
-	                        table.setModel(new BoundRequestModel("now"));
-	                    }
-	                    setTableWidth(table); // 테이블 너비 재설정
+			    @Override
+			    public void itemStateChanged(ItemEvent e) {
+			        if (e.getStateChange() == ItemEvent.SELECTED) {
+			            Branch selectedBranch = (Branch) e.getItem();
 
-	                    
-	                    // ✅ 선택된 지점의 점장 이름 불러오기
-	                    manager = userDAO.getManagerByBranchId(branch.getBr_id());
-	                    if (manager != null) {
-	                        tf_approver.setText(manager.getUser_name());
-	                        tf_approver.setToolTipText(manager.getUser_id() + " / " + manager.getUser_name());
-	                        
-	                        // 전역변수에 결재자(점장) 객체 넣기
-//	                        currentApprover = manager;
-	                        
-	                    } else {
-	                        tf_approver.setText("점장 없음");
-	                    }
-	                }            	
-	            }
-	        });
+			            // 요청서에 상품이 하나 이상 담긴 경우만 확인창 표시
+			            if (boundProductModel.getRowCount() > 0) {
+			                int result = JOptionPane.showConfirmDialog(
+			                    null,
+			                    "요청서에 담긴 상품이 삭제됩니다. 변경하시겠습니까?",
+			                    "지점 변경 확인",
+			                    JOptionPane.YES_NO_OPTION
+			                );
+
+			                if (result != JOptionPane.YES_OPTION) {
+			                    // 콤보박스 선택 이전으로 되돌리기 (무한루프 방지 위해 removeListener → 재등록)
+			                    cb_branch.removeItemListener(this);
+			                    cb_branch.setSelectedItem(e.getItemSelectable().getSelectedObjects()[0]);
+			                    cb_branch.addItemListener(this);
+			                    return;
+			                }
+			            }
+
+			            // ✅ 변경 처리
+			            if (selectedBranch != null) {
+			                boundModel = new BoundRequestModel(selectedBranch);
+			                table.setModel(boundModel);
+			                setTableWidth(table);
+
+			                // 요청서 초기화
+			                boundProductModel.clear();
+
+			                // 결재자 재설정
+			                manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
+			                if (manager != null) {
+			                    tf_approver.setText(manager.getUser_name());
+			                    tf_approver.setToolTipText(manager.getUser_id() + " / " + manager.getUser_name());
+			                } else {
+			                    tf_approver.setText("점장 없음");
+			                    tf_approver.setToolTipText(null);
+			                }
+			            }
+			        }
+			    }
+			});
+
 			
 			setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H-70));
 			setBackground(Config.WHITE);
@@ -565,6 +653,9 @@ public class OutboundRequestPanel extends Panel{
 				
 				// ✅ 정적 메서드 호출로 새로고침
 				OutboundShowPanel.refreshStaticList();
+				
+				mainLayout.setDataDirty(true); 
+			    mainLayout.refreshIfDirty();
 				
 				JOptionPane.showMessageDialog(this, "출고 요청이 저장되었습니다.");
 			}

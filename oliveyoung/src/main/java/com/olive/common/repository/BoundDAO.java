@@ -88,6 +88,7 @@ public class BoundDAO {
             	
             	// BoundState 객체 생성
             	BoundState boundState = new BoundState();
+            	boundState.setBo_state_id(rs.getInt("bo_state_id"));
             	boundState.setBo_state_name(rs.getString("bo_state_name"));
             	
                 // Bound 객체 생성
@@ -174,6 +175,7 @@ public class BoundDAO {
             	
             	// BoundState 객체 생성
             	BoundState boundState = new BoundState();
+            	boundState.setBo_state_id(rs.getInt("bo_state_id"));
             	boundState.setBo_state_name(rs.getString("bo_state_name"));
             	
                 // Bound 객체 생성
