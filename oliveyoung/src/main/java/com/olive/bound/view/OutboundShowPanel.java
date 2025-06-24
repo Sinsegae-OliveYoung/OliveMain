@@ -9,6 +9,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,6 +21,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -35,6 +39,18 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.olive.bound.dialog.ProductAddDialog;
 import com.olive.bound.model.BoundShowModel;
@@ -61,6 +77,9 @@ public class OutboundShowPanel extends Panel{
 	JComboBox<User> cb_appuser;
 	JButton bt_delete;
 	JButton bt_save;
+	
+	//엑셀출력
+	JButton bt_print;
 	
 	// 중앙
 	JPanel p_center;
@@ -147,9 +166,14 @@ public class OutboundShowPanel extends Panel{
         bt_save.setPreferredSize(new Dimension(80, 30));
         bt_save.setBackground(Config.LIGHT_GRAY);
         
+        bt_print = new JButton("엑셀출력");
+        bt_print.setPreferredSize(new Dimension(82, 30));
+        bt_print.setBackground(Config.LIGHT_GRAY);
+        
         // 상단 패널에 요소 부착
         rightButtonPanel.add(bt_save);
         rightButtonPanel.add(bt_delete);
+        rightButtonPanel.add(bt_print);
         rightButtonPanel.setBorder(new EmptyBorder(0, 0, 0, 40));
 
         topPanel.add(titleLabel, BorderLayout.WEST);
@@ -493,6 +517,20 @@ public class OutboundShowPanel extends Panel{
 				bt_save.setBackground(Config.LIGHT_GRAY);
 			};
 		});
+        
+        bt_print.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				printBound(selected);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				bt_print.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_print.setBackground(Config.LIGHT_GRAY);
+			};
+		});
 
     }
     
@@ -672,6 +710,168 @@ public class OutboundShowPanel extends Panel{
         refreshStaticList();
         mainLayout.setDataDirty(true); 
         mainLayout.refreshIfDirty();
+    }
+    
+    private void printBound(BoundProduct boundProduct) {
+    	if (boundProduct == null) {
+            JOptionPane.showMessageDialog(this, "선택된 요청서가 없습니다.");
+            return;
+        }
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("출고 요청서");
+
+        // --- 스타일 정의 ---
+        XSSFCellStyle headerStyle = workbook.createCellStyle();
+        XSSFFont headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        XSSFCellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        int rowIndex = 1; // 2번째 행부터 (1-indexed)
+        int colIndex = 1; // B열부터 시작
+
+        // --- 제목 추가 ---
+        XSSFRow titleRow = sheet.createRow(rowIndex++);
+        XSSFCell titleCell = titleRow.createCell(colIndex);
+        titleCell.setCellValue("출고 요청서 목록");
+        titleCell.setCellStyle(headerStyle);
+
+        // --- table_list: 선택된 요청서 하나만 출력 ---
+        XSSFRow headerRow1 = sheet.createRow(rowIndex++);
+        String[] listHeaders = {"요청일", "지점", "결재자", "메모"};
+
+        for (int i = 0; i < listHeaders.length; i++) {
+            XSSFCell cell = headerRow1.createCell(colIndex + i);
+            cell.setCellValue(listHeaders[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        XSSFRow dataRow1 = sheet.createRow(rowIndex++);
+        Bound b = boundProduct.getBound();
+
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(b.getRequest_date());
+        String branchName = b.getBranch().getBr_name();
+        String approverName = b.getApprover().getUser_name();
+        String memo = b.getComment();
+
+        String[] listData = {dateStr, branchName, approverName, memo};
+
+        for (int i = 0; i < listData.length; i++) {
+            XSSFCell cell = dataRow1.createCell(colIndex + i);
+            cell.setCellValue(listData[i]);
+            cell.setCellStyle(cellStyle);
+        }
+
+        // --- 공백 2줄 추가 ---
+        rowIndex += 2;
+
+     // 테이블 헤더 생성
+        XSSFRow headerRow = sheet.createRow(rowIndex++);
+        String[] headers = {"상품명", "제품코드", "요청수량", "단가", "총 금액"};
+        for (int i = 0; i < headers.length; i++) {
+            XSSFCell cell = headerRow.createCell(colIndex + i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // 상품 리스트
+        int totalQuantity = 0;
+        int totalUnitPrice = 0;
+        int totalOrderPrice = 0;
+        
+        // --- 숫자용 스타일 정의 (쉼표 포맷) ---
+        XSSFCellStyle numberStyle = workbook.createCellStyle();
+        DataFormat format = workbook.createDataFormat();
+        numberStyle.setDataFormat(format.getFormat("#,##0"));
+        numberStyle.setAlignment(HorizontalAlignment.CENTER);
+        numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        for (int row = 0; row < model_detail.getRowCount(); row++) {
+            XSSFRow dataRow = sheet.createRow(rowIndex++);
+            
+            String productName = model_detail.getValueAt(row, 0).toString();
+            String productCode = model_detail.getValueAt(row, 1).toString();
+            int quantity = Integer.parseInt(model_detail.getValueAt(row, 2).toString());
+            BoundProduct bp = model_detail.getBoundProductList().get(row);
+            int price = bp.getProductOption().getPrice();
+            int orderTotal = quantity * price;
+
+            totalQuantity += quantity;
+            totalUnitPrice += price;
+            totalOrderPrice += orderTotal;
+
+            dataRow.createCell(colIndex + 0).setCellValue(productName);    // B
+            dataRow.createCell(colIndex + 1).setCellValue(productCode);    // C
+            dataRow.createCell(colIndex + 2).setCellValue(quantity);       // D
+            dataRow.createCell(colIndex + 3).setCellValue(price);          // E
+            dataRow.createCell(colIndex + 4).setCellValue(orderTotal);     // F (단가 × 수량)
+            
+            // 내부 반복문에서 가격 및 금액에 스타일 적용
+            XSSFCell quantityCell = dataRow.createCell(colIndex + 2); // D
+            quantityCell.setCellValue(quantity);
+            quantityCell.setCellStyle(cellStyle);
+
+            XSSFCell priceCell = dataRow.createCell(colIndex + 3);    // E
+            priceCell.setCellValue(price);
+            priceCell.setCellStyle(numberStyle);
+
+            XSSFCell orderCell = dataRow.createCell(colIndex + 4);    // F
+            orderCell.setCellValue(orderTotal);
+            orderCell.setCellStyle(numberStyle);
+        }
+        
+        // 합계 행
+        XSSFRow sumRow = sheet.createRow(rowIndex++);
+        XSSFCell totalLabelCell = sumRow.createCell(colIndex);
+        totalLabelCell.setCellValue("합계");
+        totalLabelCell.setCellStyle(headerStyle);
+
+        sumRow.createCell(colIndex + 2).setCellValue(totalQuantity);     // D
+        sumRow.createCell(colIndex + 3).setCellValue("");                // E 
+        sumRow.createCell(colIndex + 4).setCellValue(totalOrderPrice);   // F: 총 주문 금액
+
+        // 열 너비 조정
+        sheet.setColumnWidth(0, 1000); // A (좁게)
+        sheet.setColumnWidth(1, 8000); // B (상품명)
+        sheet.setColumnWidth(2, 6000); // C (제품코드)
+        sheet.setColumnWidth(3, 3000); // D (수량)
+        sheet.setColumnWidth(4, 5000); // E (단가)
+        sheet.setColumnWidth(5, 5000); // F (총금액)
+        
+        XSSFCell totalQtyCell = sumRow.createCell(colIndex + 2);
+        totalQtyCell.setCellValue(totalQuantity);
+        totalQtyCell.setCellStyle(cellStyle);
+
+        XSSFCell totalPriceCell = sumRow.createCell(colIndex + 4);
+        totalPriceCell.setCellValue(totalOrderPrice);
+        totalPriceCell.setCellStyle(numberStyle);
+
+
+        // --- 파일 저장 다이얼로그 ---
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("엑셀 파일로 저장");
+        chooser.setSelectedFile(new File("출고요청서.xlsx"));
+
+        int result = chooser.showSaveDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try (FileOutputStream fos = new FileOutputStream(chooser.getSelectedFile())) {
+                workbook.write(fos);
+                workbook.close();
+                JOptionPane.showMessageDialog(null, "엑셀 파일이 성공적으로 저장되었습니다.");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "엑셀 저장 중 오류 발생");
+            }
+        }
     }
     
     // 요청서 저장 확인 폼
