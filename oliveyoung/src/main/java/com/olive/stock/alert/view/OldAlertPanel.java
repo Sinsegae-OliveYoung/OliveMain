@@ -68,20 +68,14 @@ public class OldAlertPanel extends Panel{
 	        Color buttonGreen = new Color(170, 225, 130); // 조화로운 색상
 	        Color buttonText = new Color(40, 40, 40); // 어두운 회색
 
-	        JButton btnDateAsc = new JButton("입고일 ↑");
-	        JButton btnDateDesc = new JButton("입고일 ↓");
-	        JButton btnQtyDesc = new JButton("재고수량 ↓");
-	        JButton btnNameAsc = new JButton("상품명 ↑");
-	        JButton btnNameDesc = new JButton("상품명 ↓");
-
+	        JButton btnDateAsc = ButtonUtil.greenButtonUtil("입고일 ↑");
+	        JButton btnDateDesc = ButtonUtil.greenButtonUtil("입고일 ↓");
+	        JButton btnQtyDesc = ButtonUtil.greenButtonUtil("재고수량 ↓");
+	        JButton btnNameAsc = ButtonUtil.greenButtonUtil("상품명 ↑");
+	        JButton btnNameDesc = ButtonUtil.greenButtonUtil("상품명 ↓");
 
 	        JButton[] buttons = {btnDateAsc, btnDateDesc, btnQtyDesc, btnNameAsc, btnNameDesc};
 	        for (JButton btn : buttons) {
-	            btn.setPreferredSize(buttonSize);
-	            btn.setFont(buttonFont);
-	            ButtonUtil.applyDefaultStyle(btn);
-	            btn.setForeground(buttonText);
-	            btn.setFocusPainted(false);
 	            buttonPanel.add(btn);
 	        }
 

@@ -19,6 +19,7 @@ import javax.swing.table.JTableHeader;
 
 import com.olive.common.config.Config;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
@@ -61,17 +62,11 @@ public class StockOBPanel extends Panel{
         Color buttonGreen = new Color(170, 225, 130); // 조화로운 색상
         Color buttonText = new Color(40, 40, 40); // 어두운 회색
 
-        JButton btnDateAsc = new JButton("입고일 ↑");
-        JButton btnDateDesc = new JButton("입고일 ↓");
+        JButton btnDateAsc = ButtonUtil.greenButtonUtil("입고일 ↑");
+        JButton btnDateDesc = ButtonUtil.greenButtonUtil("입고일 ↓");
 
         JButton[] buttons = {btnDateAsc, btnDateDesc};
         for (JButton btn : buttons) {
-            btn.setPreferredSize(buttonSize);
-            btn.setFont(buttonFont);
-            btn.setBackground(buttonGreen);
-            btn.setForeground(buttonText);
-            btn.setFocusPainted(false);
-            btn.setBorder(BorderFactory.createLineBorder(new Color(150, 200, 120))); // 테두리도 조화롭게
             buttonPanel.add(btn);
         }
 

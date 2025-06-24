@@ -133,7 +133,6 @@ public class ProductListPanel extends Panel {
             btn.setMaximumSize(buttonSize); 
             btn.setAlignmentX(JButton.CENTER_ALIGNMENT);
             btn.setFont(buttonFont);
-            ButtonUtil.applyDefaultStyle(btn);
             btn.setFocusPainted(false);
             btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             buttonPanel.add(btn);
