@@ -196,11 +196,8 @@ public class ProductOptionDAO {
 
 
 	 // 상품 옵션 수정
-	 public void update(ProductOption option){
-		Connection con=null;
+	 public void update(ProductOption option, Connection con){
 		PreparedStatement pstmt=null;
-		
-		con=dbManager.getConnection();
 		StringBuffer sql = new StringBuffer();
 	     sql.append("UPDATE product_option SET option_name = ?, price = ?, option_active = ? WHERE option_id = ?");
 	     try {
@@ -218,13 +215,12 @@ public class ProductOptionDAO {
 	 }
 	
 	 // 상품 옵션 삭제
-	 public void delete(int optionId) throws ProductOptionException, SQLException {
+	 public void delete(int optionId ,Connection con) throws ProductOptionException, SQLException {
 		 System.out.println("optionId : " + optionId);
-	    Connection con = dbManager.getConnection();
 	    PreparedStatement pstmt1 = null;
 	    PreparedStatement pstmt2 = null;
+	    PreparedStatement pstmt3 = null;
 	    try {
-	        con.setAutoCommit(false);
 	        
 	        // 1. 자식 테이블 먼저 삭제
 	        String sql1 = "DELETE FROM bound_product WHERE option_id = ?";
@@ -233,19 +229,25 @@ public class ProductOptionDAO {
 	        pstmt1.executeUpdate();
 	        
 	        // 2. 부모 테이블 삭제
-	        String sql2 = "DELETE FROM product_option WHERE option_id = ?";
+	        String sql2 = "DELETE FROM stock WHERE option_id = ?";
 	        pstmt2 = con.prepareStatement(sql2);
 	        pstmt2.setInt(1, optionId);
 	        pstmt2.executeUpdate();
+	        
+	        // 3. 부모 테이블 삭제
+	        String sql3 = "DELETE FROM product_option WHERE option_id = ?";
+	        pstmt3 = con.prepareStatement(sql3);
+	        pstmt3.setInt(1, optionId);
+	        pstmt3.executeUpdate();
 	        
 	        con.commit();
 	    } catch (SQLException e) {
 	        con.rollback();
 	        throw new ProductOptionException("상품 옵션이 삭제되지 않았어요");
 	    } finally {
-	        con.setAutoCommit(true);
 	        dbManager.release(pstmt1);
 	        dbManager.release(pstmt2);
+	        dbManager.release(pstmt3);
 	    }
 	 }
 } 

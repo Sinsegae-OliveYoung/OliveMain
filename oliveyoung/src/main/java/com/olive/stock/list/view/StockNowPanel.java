@@ -86,7 +86,7 @@ public class StockNowPanel extends Panel {
         }
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.getViewport().setBackground(new Color(245, 248, 250));
         
 
         // 전체 조립

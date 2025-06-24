@@ -54,6 +54,7 @@ import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.ProductOptionDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -78,6 +79,7 @@ public class ProductListPanel extends Panel {
     ProductDAO productDAO;
     ProductOptionDAO productOptionDAO;
     CategoryDetailDAO categoryDetailDAO;
+
     DBManager dbManager = DBManager.getInstance();
     
     @Override
@@ -117,8 +119,7 @@ public class ProductListPanel extends Panel {
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 20));
 
         Font buttonFont = new Font("SansSerif", Font.PLAIN, 13);
-        Dimension buttonSize = new Dimension(130, 30);
-        Color buttonGreen = new Color(170, 225, 130);
+        Dimension buttonSize = new Dimension(100, 30);
         Color buttonText = new Color(40, 40, 40);
 
         JButton btnAdd = new JButton("상품 등록");
@@ -128,9 +129,10 @@ public class ProductListPanel extends Panel {
         JButton[] buttons = {btnAdd, btnEdit, btnDelete};
         for (JButton btn : buttons) {
             btn.setPreferredSize(buttonSize);
+            btn.setMaximumSize(buttonSize); 
             btn.setAlignmentX(JButton.CENTER_ALIGNMENT);
             btn.setFont(buttonFont);
-            btn.setBackground(buttonGreen);
+            ButtonUtil.applyDefaultStyle(btn);
             btn.setForeground(buttonText);
             btn.setFocusPainted(false);
             btn.setBorder(BorderFactory.createLineBorder(new Color(150, 200, 120)));
@@ -173,14 +175,13 @@ public class ProductListPanel extends Panel {
                 tfName = new JTextField(selectedProduct.getProduct_name());
 
                 JLabel lblCategory = new JLabel("카테고리:");
-                cbCategory = new JComboBox<>();
-                for (Category c : new CategoryDAO().selectAll()) cbCategory.addItem(c);
-                cbCategory.setSelectedItem(selectedProduct.getCategory());
+                JComboBox<Category> editCbCategory = new JComboBox<>();
+                for (Category c : new CategoryDAO().selectAll()) editCbCategory.addItem(c);
+                editCbCategory.setSelectedItem(selectedProduct.getCategory());
 
                 JLabel lblCategoryDetail = new JLabel("상세 카테고리:");
-                cbCategoryDetail = new JComboBox<>();
-                getCategoryDetail(selectedProduct.getCategory());
-                cbCategoryDetail.setSelectedItem(selectedProduct.getCategory_detail());
+                JComboBox<CategoryDetail> editCbCategoryDetail = new JComboBox<>();
+                editCbCategoryDetail.setSelectedItem(selectedProduct.getCategory_detail());
 
                 JLabel lblOptionName = new JLabel("옵션명:");
                 tfOptionName = new JTextField(selectedOption.getOption_name());
@@ -191,22 +192,111 @@ public class ProductListPanel extends Panel {
                 JLabel lblActive = new JLabel("활성화:");
                 cbActive = new JComboBox<>(new String[]{"y", "n"});
                 cbActive.setSelectedItem(selectedOption.getOption_active());
+                
+                // 카테고리 변경 시 상세 카테고리 동기화
+                editCbCategory.addItemListener(new ItemListener() {
+                    @Override
+                    public void itemStateChanged(ItemEvent e) {
+                        if (e.getStateChange() == ItemEvent.SELECTED) {
+                            Category selected = (Category) e.getItem();
+                            fillCategoryDetailForEdit(selected, editCbCategoryDetail);
+                        }
+                    }
+                });
 
+
+                JButton btnCancel = new JButton("취소");
+                btnCancel.addActionListener(ev -> dialog.dispose());
+
+                // 레이아웃 배치
+                // 콤보박스 가운데 정렬 렌더러
+                DefaultListCellRenderer centerRenderer = new DefaultListCellRenderer();
+                centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+                cbBrand.setRenderer(centerRenderer);
+                editCbCategory.setRenderer(centerRenderer);
+                editCbCategoryDetail.setRenderer(centerRenderer);
+                cbActive.setRenderer(centerRenderer);
+                
+                // 스타일
+                Color dialogBgColor = new Color(250, 252, 255);
+                Color labelColor = new Color(60, 60, 60);
+
+                contentPanel.setBackground(dialogBgColor);
+                lblBrand.setForeground(labelColor);
+                lblName.setForeground(labelColor);
+                lblCategory.setForeground(labelColor);
+                lblCategoryDetail.setForeground(labelColor);
+                lblOptionName.setForeground(labelColor);
+                lblPrice.setForeground(labelColor);
+                lblActive.setForeground(labelColor);
+
+                // 텍스트 필드 가운데 정렬
+                tfName.setHorizontalAlignment(SwingConstants.CENTER);
+                tfPrice.setHorizontalAlignment(SwingConstants.CENTER);
+                tfOptionName.setHorizontalAlignment(SwingConstants.CENTER);
+
+
+                gbc.gridx = 0; gbc.gridy = 0; contentPanel.add(lblBrand, gbc);
+                gbc.gridx = 1; contentPanel.add(cbBrand, gbc);
+
+                gbc.gridx = 0; gbc.gridy++;
+                contentPanel.add(lblName, gbc);
+                gbc.gridx = 1; contentPanel.add(tfName, gbc);
+
+                gbc.gridx = 0; gbc.gridy++;
+                contentPanel.add(lblCategory, gbc);
+                gbc.gridx = 1; contentPanel.add(editCbCategory, gbc);
+
+                gbc.gridx = 0; gbc.gridy++;
+                contentPanel.add(lblCategoryDetail, gbc);
+                gbc.gridx = 1; contentPanel.add(editCbCategoryDetail, gbc);
+                
+                gbc.gridx = 0; gbc.gridy++;
+                contentPanel.add(lblOptionName, gbc);
+                gbc.gridx = 1; contentPanel.add(tfOptionName, gbc);
+
+                gbc.gridx = 0; gbc.gridy++;
+                contentPanel.add(lblPrice, gbc);
+                gbc.gridx = 1; contentPanel.add(tfPrice, gbc);
+
+                gbc.gridx = 0; gbc.gridy++;
+                contentPanel.add(lblActive, gbc);
+                gbc.gridx = 1; contentPanel.add(cbActive, gbc);
+
+                JPanel btnPanel = new JPanel();
+                
                 JButton btnSave = new JButton("저장");
+                gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2;
+                
+                
+                // 저장 버튼 스타일
+                btnSave.setPreferredSize(new Dimension(100, 35));
+                btnSave.setFont(new Font("SansSerif", Font.BOLD, 13));
+                btnSave.setBackground(new Color(130, 180, 250));
+                btnSave.setForeground(Color.WHITE);
+                btnSave.setFocusPainted(false);
+                btnSave.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
+                btnSave.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                
                 btnSave.addActionListener(ev -> {
                     selectedProduct.setProduct_name(tfName.getText());
                     selectedProduct.setBrand((Brand) cbBrand.getSelectedItem());
-                    selectedProduct.setCategory((Category) cbCategory.getSelectedItem());
-                    selectedProduct.setCategory_detail((CategoryDetail) cbCategoryDetail.getSelectedItem());
+                    selectedProduct.setCategory((Category) editCbCategory.getSelectedItem());
+                    selectedProduct.setCategory_detail((CategoryDetail) editCbCategoryDetail.getSelectedItem());
 
                     selectedOption.setOption_name(tfOptionName.getText());
                     selectedOption.setPrice(Integer.parseInt(tfPrice.getText()));
                     selectedOption.setOption_active((String) cbActive.getSelectedItem());
-
-                    try (Connection con = dbManager.getConnection()) {
+                    
+                    Connection con = null;
+                    DBManager dbManager = DBManager.getInstance();
+                    
+                    try {
+                    	con = dbManager.getConnection();
                         con.setAutoCommit(false);
-                        productDAO.update(selectedProduct);
-                        productOptionDAO.update(selectedOption);
+                        productDAO.update(selectedProduct, con);
+                        productOptionDAO.update(selectedOption, con);
                         con.commit();
                         refresh();
                         dialog.dispose();
@@ -214,14 +304,46 @@ public class ProductListPanel extends Panel {
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(ProductListPanel.this, "수정 중 오류가 발생했습니다.");
+                    } finally {
+                	   try {
+							con.setAutoCommit(true);
+						} catch (SQLException e1) {
+							e1.printStackTrace();
+						}
                     }
                 });
 
-                JButton btnCancel = new JButton("취소");
-                btnCancel.addActionListener(ev -> dialog.dispose());
+             
+                // 취소 버튼 스타일
+                btnCancel.setPreferredSize(new Dimension(100, 35));
+                btnCancel.setFont(new Font("SansSerif", Font.BOLD, 13));
+                btnCancel.setBackground(Color.gray);
+                btnCancel.setForeground(Color.WHITE);
+                btnCancel.setFocusPainted(false);
+                btnCancel.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
+                btnCancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+                
+                btnCancel.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                    	dialog.dispose();
+                    }
+                });
+                
+                // 저장 버튼 위치 설정 (기존 설정 변경)
+                gbc.anchor = GridBagConstraints.WEST;
+                gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
+                gbc.weightx = 0;                    // 공간 분배 없음
+                btnPanel.add(btnSave, gbc);
 
-                // 레이아웃 배치 생략 (기존 insert() 다이얼로그 참고하여 배치 동일하게 적용하면 됨)
-                // ...
+                // 취소 버튼 위치 설정 (기존 설정 변경)
+                gbc.anchor = GridBagConstraints.EAST;
+                gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
+                gbc.weightx = 0;                    // 공간 분배 없음
+                btnPanel.add(btnCancel, gbc);
+
+                gbc.anchor = GridBagConstraints.SOUTH;
+                contentPanel.add(btnPanel, gbc);
 
                 dialog.add(contentPanel);
                 dialog.setVisible(true);
@@ -231,6 +353,7 @@ public class ProductListPanel extends Panel {
         btnDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+            	Connection con1 = null; 
                 int row = table.getSelectedRow();
                 if (row == -1) {
                     JOptionPane.showMessageDialog(ProductListPanel.this, "삭제할 상품을 선택하세요.");
@@ -243,16 +366,32 @@ public class ProductListPanel extends Panel {
 
                 ProductOption selectedOption = model.getProductOptionAt(table.getSelectedRow());
                 Product selectedProduct = selectedOption.getProduct();
-                try (Connection con = dbManager.getConnection()) {
-                    con.setAutoCommit(false);
-                    productOptionDAO.delete(selectedOption.getOption_id());
-                    productDAO.delete(selectedProduct.getProduct_id());
-                    con.commit();
+                
+                try {
+                	con1 = dbManager.getConnection();
+                    con1.setAutoCommit(false); // 수동 트랜잭션 시작
+                    System.out.println("AutoCommit: " + con1.getAutoCommit());
+
+                    productOptionDAO.delete(selectedOption.getOption_id(), con1);
+                    productDAO.delete(selectedProduct.getProduct_id(), con1);
+
+                    con1.commit(); // 모든 delete가 성공하면 커밋
                     refresh();
                     JOptionPane.showMessageDialog(ProductListPanel.this, "삭제가 완료되었습니다.");
                 } catch (Exception ex) {
                     ex.printStackTrace();
+                    try {
+                        con1.rollback(); // 하나라도 실패하면 롤백
+                    } catch (SQLException rollbackEx) {
+                        rollbackEx.printStackTrace();
+                    }
                     JOptionPane.showMessageDialog(ProductListPanel.this, "삭제 중 오류가 발생했습니다.");
+                } finally {
+                    try {
+                        con1.setAutoCommit(true); // 다시 자동 커밋 모드로 돌려놓기
+                    } catch (SQLException setAutoCommitEx) {
+                        setAutoCommitEx.printStackTrace();
+                    }
                 }
             }
         });
@@ -276,7 +415,8 @@ public class ProductListPanel extends Panel {
         }
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.getViewport().setBackground(Color.WHITE);
+        scroll.getViewport().setBackground(new Color(245, 248, 250));
+        scroll.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 왼쪽 여백 10px
 
         add(titlePanel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.EAST);
@@ -411,7 +551,7 @@ public class ProductListPanel extends Panel {
                 btnSave.setBackground(new Color(130, 180, 250));
                 btnSave.setForeground(Color.WHITE);
                 btnSave.setFocusPainted(false);
-                btnSave.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
+//                btnSave.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
                 btnSave.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 
                 btnSave.addActionListener(new ActionListener() {
@@ -513,10 +653,19 @@ public class ProductListPanel extends Panel {
 		
 		//서브 카테고리 수만큼 반복하면서, 두번째 콤포박스에 SubCategory 모델을 채워넣기 
 		for(int i=0;i<detail.size();i++) {
-			CategoryDetail categoryDetail=detail.get(i);//i번째 요소 꺼내기
+			CategoryDetail categoryDetail = detail.get(i);//i번째 요소 꺼내기
 			cbCategoryDetail.addItem(categoryDetail);
 		}
 	};
+	
+	// Edit 전용 하위 카테고리 채우기 메서드
+	private void fillCategoryDetailForEdit(Category selectedCategory, JComboBox<CategoryDetail> cbCategoryDetail) {
+	    List<CategoryDetail> detailList = categoryDetailDAO.selectByCategoryId(selectedCategory.getCt_id());
+	    cbCategoryDetail.removeAllItems();
+	    for (CategoryDetail detail : detailList) {
+	        cbCategoryDetail.addItem(detail);
+	    }
+	}
 	
 	public void insert() {
 		// mysql에서 트랜잭션이 적용되려면, 4개의 DAO 모두 같은 Connection이어야 한다

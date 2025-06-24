@@ -283,11 +283,8 @@ public class ProductDAO {
 		return pk;
 	}
     
-    public void update(Product product) throws SQLException {
-    	Connection con=null;
+    public void update(Product product, Connection con) throws SQLException {
 		PreparedStatement pstmt=null;
-		
-		con=dbManager.getConnection();
         StringBuffer sql = new StringBuffer();
         sql.append("UPDATE product SET product_name = ?, ct_id = ?, ct_dt_id = ?, bd_id = ? WHERE product_id = ?");
         try {
@@ -306,9 +303,9 @@ public class ProductDAO {
     }
 
     // 상품 삭제
-    public void delete(int product_id) throws SQLException {
-    	Connection con=null;
+    public void delete(int product_id, Connection con) throws SQLException {
 		PreparedStatement pstmt=null;
+		
         StringBuffer sql = new StringBuffer();
         sql.append("DELETE FROM product WHERE product_id = ?");
         try {
