@@ -15,6 +15,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 import com.olive.common.config.Config;
 import com.olive.common.util.TableUtil;
@@ -42,7 +43,7 @@ public class StockIBPanel extends Panel{
         // 상단 패널
         JPanel topPanel = new JPanel(new BorderLayout());
         StockConfig.panelStyle(topPanel);
-        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(30, 27, 10, 20));
 
         JLabel titleLabel = new JLabel("재고 입고 기록");
         LabelUtil.applyTitleStyle(titleLabel);
@@ -98,16 +99,36 @@ public class StockIBPanel extends Panel{
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setBackground(Color.WHITE);
+        TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
         
-        // 전체 조립
+        // 테이블 header 스타일 추가적으로 적용 가능
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Config.LIGHT_GREEN);
+        header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
+        header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
+        header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+
+        // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
+        JPanel scrollWrapper = new JPanel(new BorderLayout());
+        scrollWrapper.setBackground(Config.WHITE);
+
+        // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
+        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(50, 25, 10, 25));
+
+        scrollWrapper.add(scroll, BorderLayout.CENTER);
+        
+        // 전체 레이아웃 조립
         JPanel topContainer = new JPanel(new BorderLayout());
         topContainer.setOpaque(false);
         topContainer.add(topPanel, BorderLayout.NORTH);
         topContainer.add(buttonPanel, BorderLayout.CENTER);
 
+        // 레이아웃은 BorderLayout 유지
+        setLayout(new BorderLayout());
+        setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
+
         add(topContainer, BorderLayout.NORTH);
-        add(scroll, BorderLayout.CENTER);
-        
+        add(scrollWrapper, BorderLayout.CENTER);
         //버튼 기능 구현
         btnDateAsc.addActionListener(e -> {
             model.sortByDateAsc();

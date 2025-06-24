@@ -68,7 +68,7 @@ public class StockCatPanel extends Panel {
         // 상단 패널
         JPanel topPanel = new JPanel(new BorderLayout());
         StockConfig.panelStyle(topPanel);
-        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        topPanel.setBorder(BorderFactory.createEmptyBorder(30, 27, 10, 20));
 
         // 제목 라벨
         JLabel titleLabel = new JLabel("카테고리별 재고 확인");
@@ -82,7 +82,7 @@ public class StockCatPanel extends Panel {
         comboPanel.setOpaque(false);
 
         cb_category = new JComboBox<>();
-        cb_category.setPreferredSize(new Dimension(200, 30));
+        cb_category.setPreferredSize(new Dimension(190, 30));
         cb_category.setFont(new Font("SansSerif", Font.PLAIN, 14));
         cb_category.setBackground(Config.LIGHT_GREEN);
         cb_category.setForeground(Color.DARK_GRAY);
@@ -95,27 +95,42 @@ public class StockCatPanel extends Panel {
         model = new ListModel("now", user);
         table = new JTable(model);
 
-        // 테이블 스타일 적용
-        TableUtil.applyStyle(table);
-
-        // 테이블 셀 가운데 정렬
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        
-        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+        // JScrollPane 생성
+        JScrollPane scroll = new JScrollPane(table);
+        TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
+        int[] columnWidths = {125, 100, 125, 215, 90, 80, 80, 110};
         
         for (int i = 0; i < table.getColumnCount(); i++) {
         	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
+       
+        // 테이블 header 스타일 추가적으로 적용 가능
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Config.LIGHT_GREEN);
+        header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
+        header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
+        header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.getViewport().setBackground(Color.WHITE);
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+  		for (int i = 0; i < table.getColumnCount(); i++) {
+  			table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+     		}
+        
+        // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
+        JPanel scrollWrapper = new JPanel(new BorderLayout());
+        scrollWrapper.setBackground(Config.WHITE);
 
+        // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
+        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(35, 25, 10, 25));
+        comboPanel.setBorder(BorderFactory.createEmptyBorder(35, 0, 0, 20));
+        
+        scrollWrapper.add(scroll, BorderLayout.CENTER);
+        
         // 전체 레이아웃 구성
         add(topPanel, BorderLayout.NORTH);
         add(comboPanel, BorderLayout.EAST);
-        add(scroll, BorderLayout.CENTER);
+        add(scrollWrapper, BorderLayout.CENTER);
 
         // 콤보박스 이벤트 연결
         cb_category.addItemListener(new ItemListener() {

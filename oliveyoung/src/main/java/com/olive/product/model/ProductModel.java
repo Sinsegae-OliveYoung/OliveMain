@@ -12,7 +12,7 @@ import com.olive.common.repository.StockLogDAO;
 
 public class ProductModel extends AbstractTableModel {
 
-    String[] column = {"상품코드", "브랜드명", "상품명", "상품분류", "가격", "활성화"};
+    String[] column = {"상품코드", "브랜드명", "상품명", "상품분류","상세분류","옵션명", "가격", "활성화"};
     List<ProductOption> list;
     User user;
     
@@ -56,9 +56,11 @@ public class ProductModel extends AbstractTableModel {
             case 0: return option.getOption_code();
             case 1: return option.getProduct().getBrand().getBd_name();
             case 2: return option.getProduct().getProduct_name();
-            case 3: return option.getProduct().getCategory_detail().getCt_dt_name();
-            case 4: return option.getPrice();
-            case 5: return option.getOption_active().equals("y") ? "활성" : "비활성";
+            case 3: return option.getProduct().getCategory().getCt_name();
+            case 4: return option.getProduct().getCategory_detail().getCt_dt_name();
+            case 5: return option.getOption_name();
+            case 6: return option.getPrice();
+            case 7: return option.getOption_active().equals("y") ? "활성" : "비활성";
         }
         return null;
     }

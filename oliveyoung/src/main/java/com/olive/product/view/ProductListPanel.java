@@ -134,9 +134,7 @@ public class ProductListPanel extends Panel {
             btn.setAlignmentX(JButton.CENTER_ALIGNMENT);
             btn.setFont(buttonFont);
             ButtonUtil.applyDefaultStyle(btn);
-//            btn.setForeground(buttonText);
             btn.setFocusPainted(false);
-//            btn.setBorder(BorderFactory.createLineBorder(new Color(150, 200, 120)));
             btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             buttonPanel.add(btn);
             buttonPanel.add(Box.createRigidArea(new Dimension(0, 30)));
@@ -154,6 +152,12 @@ public class ProductListPanel extends Panel {
                 // 선택된 행의 Product 객체 얻기
                 ProductOption selectedOption = model.getProductOptionAt(table.getSelectedRow());
                 Product selectedProduct = selectedOption.getProduct();
+                
+                System.out.println(selectedProduct.getCategory().getCt_id());
+                System.out.println(selectedProduct.getCategory().getCt_name());
+                System.out.println(selectedProduct.getCategory_detail().getCt_dt_code());
+                System.out.println(selectedProduct.getCategory_detail().getCt_dt_id());
+                System.out.println(selectedProduct.getCategory_detail().getCt_dt_name());
 
                 JDialog dialog = new JDialog();
                 dialog.setTitle("상품 수정");
@@ -169,30 +173,39 @@ public class ProductListPanel extends Panel {
 
                 JLabel lblBrand = new JLabel("브랜드명:");
                 cbBrand = new JComboBox<>();
+                cbBrand.setPreferredSize(new Dimension(200, 30));
                 for (Brand b : new BrandDAO().selectAll()) cbBrand.addItem(b);
                 cbBrand.setSelectedItem(selectedProduct.getBrand());
 
                 JLabel lblName = new JLabel("상품명:");
                 tfName = new JTextField(selectedProduct.getProduct_name());
+                tfName.setPreferredSize(new Dimension(200, 30));
 
                 JLabel lblCategory = new JLabel("카테고리:");
                 JComboBox<Category> editCbCategory = new JComboBox<>();
+                editCbCategory.setPreferredSize(new Dimension(200, 30));
                 for (Category c : new CategoryDAO().selectAll()) editCbCategory.addItem(c);
-                editCbCategory.setSelectedItem(selectedProduct.getCategory());
+            
+                Category category = new CategoryDAO().selectById(selectedProduct.getCategory().getCt_id());
+                editCbCategory.setSelectedItem(category);
 
                 JLabel lblCategoryDetail = new JLabel("상세 카테고리:");
                 JComboBox<CategoryDetail> editCbCategoryDetail = new JComboBox<>();
+                editCbCategoryDetail.setPreferredSize(new Dimension(200, 30));
                 editCbCategoryDetail.setSelectedItem(selectedProduct.getCategory_detail());
 
                 JLabel lblOptionName = new JLabel("옵션명:");
                 tfOptionName = new JTextField(selectedOption.getOption_name());
+                tfOptionName.setPreferredSize(new Dimension(200, 30));
 
                 JLabel lblPrice = new JLabel("가격:");
                 tfPrice = new JTextField(String.valueOf(selectedOption.getPrice()));
+                tfPrice.setPreferredSize(new Dimension(200, 30));
 
                 JLabel lblActive = new JLabel("활성화:");
                 cbActive = new JComboBox<>(new String[]{"y", "n"});
                 cbActive.setSelectedItem(selectedOption.getOption_active());
+                cbActive.setPreferredSize(new Dimension(200, 30));
                 
                 // 카테고리 변경 시 상세 카테고리 동기화
                 editCbCategory.addItemListener(new ItemListener() {
@@ -220,7 +233,7 @@ public class ProductListPanel extends Panel {
                 cbActive.setRenderer(centerRenderer);
                 
                 // 스타일
-                Color labelColor = Config.WHITE;
+                Color labelColor = new Color(60, 60, 60);
 
                 contentPanel.setBackground(Config.WHITE); 
                 lblBrand.setForeground(labelColor);
@@ -402,12 +415,17 @@ public class ProductListPanel extends Panel {
         model = new ProductModel(mainLayout.user);
         table = new JTable(model);
 
-        TableUtil.applyStyle(table);
+        // 테이블 header 스타일 추가적으로 적용 가능
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Config.LIGHT_GREEN);
+        header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
+        header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
+        header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        int[] columnWidths = {130, 150, 200, 80, 80, 70};
+        int[] columnWidths = {110, 110, 200, 70, 80, 80, 70, 70};
 
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
@@ -417,12 +435,19 @@ public class ProductListPanel extends Panel {
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBackground(Config.WHITE);  // scroll 자체도 같은 배경색으로
         scroll.getViewport().setBackground(Config.WHITE); 
-        scroll.setBorder(BorderFactory.createEmptyBorder(30, 15, 0, 10));
+
+        // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
+        JPanel scrollWrapper = new JPanel(new BorderLayout());
+        scrollWrapper.setBackground(Config.WHITE);
+    	scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         
+        scrollWrapper.add(scroll, BorderLayout.CENTER);
+        
+        TableUtil.tableStyleUtil(table, scroll, 700, true);
 
         add(titlePanel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.EAST);
-        add(scroll, BorderLayout.CENTER);
+        add(scrollWrapper, BorderLayout.CENTER);
 
         btnAdd.addActionListener(new ActionListener() {
             @Override
@@ -497,7 +522,7 @@ public class ProductListPanel extends Panel {
                 cbActive.setRenderer(centerRenderer);
                 
                 // 스타일
-                Color dialogBgColor = new Color(250, 252, 255);
+                Color dialogBgColor = Config.WHITE;
                 Color labelColor = new Color(60, 60, 60);
 
                 contentPanel.setBackground(dialogBgColor);
@@ -723,7 +748,7 @@ public class ProductListPanel extends Panel {
 				optionNum = 99;
 			}
 			productOption.setOption_no(optionNum);
-			
+			 
 			productOptionDAO.insert(productOption);
 			
 			con.commit();
