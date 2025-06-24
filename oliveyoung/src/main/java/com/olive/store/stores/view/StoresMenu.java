@@ -85,11 +85,8 @@ public class StoresMenu extends Panel {
 		lb_bottom.setHorizontalAlignment(JLabel.RIGHT);
 		
 		/* 테이블 설정 */
-		storePage.tableStyleUtil(table);
-
-		scroll.setBorder(BorderFactory.createEmptyBorder());
-		scroll.getViewport().setBackground(Config.WHITE);
-		scroll.setPreferredSize(new Dimension(Config.CONTENT_W - 100, 490));
+		storePage.tableStyleUtil(table, scroll, 490);
+        table.setCellSelectionEnabled(false);	// 행 선택 불가
 
 		// assemble
 		p_title.add(lb_title);
@@ -110,7 +107,7 @@ public class StoresMenu extends Panel {
 		storesModel.fireTableDataChanged();
 		table.revalidate();
 		table.repaint();
-		storePage.tableStyleUtil(table);
+		storePage.tableStyleUtil(table, scroll, 490);
 	}
 	
 }

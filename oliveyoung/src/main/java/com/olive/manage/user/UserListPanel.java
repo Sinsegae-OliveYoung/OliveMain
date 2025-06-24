@@ -149,7 +149,7 @@ public class UserListPanel extends BasePanel{
 		t_name.setPreferredSize(new Dimension(100, 30));
 		p_filter.add(t_name);
 		
-		bt_search = ButtonUtil.createDefaultButton("검색");
+		bt_search = ButtonUtil.greenButtonUtil("검색");
 		bt_search.setPreferredSize(new Dimension(60, 30));
 		p_filter.add(bt_search);
 		
