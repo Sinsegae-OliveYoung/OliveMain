@@ -316,7 +316,6 @@ public class OutboundShowPanel extends Panel{
         
         // 전체 레이아웃 구성
         add(topPanel, BorderLayout.NORTH);
-//        add(Box.createHorizontalStrut(10));
         add(p_center, BorderLayout.CENTER);
         
         
