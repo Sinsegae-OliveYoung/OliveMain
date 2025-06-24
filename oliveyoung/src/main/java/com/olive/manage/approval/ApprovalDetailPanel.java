@@ -8,6 +8,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Date;
 import java.time.LocalDate;
 
@@ -29,6 +31,7 @@ import com.olive.common.model.BoundState;
 import com.olive.common.model.User;
 import com.olive.common.repository.BoundDAO;
 import com.olive.common.repository.BoundStateDAO;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.TableUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.manage.BasePanel;
@@ -140,13 +143,14 @@ public class ApprovalDetailPanel extends BasePanel{
 		ta_memo.setBackground(Config.LIGHT_GREEN);
 		ta_memo.setMargin(new Insets(5, 5, 5, 5)); // top, left, bottom, right
 		ta_memo.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 글꼴, 스타일, 크기
+		ta_memo.setEditable(false);
 		p_south.add(ta_memo);
 		
 		p_button = new JPanel();
 		p_button.setBackground(Color.white);
-		bt_approve = new JButton("승인");
+		bt_approve = ButtonUtil.createDefaultButton("승인");
 		p_button.add(bt_approve);
-		bt_reject = new JButton("반려");
+		bt_reject = ButtonUtil.createDefaultButton("반려");
 		p_button.add(bt_reject);
 		p_content.add(p_button);
 		p_button.setVisible(false);
@@ -207,7 +211,10 @@ public class ApprovalDetailPanel extends BasePanel{
 			}
 		});
 		
+
+		
 		bt_reject.addActionListener(e -> {
+			
 			int result = JOptionPane.showConfirmDialog(this, "요청을 반려 처리 하시겠습니까?", "확인", JOptionPane.YES_NO_OPTION);
 			if(result == JOptionPane.OK_OPTION) {
 				String reason = JOptionPane.showInputDialog(this, "사유를 입력하세요.");
@@ -220,6 +227,12 @@ public class ApprovalDetailPanel extends BasePanel{
 					setBound(bound);
 					boundDAO.update(bound);
 				}
+			}
+		});
+		bt_reject.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				bt_reject.setBackground(Config.PINK);
 			}
 		});
 		
@@ -264,10 +277,6 @@ public class ApprovalDetailPanel extends BasePanel{
 		else {
 			lb_confirm.setText("승인됨");
 		}
-
 	}
 	
-	
-	
-
 }

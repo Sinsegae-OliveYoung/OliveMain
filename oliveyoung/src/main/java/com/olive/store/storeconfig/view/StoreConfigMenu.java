@@ -45,19 +45,19 @@ public class StoreConfigMenu extends Panel {
 	JButton bt_edit;
 	JButton bt_delete;
 
-	JTable table;
+	static JTable table;
 	JScrollPane scroll;
 
 	RegistFrame registFrame;
 	EditFrame editFrame;
-	
-	public StoreConfigModel storeConfigModel;
+
+	public static StoreConfigModel storeConfigModel;
 	Branch selectedBranch; // 선택된 테이블 행값을 저장
 
 	DBManager dbManager = DBManager.getInstance();
 	BranchDAO branchDAO;
-	StorePage storePage;
-	
+	private StorePage storePage;
+
 	public StoreConfigMenu(MainLayout mainLayout, StorePage storePage) {
 		super(mainLayout);
 		this.storePage = storePage;
@@ -75,7 +75,7 @@ public class StoreConfigMenu extends Panel {
 		scroll = new JScrollPane(table);
 
 		branchDAO = new BranchDAO();
-		
+
 		// style
 		setLayout(new FlowLayout());
 		setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
@@ -189,13 +189,15 @@ public class StoreConfigMenu extends Panel {
 						registFrame = new RegistFrame(storePage, StoreConfigMenu.this);
 					else if (source == bt_edit) {
 						if (selectedBranch != null)
-							editFrame = new EditFrame(storePage, StoreConfigMenu.this, selectedBranch);
+							editFrame = new EditFrame(mainLayout, storePage, StoreConfigMenu.this, selectedBranch);
 						else
 							JOptionPane.showMessageDialog(StoreConfigMenu.this, "수정할 지점을 선택해주세요");
 					} else if (source == bt_delete) {
 						if (selectedBranch != null) {
-							int result = JOptionPane.showConfirmDialog(StoreConfigMenu.this, "정말 삭제하시겠습니까?", "중요", JOptionPane.YES_NO_OPTION);
-							if (result == JOptionPane.YES_OPTION) delete();
+							int result = JOptionPane.showConfirmDialog(StoreConfigMenu.this, "정말 삭제하시겠습니까?", "중요",
+									JOptionPane.YES_NO_OPTION);
+							if (result == JOptionPane.YES_OPTION)
+								delete();
 						} else
 							JOptionPane.showMessageDialog(StoreConfigMenu.this, "삭제할 지점을 선택해주세요");
 					}
@@ -204,46 +206,26 @@ public class StoreConfigMenu extends Panel {
 		}
 	}
 	
+	
+	// 테이블 로드 및 출력
 	public void loadData() {
 		storeConfigModel.list = storeConfigModel.branchDAO.selectBranch();
 		storeConfigModel.fireTableDataChanged();
 		table.revalidate();
 		table.repaint();
+		storePage.tableStyleUtil(table);
 	}
-	
+
 	// 테이블의 한 행값을 삭제
 	public void delete() {
-		Connection con = dbManager.getConnection();
-		try {
-			con.setAutoCommit(false);
-			
-			Branch branch = new Branch();
-			branch.setBr_id(selectedBranch.getBr_id());
-			
-			branchDAO.delete(branch);
-					
-			con.commit();
-			JOptionPane.showMessageDialog(this, "지점이 삭제되었습니다");
-			loadData();
-			
-			 ((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
-			 storePage.showPanel(0);
-		} catch (BranchException | UserException e) {
-			try {
-				con.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			e.printStackTrace();														
-			JOptionPane.showMessageDialog(this, e.getMessage());	
-		}	catch (SQLException e) {
-			e.printStackTrace();
-		}	finally {
-			try {
-				con.setAutoCommit(true);
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
+		Branch branch = new Branch();
+		branch.setBr_id(selectedBranch.getBr_id());		// 선택된 지점의 id값을 가져옴
+		branchDAO.delete(branch, mainLayout.user);	// 쿼리문 날리기
+		
+		JOptionPane.showMessageDialog(this, "지점이 삭제되었습니다");
+		loadData();	// 테이블 재출력
+		((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
+		storePage.showPanel(0);	// 삭제 후 보여줄 페이지 설정
 	}
+
 }

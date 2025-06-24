@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
 
@@ -29,7 +30,7 @@ public abstract class BasePanel extends Panel{
 		add(p_top, BorderLayout.NORTH);
 		
 		//뒤로가기 버튼 
-		bt_back = new JButton("<");
+		bt_back = ButtonUtil.createTransparentButton("<");
 		p_top.add(bt_back);
 		
 		// 상단 타이틀
