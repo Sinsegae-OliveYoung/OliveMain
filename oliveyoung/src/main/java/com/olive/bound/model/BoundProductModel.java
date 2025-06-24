@@ -22,15 +22,18 @@ public class BoundProductModel extends AbstractTableModel {
         }
     }
 
+    // 새 상품 단독 추가만 수행
     public void addProduct(BoundProduct bp) {
         for (RequestItem item : requestList) {
-            if (item.boundProduct.getProductOption().getOption_code().equals(bp.getProductOption().getOption_code())) {
-                item.quantity++;
+            if (item.boundProduct.getProductOption().getOption_code()
+                  .equals(bp.getProductOption().getOption_code())) {
+                item.quantity++; // 수량만 증가
                 fireTableDataChanged();
                 return;
             }
         }
-        requestList.add(new RequestItem(bp, 1));
+        // 처음 추가되는 경우
+        requestList.add(new RequestItem(bp, bp.getB_count()));
         fireTableDataChanged();
     }
 
@@ -70,11 +73,25 @@ public class BoundProductModel extends AbstractTableModel {
         if (columnIndex == 2) {
             try {
                 int newQuantity = Integer.parseInt(aValue.toString());
-                if (newQuantity >= 0) {
+                if (newQuantity > 0) {
                     requestList.get(rowIndex).quantity = newQuantity;
                     fireTableCellUpdated(rowIndex, columnIndex);
+                } else {
+                    requestList.remove(rowIndex);
+                    fireTableRowsDeleted(rowIndex, rowIndex); // ✅ 이걸로만 호출해야 함
                 }
             } catch (NumberFormatException ignored) {}
+        }
+    }
+
+    // UI 업데이트 용도
+    public void updateQuantityByOptionId(int optionId, int newQuantity) {
+        for (RequestItem item : requestList) {
+            if (item.boundProduct.getProductOption().getOption_id() == optionId) {
+                item.quantity = newQuantity;
+                fireTableDataChanged();
+                break;
+            }
         }
     }
 
@@ -87,6 +104,14 @@ public class BoundProductModel extends AbstractTableModel {
             result.add(bp);
         }
         return result;
+    }
+    
+    // 0 입력시 요청 컬럼 삭제
+    public void removeRow(int rowIndex) {
+        if (rowIndex >= 0 && rowIndex < requestList.size()) {
+            requestList.remove(rowIndex);
+            fireTableDataChanged();
+        }
     }
 
     public void clear() {
