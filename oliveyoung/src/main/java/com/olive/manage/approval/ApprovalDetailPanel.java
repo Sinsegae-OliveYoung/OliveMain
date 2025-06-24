@@ -117,7 +117,7 @@ public class ApprovalDetailPanel extends BasePanel{
 		lb_items.setPreferredSize(d);
 		p_center.add(lb_items);
 		
-		model = new BoundProductEditModel(1);  // 최초 생성 시 임시 bound 값 
+		model = new BoundProductEditModel(1, false);  // 최초 생성 시 임시 bound 값 
 		table = new JTable(model);
 		TableUtil.applyStyle(table);
 		
@@ -257,7 +257,7 @@ public class ApprovalDetailPanel extends BasePanel{
 		lb_requestDate.setText( "요청일                " + bound.getRequest_date().toString());
 		lb_status.setText(      "요청 상태            " + bound.getBoundState().getBo_state_name());
 		// 테이블 모델 갱신
-		model = new BoundProductEditModel(bound.getBound_id());
+		model = new BoundProductEditModel(bound.getBound_id(), false);
 		table.setModel(model); // 모델만 교체
 		
 		if(bound.getBoundState().getBo_state_id() == 1) {

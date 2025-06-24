@@ -17,12 +17,15 @@ public class BoundProductEditModel extends AbstractTableModel{
 	public List<BoundProduct> list;
 	List<Stock> stockList;
 	
+	boolean editFlag;
+	
 	Map<Integer, Integer> stockMap = new HashMap<>(); // option_id → 재고수량
 	
 	String[] column = {"카테고리", "상세카테고리", "브랜드", "제품명",  "호수",  "가격", "재고수량", "요청수량"	};
 	
 	// 요청서 id로 해당 지점의 재고 및 요청서의 제품 정보 가져오기
 	public BoundProductEditModel(int bound_id) {
+		this.editFlag = true;
 		boundDAO = new BoundDAO();
         this.list = boundDAO.boundEditProduct(bound_id); // BoundProduct만 리턴
 
@@ -31,6 +34,11 @@ public class BoundProductEditModel extends AbstractTableModel{
         for (Stock stock : stockList) {
             stockMap.put(stock.getProductOption().getOption_id(), stock.getSt_quantity());
         }
+    }
+	
+	public BoundProductEditModel(int bound_id, boolean editFlag) {
+		this(bound_id);
+		this.editFlag = editFlag;
     }
 
 	@Override
@@ -57,7 +65,7 @@ public class BoundProductEditModel extends AbstractTableModel{
 	// 요청수량 클릭시 변경가능하도록
 	@Override
 	public boolean isCellEditable(int row, int column) {
-	    return column == 7; // 요청수량 컬럼만 수정 가능
+	    return editFlag && column == 7; // 요청수량 컬럼만 수정 가능
 	}
 	
 	@Override
