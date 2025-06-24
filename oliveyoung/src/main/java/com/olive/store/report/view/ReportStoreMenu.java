@@ -208,11 +208,18 @@ public class ReportStoreMenu extends Panel {
 		renderer.setSeriesShapesVisible(0, false); // 첫번째 데이터: 도형 활성화
 		plot.setRenderer(renderer);
 
-		renderer.setSeriesPaint(1, Config.GREEN); // 첫번째 데이터: 색상
-		renderer.setSeriesStroke(1, new BasicStroke(2.0f)); // 첫번째 데이터: 선 스타일
-		renderer.setSeriesLinesVisible(1, true); // 첫번째 데이터: 선 활성화
-		renderer.setSeriesShape(1, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0)); // 첫번째 데이터: 도형 스타일
-		renderer.setSeriesShapesVisible(1, false); // 첫번째 데이터: 도형 활성화
+		renderer.setSeriesPaint(1, Config.GREEN); // 두번째 데이터: 색상
+		renderer.setSeriesStroke(1, new BasicStroke(2.0f)); // 두번째 데이터: 선 스타일
+		renderer.setSeriesLinesVisible(1, true); // 두번째 데이터: 선 활성화
+		renderer.setSeriesShape(1, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0)); // 두번째 데이터: 도형 스타일
+		renderer.setSeriesShapesVisible(1, false); // 두번째 데이터: 도형 활성화
+		plot.setRenderer(renderer);
+
+		renderer.setSeriesPaint(2, Config.LIGHT_GREEN); // 세번째 데이터: 색상
+		renderer.setSeriesStroke(2, new BasicStroke(2.0f)); // 세번째 데이터: 선 스타일
+		renderer.setSeriesLinesVisible(2, true); // 세번째 데이터: 선 활성화
+		renderer.setSeriesShape(2, new Ellipse2D.Double(-3.0, -3.0, 6.0, 6.0)); // 세번째 데이터: 도형 스타일
+		renderer.setSeriesShapesVisible(2, false); // 세번째 데이터: 도형 활성화
 		plot.setRenderer(renderer);
 
 		// x축 범례 세팅
@@ -229,6 +236,10 @@ public class ReportStoreMenu extends Panel {
 		return chart;
 	}
 
+	public void loadData() {
+		chart.getXYPlot().setDataset(createSalesDataset(year));
+	}
+	
 	// 콤보박스에 모든 년도 추가
 	public void setCombobox() {
 		Set<Integer> yearSet = new HashSet<>(); // 중복 방지를 위한 Set 변수

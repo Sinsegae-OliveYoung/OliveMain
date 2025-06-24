@@ -28,10 +28,7 @@ import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
-<<<<<<< HEAD
 import com.olive.common.util.style.ComboBoxUtil;
-=======
->>>>>>> develop
 import com.olive.store.StorePage;
 import com.olive.store.storeconfig.view.StoreConfigMenu;
 
@@ -171,21 +168,12 @@ public class RegistFrame extends JFrame {
 					boolean cellHasFocus) {
 				if (value instanceof User) {
 					User user = (User) value;
-<<<<<<< HEAD
 					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
 						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
-=======
-//					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
-//						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
->>>>>>> develop
 				}
 				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			}
 		});
-<<<<<<< HEAD
-=======
-//			cb_userNo.addItem(user.getUser_no() + " - " + user.getUser_name().toString());
->>>>>>> develop
 	}
 
 	// 한 개의 지점 등록

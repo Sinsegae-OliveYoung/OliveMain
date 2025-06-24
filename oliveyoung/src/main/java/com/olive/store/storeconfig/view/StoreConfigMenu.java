@@ -45,18 +45,18 @@ public class StoreConfigMenu extends Panel {
 	JButton bt_edit;
 	JButton bt_delete;
 
-	JTable table;
+	static JTable table;
 	JScrollPane scroll;
 
 	RegistFrame registFrame;
 	EditFrame editFrame;
 
-	public StoreConfigModel storeConfigModel;
+	public static StoreConfigModel storeConfigModel;
 	Branch selectedBranch; // 선택된 테이블 행값을 저장
 
 	DBManager dbManager = DBManager.getInstance();
 	BranchDAO branchDAO;
-	StorePage storePage;
+	private StorePage storePage;
 
 	public StoreConfigMenu(MainLayout mainLayout, StorePage storePage) {
 		super(mainLayout);
@@ -132,9 +132,6 @@ public class StoreConfigMenu extends Panel {
 		table.setSelectionBackground(Config.LIGHT_GRAY); // 선택된 행 배경색
 		table.setSelectionForeground(Color.BLACK); // 선택된 행 텍스트 색
 
-		// 헤더 표시 문제 방지
-		// table.setFillsViewportHeight(true); // 중요
-
 		// 행 높이
 		table.setRowHeight(30);
 		// 열 너비
@@ -154,7 +151,6 @@ public class StoreConfigMenu extends Panel {
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		scroll.getViewport().setBackground(Config.WHITE);
 		scroll.setPreferredSize(new Dimension(Config.CONTENT_W - 100, 530));
-		// scroll.setColumnHeaderView(table.getTableHeader());
 
 		// assemble
 		p_title.add(lb_title);
@@ -211,13 +207,13 @@ public class StoreConfigMenu extends Panel {
 	}
 	
 	
-
 	// 테이블 로드 및 출력
 	public void loadData() {
 		storeConfigModel.list = storeConfigModel.branchDAO.selectBranch();
 		storeConfigModel.fireTableDataChanged();
 		table.revalidate();
 		table.repaint();
+		storePage.tableStyleUtil(table);
 	}
 
 	// 테이블의 한 행값을 삭제
@@ -231,6 +227,5 @@ public class StoreConfigMenu extends Panel {
 		((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
 		storePage.showPanel(0);	// 삭제 후 보여줄 페이지 설정
 	}
-	
-	
+
 }

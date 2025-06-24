@@ -228,6 +228,10 @@ public class ReportTotalMenu extends Panel {
 		return chart;
 	}
 
+	public void loadData() {
+		chart.getXYPlot().setDataset(createSalesDataset(year));
+	}
+	
 	// 콤보박스에 모든 년도 추가
 	public void setCombobox() {
 		Set<Integer> yearSet = new HashSet<>(); // 중복 방지를 위한 Set 변수

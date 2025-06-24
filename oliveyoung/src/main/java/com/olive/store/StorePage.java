@@ -16,6 +16,11 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
@@ -98,14 +103,26 @@ public class StorePage extends Page {
 			mn_store_config.setFont(new Font("Noto Sans KR", Font.BOLD, 18)); // 크기가 달라 따로 스타일 지정
 			btn.addActionListener(e -> {
 				JButton source = (JButton) e.getSource(); // 클릭된 버튼 변수 선언
-				if (source == mn_store_config && roleId == 1)
+				if (source == mn_store_config && roleId == 1) {
+					StoreConfigMenu storeConfigMenu = (StoreConfigMenu) panels[0];
+					storeConfigMenu.loadData();
 					showPanel(0);
-				else if (source == mn_report_total)
+				}
+				else if (source == mn_report_total) {
+					ReportTotalMenu reportTotalMenu = (ReportTotalMenu) panels[index];
+					reportTotalMenu.loadData();
 					showPanel(index);
-				else if (source == mn_report_product)
+				}
+				else if (source == mn_report_product) {
+					ReportProductMenu reportProductMenu = (ReportProductMenu) panels[index+1];
+					reportProductMenu.loadData();
 					showPanel(index + 1);
-				else if (source == mn_report_store && roleId == 1)
+				}
+				else if (source == mn_report_store && roleId == 1) {
+					ReportStoreMenu reportStoreMenu = (ReportStoreMenu) panels[index+2];
+					reportStoreMenu.loadData();
 					showPanel(index + 2);
+				}
 				else
 					JOptionPane.showMessageDialog(StorePage.this, "권한이 없습니다");
 			});
@@ -136,8 +153,11 @@ public class StorePage extends Page {
 
 			final int panelIndex = index++;	// 버튼 하나당 소유할 패널값 선언
 			branchBtn.addActionListener(e -> {
-				if (userBranches.contains(allBranch)) // 유저의 지점 중 선택된 지점이 포함된다면
+				if (userBranches.contains(allBranch)) {// 유저의 지점 중 선택된 지점이 포함된다면
+					StoresMenu storesMenu = (StoresMenu) panels[panelIndex];
+					storesMenu.loadData();
 					showPanel(panelIndex); // 해당 패널로 이동
+				}
 				else
 					JOptionPane.showMessageDialog(StorePage.this, "권한이 없습니다"); // 아닐 시 거부
 			});
@@ -194,7 +214,7 @@ public class StorePage extends Page {
 
 		int n = 1; // 이미 등록된 메뉴 이후 인덱스부터 등록
 		for (Branch branch : branches) {
-			panels[n++] = new StoresMenu(mainLayout, branch.getBr_name());
+			panels[n++] = new StoresMenu(mainLayout, this, branch.getBr_name());
 		}
 
 		// 각 보고서 메뉴 부착
@@ -210,6 +230,43 @@ public class StorePage extends Page {
 	public void showPanel(int target) {
 		for (int i = 0; i < panels.length; i++)
 			panels[i].setVisible((i == target) ? true : false);
+	}
+
+	public void tableStyleUtil(JTable table){
+		// 테이블 헤더
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Config.LIGHT_GREEN);
+        header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
+        header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
+        header.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+        //header.setBorder(BorderFactory.createMatteBorder(1, 1,0, 1, Color.GRAY));
+        header.setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
+        
+        table.setGridColor(Color.WHITE);
+        //table.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.LIGHT_GRAY));
+        table.setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
+        table.setCellSelectionEnabled(false);	// 행 선택 불가
+        table.setRequestFocusEnabled(false);	// 셀 선택 불가
+		table.setBackground(Config.WHITE);	// 셀 배경색
+		table.setFont(new Font("Noto Sans KR", Font.PLAIN, 13));
+		
+        // 행 높이
+        table.setRowHeight(30);
+        // 열 너비
+        table.getColumnModel().getColumn(0).setPreferredWidth(40);
+        table.getColumnModel().getColumn(1).setPreferredWidth(60);
+        table.getColumnModel().getColumn(2).setPreferredWidth(60);
+        table.getColumnModel().getColumn(3).setPreferredWidth(300);
+        table.getColumnModel().getColumn(4).setPreferredWidth(30);
+        if (table.getColumnCount() >= 6)
+        	table.getColumnModel().getColumn(5).setPreferredWidth(40);
+        
+		// 셀 글자 정렬
+		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
+		dtcr.setHorizontalAlignment(SwingConstants.CENTER);
+		TableColumnModel tcm = table.getColumnModel();
+		for (int i = 0; i < tcm.getColumnCount(); i++)
+			tcm.getColumn(i).setCellRenderer(dtcr);
 	}
 
 }

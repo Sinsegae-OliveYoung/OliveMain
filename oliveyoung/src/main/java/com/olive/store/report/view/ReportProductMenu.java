@@ -6,10 +6,13 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Paint;
 import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -49,12 +52,12 @@ public class ReportProductMenu extends Panel {
 	JLabel lb_title;
 
 	JPanel p_combo;
-	JComboBox<String> cb_months;
+	public JComboBox<String> cb_months;
 	String[] cb_items = {"최근 3개월", "최근 6개월", "최근 12개월"};
 	
 	JPanel p_content;
 	CategoryDataset dataset; 		// 데이터 집합
-	JFreeChart chart; 					// 데이터 집합을 포함하는 차트
+	public JFreeChart chart; 					// 데이터 집합을 포함하는 차트
 	ChartPanel chartPanel; 			// 차트 전용 패널
 
 	OutBoundDAO outBoundDAO;
@@ -139,13 +142,22 @@ public class ReportProductMenu extends Panel {
 		});
 	}
 
-	private CategoryDataset createDataset(int months) {
+	public CategoryDataset createDataset(int months) {
 		productList = outBoundDAO.getTopProduct(months);
 		
+		// 리스트 초기화
+		productName.clear();
+		quantities.clear();
+		
+		Set<String> nameSet = new HashSet<>();		// 중복 방지를 위한 이름 값을 저장할 set 변수 선언
+		
 		for (Map<String, String> topProduct : productList) {
-			String name = topProduct.get("Name");
+			String name = topProduct.get("Name");		
+			
+			if (nameSet.contains(name)) continue;	// 중복된 데이터가 있으면 무시함
 			double quantity = Double.parseDouble(topProduct.get("Quantity"));
 			
+			nameSet.add(name);		// 중복 방지를 위해 이름 데이터 삽입
 			productName.add(name);
 			quantities.add(quantity);
 		}
@@ -160,7 +172,7 @@ public class ReportProductMenu extends Panel {
         return DatasetUtilities.createCategoryDataset(key, names, data);
 	}
 
-	private JFreeChart createChart(CategoryDataset dataset) {
+	public JFreeChart createChart(CategoryDataset dataset) {
 
 		JFreeChart chart = ChartFactory.createBarChart("", "", "판매 수량", dataset, PlotOrientation.VERTICAL, false, true,
 				false);
@@ -196,7 +208,19 @@ public class ReportProductMenu extends Panel {
 		return chart;
 
 	}
-
+	
+	public void loadData() {
+		ItemListener[] listeners = cb_months.getItemListeners();
+		for (ItemListener listener : listeners)
+			cb_months.removeItemListener(listener);		// 리스너 잠시 없애기
+		
+		cb_months.setSelectedIndex(0);		// 기본 선택값 0으로 초기화
+		chart.getCategoryPlot().setDataset(createDataset(3)); // 차트에 데이터 세팅
+		
+		for (ItemListener listener : listeners)
+			cb_months.addItemListener(listener);		// 리스너 다시 설정
+	}
+	
 	public List CustomColors(int index) {
 
 		List<Color> colors = new ArrayList<>();

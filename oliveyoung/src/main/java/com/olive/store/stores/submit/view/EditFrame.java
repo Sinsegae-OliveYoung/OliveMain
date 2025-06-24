@@ -173,21 +173,12 @@ public class EditFrame extends JFrame {
 					boolean cellHasFocus) {
 				if (value instanceof User) {
 					User user = (User) value;
-<<<<<<< HEAD
 					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
 						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
-=======
-//					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
-//						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
->>>>>>> develop
 				}
 				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 			}
 		});
-<<<<<<< HEAD
-=======
-//			cb_userNo.addItem(user.getUser_no() + " - " + user.getUser_name().toString());
->>>>>>> develop
 	}
 
 	// 테이블에서 누른 값 받아오기
