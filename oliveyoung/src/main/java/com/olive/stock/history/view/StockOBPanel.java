@@ -47,7 +47,7 @@ public class StockOBPanel extends Panel{
         LabelUtil.applyTitleStyle(titleLabel);
         titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
         topPanel.add(titleLabel, BorderLayout.WEST);
-        topPanel.setBackground(StockConfig.bgColor);
+        topPanel.setBackground(Config.WHITE); 
 
         // 버튼 패널
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));

@@ -3,6 +3,7 @@ package com.olive.stock.list.view;
 import com.olive.common.view.Panel;
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
@@ -44,6 +45,7 @@ public class StockNowPanel extends Panel {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 20));
+        buttonPanel.setBackground(Config.WHITE); 
 
         Font buttonFont = new Font("SansSerif", Font.PLAIN, 13);
         Dimension buttonSize = new Dimension(130, 30);
@@ -86,8 +88,13 @@ public class StockNowPanel extends Panel {
         }
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.getViewport().setBackground(new Color(245, 248, 250));
+        scroll.setBackground(Config.WHITE);
         
+        // 외곽 테두리 + 내부 여백 설정
+        scroll.setBorder(BorderFactory.createCompoundBorder(
+    		BorderFactory.createEmptyBorder(10, 25, 0, 25), // 내부 여백
+    		new LineBorder(Color.BLACK, 1) // 검정색 테두리
+        ));
 
         // 전체 조립
         JPanel topContainer = new JPanel(new BorderLayout());

@@ -52,7 +52,7 @@ public class StockUpdatePanel extends Panel{
 	        LabelUtil.applyTitleStyle(titleLabel);
 	        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 	        topPanel.add(titleLabel, BorderLayout.WEST);
-	        topPanel.setBackground(StockConfig.bgColor);
+	        topPanel.setBackground(Config.WHITE); 
 
 	        // 테이블 생성
 	        model = new UpdateModel(stockPage, mainLayout, mainLayout.user);

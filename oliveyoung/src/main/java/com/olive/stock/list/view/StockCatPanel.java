@@ -59,7 +59,7 @@ public class StockCatPanel extends Panel {
         setLayout(new BorderLayout());
 
         // 공통 색상 및 폰트
-        Color bgColor = new Color(245, 248, 250);
+        Color bgColor = Config.WHITE;
         Color comboColor = new Color(100, 149, 237); // Cornflower Blue
         Font defaultFont = new Font("SansSerif", Font.PLAIN, 13);
 

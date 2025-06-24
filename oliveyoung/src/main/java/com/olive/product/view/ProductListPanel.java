@@ -35,6 +35,7 @@ import javax.swing.JTextField;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
@@ -96,7 +97,7 @@ public class ProductListPanel extends Panel {
         productOptionDAO = new ProductOptionDAO();
         categoryDetailDAO = new CategoryDetailDAO();
 
-        Color bgColor = new Color(245, 248, 250);
+        Color bgColor = Config.WHITE; 
         Font defaultFont = new Font("SansSerif", Font.PLAIN, 13);
 
         setBackground(bgColor);
@@ -133,9 +134,9 @@ public class ProductListPanel extends Panel {
             btn.setAlignmentX(JButton.CENTER_ALIGNMENT);
             btn.setFont(buttonFont);
             ButtonUtil.applyDefaultStyle(btn);
-            btn.setForeground(buttonText);
+//            btn.setForeground(buttonText);
             btn.setFocusPainted(false);
-            btn.setBorder(BorderFactory.createLineBorder(new Color(150, 200, 120)));
+//            btn.setBorder(BorderFactory.createLineBorder(new Color(150, 200, 120)));
             btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
             buttonPanel.add(btn);
             buttonPanel.add(Box.createRigidArea(new Dimension(0, 30)));
@@ -219,10 +220,9 @@ public class ProductListPanel extends Panel {
                 cbActive.setRenderer(centerRenderer);
                 
                 // 스타일
-                Color dialogBgColor = new Color(250, 252, 255);
-                Color labelColor = new Color(60, 60, 60);
+                Color labelColor = Config.WHITE;
 
-                contentPanel.setBackground(dialogBgColor);
+                contentPanel.setBackground(Config.WHITE); 
                 lblBrand.setForeground(labelColor);
                 lblName.setForeground(labelColor);
                 lblCategory.setForeground(labelColor);
@@ -415,8 +415,10 @@ public class ProductListPanel extends Panel {
         }
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.getViewport().setBackground(new Color(245, 248, 250));
-        scroll.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 0)); // 왼쪽 여백 10px
+        scroll.setBackground(Config.WHITE);  // scroll 자체도 같은 배경색으로
+        scroll.getViewport().setBackground(Config.WHITE); 
+        scroll.setBorder(BorderFactory.createEmptyBorder(30, 15, 0, 10));
+        
 
         add(titlePanel, BorderLayout.NORTH);
         add(buttonPanel, BorderLayout.EAST);
@@ -703,13 +705,12 @@ public class ProductListPanel extends Panel {
 			productOption.setOption_id(productOption_id);
 			
 			StringBuffer codeMaker = new StringBuffer();
-			codeMaker.append(category.getCt_id());
+			codeMaker.append(category.getCt_name());
 			codeMaker.append("-");
-			codeMaker.append(categoryDetail.getCt_dt_id());
+			codeMaker.append(categoryDetail.getCt_dt_name());
 			codeMaker.append("-");
-			codeMaker.append(brand.getBd_id());
+			codeMaker.append(brand.getBd_name());
 			codeMaker.append("-");
-			codeMaker.append(product_id + "00");
 			codeMaker.append(productOption_id);
 			
 			productOption.setOption_code(codeMaker.toString());
