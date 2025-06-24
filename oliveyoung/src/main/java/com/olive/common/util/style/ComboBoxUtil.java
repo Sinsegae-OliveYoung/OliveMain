@@ -20,7 +20,7 @@ public class ComboBoxUtil {
 
 	public static void applyDefaultStyle(JComboBox cb) {
 		cb.setFont(font);
-		cb.setBackground(Config.LIGHT_GREEN);
+		cb.setBackground(Config.WHITE);
 		cb.setForeground(Color.DARK_GRAY);
 		cb.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 		cb.setFocusable(false);

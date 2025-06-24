@@ -143,6 +143,7 @@ public class ApprovalDetailPanel extends BasePanel{
 		ta_memo.setBackground(Config.LIGHT_GREEN);
 		ta_memo.setMargin(new Insets(5, 5, 5, 5)); // top, left, bottom, right
 		ta_memo.setFont(new Font("맑은 고딕", Font.PLAIN, 12)); // 글꼴, 스타일, 크기
+		ta_memo.setEditable(false);
 		p_south.add(ta_memo);
 		
 		p_button = new JPanel();
@@ -276,10 +277,6 @@ public class ApprovalDetailPanel extends BasePanel{
 		else {
 			lb_confirm.setText("승인됨");
 		}
-
 	}
 	
-	
-	
-
 }

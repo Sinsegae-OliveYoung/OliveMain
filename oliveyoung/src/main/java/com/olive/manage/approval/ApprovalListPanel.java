@@ -64,8 +64,8 @@ public class ApprovalListPanel extends BasePanel{
 		p_content = new JPanel(new BorderLayout());
 		
 		// 필터 패널 (north)
-		p_filter.setBackground(Color.white);
 		p_filter = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));  //수평, 수직간격
+		p_filter.setBackground(Color.white);
 		p_filter.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0)); // 상좌하우 마진
 		p_content.add(p_filter, BorderLayout.NORTH);
 		
