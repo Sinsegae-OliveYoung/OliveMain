@@ -82,13 +82,14 @@ public class ApprovalListPanel extends BasePanel{
 		p_filter.add(p_enddate);
 		
 		cb_status = ComboBoxUtil.createBoundStateComboBox();
+		cb_status.setPreferredSize(new Dimension(100, 30));
 		p_filter.add(cb_status);
 		
 		t_submitter = new JTextField("이름");
 		t_submitter.setPreferredSize(new Dimension(100, 30));
 		p_filter.add(t_submitter);
 		
-		bt_search = ButtonUtil.createDefaultButton("검색");
+		bt_search = ButtonUtil.greenButtonUtil("검색");
 		
 		p_filter.add(bt_search);
 		

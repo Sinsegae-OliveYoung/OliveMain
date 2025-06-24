@@ -8,6 +8,8 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
@@ -113,6 +116,15 @@ public class LoginPage extends JFrame {
 		bt_login.setBackground(Config.LIGHT_GRAY);
 		bt_login.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
 		bt_login.setPreferredSize(new Dimension(120, 30));
+		bt_login.setFocusPainted(false);		
+		bt_login.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				bt_login.setBackground(Config.GREEN);
+			}
+			public void mouseExited(MouseEvent e) {
+				bt_login.setBackground(Config.LIGHT_GRAY);
+			}
+		});
 
 		// assemble
 		p_login.add(Box.createVerticalStrut(25)); // 상하 간격 추가

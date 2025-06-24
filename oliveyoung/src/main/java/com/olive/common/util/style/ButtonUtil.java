@@ -7,18 +7,19 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
+import javax.swing.border.LineBorder;
 
 import com.olive.common.config.Config;
 
 public class ButtonUtil {
 	
-	public static void applyDefaultStyle(JButton bt){
-		bt.setBackground(Config.LIGHT_GRAY);
-	}
-	
-	public static JButton createDefaultButton(String title) {
+	public static JButton greenButtonUtil(String title) {
 		JButton bt = new JButton(title);
 		bt.setBackground(Config.LIGHT_GRAY);
+		bt.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
+		bt.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
+		bt.setPreferredSize(Config.BUTTON_SIZE);
+		bt.setFocusPainted(false);
 		
 		bt.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -28,6 +29,36 @@ public class ButtonUtil {
 				bt.setBackground(Config.LIGHT_GRAY);
 			}
 		});
+
+		return bt; 
+	}
+	
+	public static JButton pinkButtonUtil(String title) {
+		JButton bt = new JButton(title);
+		bt.setBackground(Config.LIGHT_GRAY);
+		bt.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
+		bt.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
+		bt.setPreferredSize(Config.BUTTON_SIZE);
+		bt.setFocusPainted(false);
+		
+		bt.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				bt.setBackground(Config.PINK);
+			}
+			public void mouseExited(MouseEvent e) {
+				bt.setBackground(Config.LIGHT_GRAY);
+			}
+		});
+
+		return bt; 
+	}
+	
+	public static JButton anotherButtonUtil(String title, int fontSize) {
+		JButton bt = new JButton(title);
+		bt.setPreferredSize(Config.BUTTON_SIZE);
+		bt.setBackground(Config.LIGHT_GREEN);
+		bt.setFont(new Font("Noto Sans KR", Font.BOLD, fontSize));
+		bt.setFocusPainted(false);
 		
 		return bt; 
 	}
