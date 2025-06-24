@@ -21,6 +21,7 @@ import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
+import com.olive.store.StorePage;
 
 public class StoresMenu extends Panel {
 
@@ -31,16 +32,20 @@ public class StoresMenu extends Panel {
 	JLabel lb_top;
 	JLabel lb_bottom;
 
-	JTable table;
+	private JTable table;
 	JScrollPane scroll;
 
-	StoresModel storesModel;
-	BranchDAO branchDAO;
-	List<Branch> list;
+	private StoresModel storesModel;
+	private BranchDAO branchDAO;
+	private List<Branch> list;
+	private String storeName;
+	private StorePage storePage;
 
-	public StoresMenu(MainLayout mainLayout, String storeName) {
+	public StoresMenu(MainLayout mainLayout, StorePage storePage, String storeName) {
 		super(mainLayout);
-
+		this.storePage = storePage;
+		this.storeName = storeName;
+		
 		// create
 		p_title = new JPanel();
 		lb_title = new JLabel(storeName);
@@ -51,7 +56,7 @@ public class StoresMenu extends Panel {
 		scroll = new JScrollPane(table);
 
 		branchDAO = new BranchDAO();
-		list = branchDAO.selectBranchDetail(storeName);
+		list = branchDAO.selectBranchDetail(storeName);	// 지점의 상세 정보를 가져옴
 		lb_top = new JLabel("담당자 : " + list.get(0).getUser().getUser_name() + "     이메일 : " + list.get(0).getUser().getEmail() + "     연락처 : " + list.get(0).getUser().getTel());
 		lb_bottom = new JLabel("매장 주소 : " + list.get(0).getBr_address() + "     매장 전화 : " + list.get(0).getBr_tel());
 
@@ -68,7 +73,7 @@ public class StoresMenu extends Panel {
 		lb_title.setFont(new Font("Noto Sans KR", Font.BOLD, 26));
 		lb_title.setHorizontalAlignment(JLabel.RIGHT);
 
-		p_details.setPreferredSize(new Dimension(Config.CONTENT_W, 100));
+		p_details.setPreferredSize(new Dimension(Config.CONTENT_W, 80));
 		p_details.setBorder(BorderFactory.createEmptyBorder(0, 500, 0, 50));
 		p_details.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		p_details.setOpaque(false);
@@ -80,40 +85,7 @@ public class StoresMenu extends Panel {
 		lb_bottom.setHorizontalAlignment(JLabel.RIGHT);
 		
 		/* 테이블 설정 */
-
-		// 테이블 헤더
-        JTableHeader header = table.getTableHeader();
-        header.setBackground(Config.LIGHT_GREEN);
-        header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
-        header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
-        header.setBorder(BorderFactory.createLineBorder(Color.WHITE));
-        //header.setBorder(BorderFactory.createMatteBorder(1, 1,0, 1, Color.GRAY));
-        header.setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
-        
-        table.setGridColor(Color.WHITE);
-        //table.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.LIGHT_GRAY));
-        table.setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
-        table.setCellSelectionEnabled(false);	// 행 선택 불가
-        table.setRequestFocusEnabled(false);	// 셀 선택 불가
-		table.setBackground(Config.WHITE);	// 셀 배경색
-		table.setFont(new Font("Noto Sans KR", Font.PLAIN, 13));
-		
-        // 행 높이
-        table.setRowHeight(30);
-        // 열 너비
-        table.getColumnModel().getColumn(0).setPreferredWidth(40);
-        table.getColumnModel().getColumn(1).setPreferredWidth(60);
-        table.getColumnModel().getColumn(2).setPreferredWidth(60);
-        table.getColumnModel().getColumn(3).setPreferredWidth(300);
-        table.getColumnModel().getColumn(4).setPreferredWidth(30);
-        table.getColumnModel().getColumn(5).setPreferredWidth(40);
-        
-		// 셀 글자 정렬
-		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-		dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-		TableColumnModel tcm = table.getColumnModel();
-		for (int i = 0; i < tcm.getColumnCount(); i++)
-			tcm.getColumn(i).setCellRenderer(dtcr);
+		storePage.tableStyleUtil(table);
 
 		scroll.setBorder(BorderFactory.createEmptyBorder());
 		scroll.getViewport().setBackground(Config.WHITE);
@@ -130,4 +102,15 @@ public class StoresMenu extends Panel {
 		add(scroll);
 
 	}
+
+	// 테이블 로드 및 출력
+	public void loadData() {
+		storesModel = new StoresModel(storeName);
+		table.setModel(storesModel);
+		storesModel.fireTableDataChanged();
+		table.revalidate();
+		table.repaint();
+		storePage.tableStyleUtil(table);
+	}
+	
 }
