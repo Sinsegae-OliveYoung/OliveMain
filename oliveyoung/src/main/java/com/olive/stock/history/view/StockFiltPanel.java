@@ -107,7 +107,7 @@ public class StockFiltPanel extends Panel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 60, 100};
+        int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 80, 60, 100};
 
         for (int i = 0; i < columnWidths.length; i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);

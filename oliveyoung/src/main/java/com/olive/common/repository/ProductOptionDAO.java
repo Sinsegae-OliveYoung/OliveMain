@@ -19,7 +19,7 @@ public class ProductOptionDAO {
         ResultSet rs = null;
 
         String sql =
-                "SELECT c.ct_name, cd.ct_dt_name, b.bd_name, p.product_id, p.product_name, " +
+                "SELECT c.ct_name, c.ct_code, c.ct_id, cd.ct_dt_name, cd.ct_dt_code, cd.ct_dt_id, b.bd_name, b.bd_id, b.bd_code, p.product_id, p.product_name, " +
                 "       CASE WHEN po.option_no = 99 THEN '-' ELSE po.option_name END AS option_name, " +
                 "       po.option_id, po.option_no, po.option_code, po.price, po.option_active, " +
                 "       COALESCE((SELECT SUM(s.st_quantity) " +
@@ -41,13 +41,20 @@ public class ProductOptionDAO {
             while (rs.next()) {
                 // 조립
                 Category category = new Category();
+                category.setCt_code(rs.getString("ct_code"));
                 category.setCt_name(rs.getString("ct_name"));
+                category.setCt_id(rs.getInt("ct_id"));
 
                 CategoryDetail categoryDetail = new CategoryDetail();
+                categoryDetail.setCt_dt_code(rs.getString("ct_dt_code"));
                 categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
+                categoryDetail.setCt_dt_id(rs.getInt("ct_dt_id"));
+                categoryDetail.setCategory(category);
 
                 Brand brand = new Brand();
+                brand.setBd_code(rs.getString("bd_code"));
                 brand.setBd_name(rs.getString("bd_name"));
+                brand.setBd_id(rs.getInt("bd_id"));
 
                 Product product = new Product();
                 product.setProduct_id(rs.getInt("product_id"));

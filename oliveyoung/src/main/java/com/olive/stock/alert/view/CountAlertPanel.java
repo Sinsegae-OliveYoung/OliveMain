@@ -110,7 +110,7 @@ public class CountAlertPanel extends Panel{
         // 수량 컬럼 인덱스
         int quantityColumnIndex = model.findColumn("재고수량");
         
-        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 80, 70, 110};
 
         // 컬럼별 렌더러 적용
         for (int i = 0; i < table.getColumnCount(); i++) {

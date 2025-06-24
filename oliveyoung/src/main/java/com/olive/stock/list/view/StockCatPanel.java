@@ -14,6 +14,7 @@ import com.olive.common.model.Category;
 import com.olive.common.model.User;
 import com.olive.common.repository.CategoryDAO;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
@@ -82,12 +83,10 @@ public class StockCatPanel extends Panel {
         comboPanel.setOpaque(false);
 
         cb_category = new JComboBox<>();
+        cb_category.setUI(new ComboBoxUtil());
+        ComboBoxUtil.applyDefaultStyle(cb_category);
         cb_category.setPreferredSize(new Dimension(190, 30));
-        cb_category.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        cb_category.setBackground(Config.LIGHT_GREEN);
-        cb_category.setForeground(Color.DARK_GRAY);
-        cb_category.setFocusable(false);
-        cb_category.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        cb_category.setBackground(Config.LIGHT_GREEN); // 이건 applyDefaultStyle에 없으니 유지
         comboPanel.add(cb_category);
 
 
@@ -98,7 +97,7 @@ public class StockCatPanel extends Panel {
         // JScrollPane 생성
         JScrollPane scroll = new JScrollPane(table);
         TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
-        int[] columnWidths = {125, 100, 125, 215, 90, 80, 80, 110};
+        int[] columnWidths = {125, 100, 125, 215, 90, 80, 80, 80, 110};
         
         for (int i = 0; i < table.getColumnCount(); i++) {
         	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);

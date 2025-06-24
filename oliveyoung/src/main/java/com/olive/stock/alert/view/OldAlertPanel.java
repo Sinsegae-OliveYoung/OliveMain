@@ -105,7 +105,7 @@ public class OldAlertPanel extends Panel{
 	            }
 	        };
 
-	        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+	        int[] columnWidths = {120, 100, 120, 210, 90, 80, 80, 70, 110};
 	        
 	        // 수량 컬럼 인덱스
 	        int quantityColumnIndex = model.findColumn("입고일");

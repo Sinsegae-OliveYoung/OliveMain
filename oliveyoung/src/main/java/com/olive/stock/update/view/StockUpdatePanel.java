@@ -72,7 +72,7 @@ public class StockUpdatePanel extends Panel{
 	        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 	        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 	        
-	        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+	        int[] columnWidths = {120, 100, 120, 210, 90, 80, 80, 70, 110};
 	        
 	        for (int i = 0; i < table.getColumnCount(); i++) {
 	        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);

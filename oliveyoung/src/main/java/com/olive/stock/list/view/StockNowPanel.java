@@ -81,7 +81,7 @@ public class StockNowPanel extends Panel {
         // JScrollPane 생성
         JScrollPane scroll = new JScrollPane(table);
         TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
-        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 80, 70, 110};
         for (int i = 0; i < table.getColumnCount(); i++) {
         	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
         }

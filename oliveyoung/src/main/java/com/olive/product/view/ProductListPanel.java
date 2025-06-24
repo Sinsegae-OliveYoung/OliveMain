@@ -105,7 +105,7 @@ public class ProductListPanel extends Panel {
         // 상단 제목 패널
         JPanel titlePanel = new JPanel(new BorderLayout());
         StockConfig.panelStyle(titlePanel);
-        titlePanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 10, 20));
 
         JLabel titleLabel = new JLabel("상품 리스트 관리");
         LabelUtil.applyTitleStyle(titleLabel);
@@ -123,21 +123,19 @@ public class ProductListPanel extends Panel {
         Dimension buttonSize = new Dimension(100, 30);
         Color buttonText = new Color(40, 40, 40);
 
-        JButton btnAdd = new JButton("상품 등록");
-        JButton btnEdit = new JButton("상품 수정");
-        JButton btnDelete = new JButton("상품 삭제");
+        JButton btnAdd = ButtonUtil.greenButtonUtil("상품 등록");
+        JButton btnEdit = ButtonUtil.greenButtonUtil("상품 수정");
+        JButton btnDelete = ButtonUtil.greenButtonUtil("상품 삭제");
 
         JButton[] buttons = {btnAdd, btnEdit, btnDelete};
+     
         for (JButton btn : buttons) {
+            buttonPanel.add(btn);
             btn.setPreferredSize(buttonSize);
             btn.setMaximumSize(buttonSize); 
-            btn.setAlignmentX(JButton.CENTER_ALIGNMENT);
-            btn.setFont(buttonFont);
-            btn.setFocusPainted(false);
-            btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            buttonPanel.add(btn);
             buttonPanel.add(Box.createRigidArea(new Dimension(0, 30)));
         }
+
         
         btnEdit.addActionListener(new ActionListener() {
             @Override
@@ -151,12 +149,6 @@ public class ProductListPanel extends Panel {
                 // 선택된 행의 Product 객체 얻기
                 ProductOption selectedOption = model.getProductOptionAt(table.getSelectedRow());
                 Product selectedProduct = selectedOption.getProduct();
-                
-                System.out.println(selectedProduct.getCategory().getCt_id());
-                System.out.println(selectedProduct.getCategory().getCt_name());
-                System.out.println(selectedProduct.getCategory_detail().getCt_dt_code());
-                System.out.println(selectedProduct.getCategory_detail().getCt_dt_id());
-                System.out.println(selectedProduct.getCategory_detail().getCt_dt_name());
 
                 JDialog dialog = new JDialog();
                 dialog.setTitle("상품 수정");
@@ -191,7 +183,17 @@ public class ProductListPanel extends Panel {
                 JLabel lblCategoryDetail = new JLabel("상세 카테고리:");
                 JComboBox<CategoryDetail> editCbCategoryDetail = new JComboBox<>();
                 editCbCategoryDetail.setPreferredSize(new Dimension(200, 30));
-                editCbCategoryDetail.setSelectedItem(selectedProduct.getCategory_detail());
+
+                // 1. 해당 카테고리의 상세 카테고리들 불러오기
+                Category editcategory = new CategoryDAO().selectById(selectedProduct.getCategory().getCt_id());
+                List<CategoryDetail> details = new CategoryDetailDAO().selectByCategoryId(editcategory.getCt_id());
+                for (CategoryDetail d : details) {
+                    editCbCategoryDetail.addItem(d);
+                }
+
+                // 2. 선택 상태 지정
+                CategoryDetail categoryDetail = new CategoryDetailDAO().selectByCategoryDetailId(selectedProduct.getCategory_detail().getCt_dt_id());
+                editCbCategoryDetail.setSelectedItem(categoryDetail);
 
                 JLabel lblOptionName = new JLabel("옵션명:");
                 tfOptionName = new JTextField(selectedOption.getOption_name());
@@ -313,6 +315,8 @@ public class ProductListPanel extends Panel {
                         refresh();
                         dialog.dispose();
                         JOptionPane.showMessageDialog(ProductListPanel.this, "수정이 완료되었습니다.");
+                        mainLayout.setDataDirty(true); 
+           	         	mainLayout.refreshIfDirty();
                     } catch (Exception ex) {
                         ex.printStackTrace();
                         JOptionPane.showMessageDialog(ProductListPanel.this, "수정 중 오류가 발생했습니다.");
@@ -729,16 +733,15 @@ public class ProductListPanel extends Panel {
 			productOption.setOption_id(productOption_id);
 			
 			StringBuffer codeMaker = new StringBuffer();
-			codeMaker.append(category.getCt_name());
+			codeMaker.append(category.getCt_code());
 			codeMaker.append("-");
-			codeMaker.append(categoryDetail.getCt_dt_name());
+			codeMaker.append(categoryDetail.getCt_dt_code());
 			codeMaker.append("-");
-			codeMaker.append(brand.getBd_name());
+			codeMaker.append(brand.getBd_code());
 			codeMaker.append("-");
 			codeMaker.append(productOption_id);
 			
 			productOption.setOption_code(codeMaker.toString());
-			System.out.println("codeMaker : " + codeMaker.toString());
 			
 			if(active.equals("y")) {
 				int maxOptionNo = productOptionDAO.selectMaxOptionNo(product_id);
@@ -751,7 +754,8 @@ public class ProductListPanel extends Panel {
 			productOptionDAO.insert(productOption);
 			
 			con.commit();
-			
+			 mainLayout.setDataDirty(true); 
+	         mainLayout.refreshIfDirty();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (ProductException e){ 

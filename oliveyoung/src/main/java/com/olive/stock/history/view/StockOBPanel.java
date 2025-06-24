@@ -81,7 +81,7 @@ public class StockOBPanel extends Panel{
         // 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-        int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 60, 100};
+        int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 80, 60, 100};
         
         for (int i = 0; i < table.getColumnCount(); i++) {
         	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
@@ -104,7 +104,8 @@ public class StockOBPanel extends Panel{
         scrollWrapper.setBackground(Config.WHITE);
 
         // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
-        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(50, 25, 10, 25));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 15));
+        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
 
         scrollWrapper.add(scroll, BorderLayout.CENTER);
         

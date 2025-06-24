@@ -23,6 +23,7 @@ public class StockModel extends AbstractTableModel{
     	    "상세카테고리명", // cd.ct_dt_name
     	    "상품명",         // p.product_name
     	    "브랜드명",       // b.bd_name
+    	    "옵션명",
     	    "가격",           // po.price
     	    "수량",           // bp.b_count
     	    "입/출고 날짜",         // bd.request_date
@@ -93,19 +94,22 @@ public class StockModel extends AbstractTableModel{
                              .getBd_name(); 
                 break;
             case 5:
+            	value = his.getProductOption().getOption_name();
+            	break;
+            case 6:
                 value = Integer.toString(his.getProductOption().getPrice());
                 break;
-            case 6:
+            case 7:
             	value = Integer.toString(his.getQuantity());
                 break;
-            case 7:
+            case 8:
             	SimpleDateFormat sdf_req = new SimpleDateFormat("yyyy-MM-dd");
         	    value = sdf_req.format(his.getRequestDate());
                 break;
-            case 8:
+            case 9:
             	value = his.getManager().getUser_name();
             	break;
-            case 9:
+            case 10:
             	SimpleDateFormat sdf_app = new SimpleDateFormat("yyyy-MM-dd");
             	value = sdf_app.format(his.getApprovalDate());
             	break;
