@@ -81,7 +81,7 @@ public class StockPage extends Page {
 		la_menu3 = new JLabel("재고 이력 관리");	
 		bt_menu4 = new JButton("재고 입고 기록");	
 		bt_menu5 = new JButton("재고 출고 기록");	
-		bt_menu6 = new JButton("사용자/시간대 필터");	
+		bt_menu6 = new JButton("시간별 필터");	
 		
 		la_menu4 = new JLabel("안전 재고 알림");	
 		bt_menu7 = new JButton("재고 수량 부족");	

@@ -22,6 +22,58 @@ import com.olive.common.util.DBManager;
 public class StockDAO {
 
     DBManager dbManager = DBManager.getInstance();
+    
+    public List<Stock> selectAllStockWithQuantity(User user) {
+        List<Stock> list = new ArrayList<>();
+        Connection con = null;
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+
+        String sql = "SELECT * FROM stock WHERE st_quantity > 0 and br_id = ?";
+
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, getBranchID(user));
+            rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Stock stock = new Stock();
+                stock.setSt_id(rs.getInt("st_id"));
+                stock.setSt_quantity(rs.getInt("st_quantity"));
+                stock.setSt_update(rs.getDate("st_update"));
+                
+                list.add(stock);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt, rs);
+        }
+
+        return list;
+    }
+    
+    public void updateQuantity(int st_id, int newQuantity, User user) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        String sql = "UPDATE stock SET st_quantity = ? WHERE st_id = ? and br_id = ?";
+
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql);
+            pstmt.setInt(1, newQuantity);
+            pstmt.setInt(2, st_id);
+            pstmt.setInt(3, getBranchID(user));
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt);
+        }
+    }
 
     public List<Stock> listNow(User user) {
         Connection con = null;

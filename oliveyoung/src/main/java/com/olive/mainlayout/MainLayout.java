@@ -8,20 +8,28 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
 import com.olive.common.model.Role;
+import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
+import com.olive.common.repository.StockDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
@@ -65,6 +73,9 @@ public class MainLayout extends JFrame {
 	JPanel p_content;
 
 	Page[] pages; // 페이지 담을 배열
+	
+	private boolean isDataDirty = false;
+    private boolean running = true;
 
 	public User user;
 	BranchDAO branchDAO;
@@ -240,6 +251,18 @@ public class MainLayout extends JFrame {
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
 		setLocationRelativeTo(null);
 		setVisible(true);
+		
+		// 윈도우 닫으면 쓰레드 종료
+		addWindowListener(new WindowAdapter() {
+		    @Override
+		    public void windowClosing(WindowEvent e) {
+		        running = false; // 스레드 종료 플래그 설정
+		        System.out.println("메인 창 종료 → 자동 출고 스레드 종료 요청됨");
+		    }
+		});
+		
+		// 자동 출고 쓰레드 초기화 작업 <- 페이지 생성 후에 run
+		startAutoOutboundThread();	
 	}
 
 	public void createPage() {
@@ -257,7 +280,9 @@ public class MainLayout extends JFrame {
 		}
 	}
 
-	private boolean isDataDirty = false;
+	/* 
+	 * 데이터 수정 시 모든 패널 업데이트 코드
+	 */
 
 	public void setDataDirty(boolean dataDirty) {
 		this.isDataDirty = dataDirty;
@@ -282,6 +307,72 @@ public class MainLayout extends JFrame {
 		for (int i = 0; i < pages.length; i++)
 			pages[i].setVisible((i == target) ? true : false);
 	}
+	
+	// 자동 출고 쓰레드 메서드
+	
+   private void startAutoOutboundThread() {
+        Thread autoOutboundThread = new Thread(() -> {
+            StockDAO stockDAO = new StockDAO();
+
+            // 현재 Thread.sleep이 while문 안에 존재하여 프로그램 종료 후에도 for문이 반복 실행중 (자동 출고중)
+            while (running) { 
+                try {
+                    // 1. 재고 수량이 1 이상인 재고 리스트 조회
+                    List<Stock> stockList = stockDAO.selectAllStockWithQuantity(user);
+
+                    for (Stock stock : stockList) {
+                        if (stock.getSt_quantity() > 0) {
+                            // 2. 수량 감소 처리
+                            int newQty = stock.getSt_quantity() - 1;
+                            stock.setSt_quantity(newQty);
+                            stockDAO.updateQuantity(stock.getSt_id(), newQty, user);
+
+                            showAutoOutboundDialog(stock, newQty);
+                            System.out.println("자동 출고: " + stock.getSt_id() + " → 수량: " + newQty);
+                        }
+                        // 패널 업데이트
+                        setDataDirty(true); 
+                        refreshIfDirty();
+                        // 3. 60초 대기
+                        Thread.sleep(60 * 1000);
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        autoOutboundThread.setDaemon(true); // 창 종료 시 스레드도 종료되도록
+        autoOutboundThread.start();
+    }
+   
+	   private void showAutoOutboundDialog(Stock stock, int newQty) {
+		    SwingUtilities.invokeLater(() -> {
+		        JDialog dialog = new JDialog();
+		        dialog.setTitle("자동 출고 알림");
+		        dialog.setSize(300, 180);
+		        dialog.setLocationRelativeTo(null);
+		        dialog.setModal(false);
+	
+		        JPanel panel = new JPanel();
+		        panel.setLayout(new BorderLayout(10, 10));
+		        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+	
+		        JLabel message = new JLabel("<html>자동 출고가 발생했습니다.<br>재고 ID: <b>" + stock.getSt_id() +
+		                "</b><br>남은 수량: <b>" + newQty + "</b></html>", SwingConstants.CENTER);
+		        message.setFont(new Font("SansSerif", Font.PLAIN, 14));
+		        panel.add(message, BorderLayout.CENTER);
+	
+		        JButton btnClose = new JButton("확인");
+		        btnClose.addActionListener(e -> dialog.dispose());
+		        panel.add(btnClose, BorderLayout.SOUTH);
+	
+		        dialog.add(panel);
+		        dialog.setVisible(true);
+		    });
+		}
+
 
 	public String setProfile() {
 		String profile = null;
