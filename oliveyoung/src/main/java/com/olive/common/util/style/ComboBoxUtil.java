@@ -36,7 +36,7 @@ public class ComboBoxUtil {
 		
 		
 		Role r = new Role();
-		r.setRole_name("전체");
+		r.setRole_name("직급");
 		cb.addItem(r);
 		
 		for(int i = 0; i < list.size(); i++) {
@@ -53,7 +53,7 @@ public class ComboBoxUtil {
 		applyDefaultStyle(cb);
 		
 		BoundState bs = new BoundState();
-		bs.setBo_state_name("전체");
+		bs.setBo_state_name("상태");
 		cb.addItem(bs);
 		
 		for(int i = 0; i < list.size(); i++) {
@@ -62,15 +62,15 @@ public class ComboBoxUtil {
 		return cb;
 	}
 	
-	public static JComboBox<Branch> createBranchComboBox(){
+	public static JComboBox<Branch> createBranchComboBox(int userId){
 		BranchDAO branchDAO = new BranchDAO();
-		List<Branch> list = branchDAO.selectAll();
+		List<Branch> list = branchDAO.getBranchList(userId);
 		
 		JComboBox<Branch> cb = new JComboBox<>();
 		applyDefaultStyle(cb);
 		
 		Branch br = new Branch();
-		br.setBr_name("전체");
+		br.setBr_name("지점");
 		cb.addItem(br);
 		
 		for(int i = 0; i < list.size(); i++) {

@@ -21,6 +21,7 @@ import javax.swing.JTextField;
 
 import com.olive.common.model.Bound;
 import com.olive.common.model.BoundState;
+import com.olive.common.model.Branch;
 import com.olive.common.repository.BoundDAO;
 import com.olive.common.util.DateUtil;
 import com.olive.common.util.style.ButtonUtil;
@@ -41,7 +42,8 @@ public class ApprovalListPanel extends BasePanel{
 	JTextField t_submitter;
 	DatePickerPanel p_startdate;
 	DatePickerPanel p_enddate;
-	JComboBox<BoundState> cb_status; 
+	JComboBox<BoundState> cb_status;
+	JComboBox<Branch> cb_branch;
 	JButton bt_search;
 	
 	// 센터 : 테이블 
@@ -81,8 +83,11 @@ public class ApprovalListPanel extends BasePanel{
 		p_enddate = new DatePickerPanel(today);   
 		p_filter.add(p_enddate);
 		
+		cb_branch = ComboBoxUtil.createBranchComboBox(mainLayout.user.getUser_id());
+		p_filter.add(cb_branch);
 		cb_status = ComboBoxUtil.createBoundStateComboBox();
 		p_filter.add(cb_status);
+		
 		
 		t_submitter = new JTextField("이름");
 		t_submitter.setPreferredSize(new Dimension(100, 30));

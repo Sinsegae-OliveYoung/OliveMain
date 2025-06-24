@@ -137,7 +137,7 @@ public class UserListPanel extends BasePanel{
 		p_enddate = new DatePickerPanel(today);  // 오늘날짜로 지정 
 		p_filter.add(p_enddate);
 		
-		cb_branch= ComboBoxUtil.createBranchComboBox();
+		cb_branch= ComboBoxUtil.createBranchComboBox(mainLayout.user.getUser_id());
 		cb_branch.setPreferredSize(new Dimension(100, 30));
 		p_filter.add(cb_branch);
 		
