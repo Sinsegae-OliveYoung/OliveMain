@@ -71,7 +71,7 @@ public class MainLayout extends JFrame {
 
 	public MainLayout(User user) {
 		this.user = user;
-
+		
 		branchDAO = new BranchDAO();
 
 		// create
@@ -208,6 +208,7 @@ public class MainLayout extends JFrame {
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
 
+
 					if (source == bt_title)
 						showPage(Config.MAIN_PAGE);
 					else if (source == bt_pd)
@@ -220,7 +221,6 @@ public class MainLayout extends JFrame {
 						showPage(Config.STORE_PAGE);
 					else if (source == bt_ma)
 						showPage(Config.MANAGE_PAGE);
-
 					else if (source == bt_lo) {
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
 								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
