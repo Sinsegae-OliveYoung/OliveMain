@@ -6,8 +6,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -16,19 +14,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumnModel;
 
 import com.olive.common.config.Config;
-import com.olive.common.exception.BranchException;
-import com.olive.common.exception.UserException;
 import com.olive.common.model.Branch;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.util.DBManager;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
 import com.olive.store.StorePage;
@@ -67,9 +59,9 @@ public class StoreConfigMenu extends Panel {
 		lb_title = new JLabel("지점 관리");
 
 		p_btns = new JPanel();
-		bt_regist = new JButton("등록");
-		bt_edit = new JButton("수정");
-		bt_delete = new JButton("삭제");
+		bt_regist = ButtonUtil.greenButtonUtil("등록");
+		bt_edit = ButtonUtil.greenButtonUtil("수정");
+		bt_delete = ButtonUtil.greenButtonUtil("삭제");
 
 		table = new JTable(storeConfigModel = new StoreConfigModel());
 		scroll = new JScrollPane(table);
@@ -94,64 +86,9 @@ public class StoreConfigMenu extends Panel {
 		p_btns.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		p_btns.setOpaque(false);
 
-		bt_regist.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
-		bt_regist.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt_regist.setPreferredSize(Config.BUTTON_SIZE);
-		bt_regist.setBackground(Config.LIGHT_GRAY);
-		bt_regist.setFocusPainted(false);
-
-		bt_edit.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
-		bt_edit.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt_edit.setPreferredSize(Config.BUTTON_SIZE);
-		bt_edit.setBackground(Config.LIGHT_GRAY);
-		bt_edit.setFocusPainted(false);
-
-		bt_delete.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
-		bt_delete.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt_delete.setPreferredSize(Config.BUTTON_SIZE);
-		bt_delete.setBackground(Config.LIGHT_GRAY);
-		bt_delete.setFocusPainted(false);
-
 		/* 테이블 설정 */
-
-		// 테이블 헤더
-		JTableHeader header = table.getTableHeader();
-		header.setBackground(Config.LIGHT_GREEN);
-		header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
-		header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
-		header.setBorder(new LineBorder(Color.GRAY, 1, true));
-
-		table.setGridColor(Color.WHITE);
-		table.setRowSelectionAllowed(true); // 행 선택 활성화
-		table.setColumnSelectionAllowed(false); // 열 선택 비활성화
-		table.setRequestFocusEnabled(false); // 셀 포커스(테두리) 비활성화
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION); // 다중선택 비활성화
-		table.setBackground(Config.WHITE); // 셀 배경색
-		table.setFont(new Font("Noto Sans KR", Font.PLAIN, 13));
-		table.setBorder(BorderFactory.createMatteBorder(0, 1, 1, 1, Color.LIGHT_GRAY));
-		table.setSelectionBackground(Config.LIGHT_GRAY); // 선택된 행 배경색
-		table.setSelectionForeground(Color.BLACK); // 선택된 행 텍스트 색
-
-		// 행 높이
-		table.setRowHeight(30);
-		// 열 너비
-		table.getColumnModel().getColumn(0).setPreferredWidth(15);
-		table.getColumnModel().getColumn(1).setPreferredWidth(60);
-		table.getColumnModel().getColumn(2).setPreferredWidth(60);
-		table.getColumnModel().getColumn(3).setPreferredWidth(300);
-		table.getColumnModel().getColumn(4).setPreferredWidth(30);
-
-		// 셀 글자 정렬
-		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
-		dtcr.setHorizontalAlignment(SwingConstants.CENTER);
-		TableColumnModel tcm = table.getColumnModel();
-		for (int i = 0; i < tcm.getColumnCount(); i++)
-			tcm.getColumn(i).setCellRenderer(dtcr);
-
-		scroll.setBorder(BorderFactory.createEmptyBorder());
-		scroll.getViewport().setBackground(Config.WHITE);
-		scroll.setPreferredSize(new Dimension(Config.CONTENT_W - 100, 530));
-
+		storePage.tableStyleUtil(table, scroll, 530);
+		
 		// assemble
 		p_title.add(lb_title);
 		add(p_title);
@@ -175,14 +112,6 @@ public class StoreConfigMenu extends Panel {
 		// button
 		for (JButton btn : new JButton[] { bt_regist, bt_edit, bt_delete }) {
 			btn.addMouseListener(new MouseAdapter() {
-				public void mouseEntered(MouseEvent e) {
-					btn.setBackground(Config.GREEN);
-				};
-
-				public void mouseExited(MouseEvent e) {
-					btn.setBackground(Config.LIGHT_GRAY);
-				};
-
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
 					if (source == bt_regist)
@@ -213,7 +142,7 @@ public class StoreConfigMenu extends Panel {
 		storeConfigModel.fireTableDataChanged();
 		table.revalidate();
 		table.repaint();
-		storePage.tableStyleUtil(table);
+		storePage.tableStyleUtil(table, scroll, 530);
 	}
 
 	// 테이블의 한 행값을 삭제

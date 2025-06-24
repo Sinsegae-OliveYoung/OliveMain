@@ -18,6 +18,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
+
+import com.olive.common.config.Config;
+import com.olive.common.util.style.ButtonUtil;
+import com.olive.common.util.style.ComboBoxUtil;
 
 public class DatePicker extends JFrame{
 	
@@ -45,8 +50,8 @@ public class DatePicker extends JFrame{
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
 		
 		p_north = new JPanel();
-		bt_prev = new JButton("<<");
-		bt_next = new JButton(">>");
+		bt_prev = ButtonUtil.anotherButtonUtil("<<", 16);
+		bt_next = ButtonUtil.anotherButtonUtil(">>", 16);
 		cb_year = new JComboBox<>();
 		cb_month = new JComboBox<>();
 		
@@ -62,25 +67,40 @@ public class DatePicker extends JFrame{
 		for(int i = 0; i < lb_dates.length; i++) {
 			lb_dates[i] = new JLabel(Integer.toString(i));
 			lb_dates[i].setOpaque(true);
-			lb_dates[i].setBorder(BorderFactory.createLineBorder(Color.black));
+			lb_dates[i].setBorder(BorderFactory.createLineBorder(Config.LIGHT_GRAY,1));
 			lb_dates[i].setHorizontalAlignment(SwingConstants.CENTER);   
 		}
 		
 		
 		// 스타일 
+		setBackground(Config.WHITE);
+	
 		Dimension d = new Dimension(500, 50);
 		p_north.setPreferredSize(d);
 		p_north.setMaximumSize(d);
-		//p_north.setBackground(Color.pink);
+		p_north.setBackground(Config.WHITE);
+
+		Dimension d2 = new Dimension(51, 30);
+		bt_prev.setPreferredSize(d2);
+		bt_next.setPreferredSize(d2);
 		
-		Dimension d2 = new Dimension(450, 50);
-		p_day.setPreferredSize(d2);
-		p_day.setMaximumSize(d2);
-		p_day.setBackground(Color.orange);
+		Dimension d3 = new Dimension(450, 50);
+		p_day.setPreferredSize(d3);
+		p_day.setMaximumSize(d3);
+		p_day.setBackground(Config.LIGHT_GREEN);
+		p_day.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.GRAY));
 		
 		p_date.setPreferredSize(new Dimension(500, 300));
 		p_date.setMaximumSize(new Dimension(450, 300));
-		
+		p_date.setBackground(Config.WHITE);
+
+		cb_year.setPreferredSize(new Dimension(70, 30));
+		cb_year.setUI(new ComboBoxUtil());
+		cb_year.setBorder(new LineBorder(Color.GRAY, 1, true));
+
+		cb_month.setPreferredSize(new Dimension(50, 30));
+		cb_month.setUI(new ComboBoxUtil());
+		cb_month.setBorder(new LineBorder(Color.GRAY, 1, true));
 		
 		//조립
 		contentPane.add(p_north);
@@ -153,19 +173,22 @@ public class DatePicker extends JFrame{
 		
 		for(int i = 0; i < lb_dates.length; i++) {
 			final int idx = i;
-			
+
+			lb_dates[idx].setBackground(Config.WHITE);
 			lb_dates[idx].addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent e) {
 					if(lb_dates[idx].getText().length() == 0) {  // 날짜 없는 곳 선택시 종료
 						return;
 					}
+					// 클릭 시 초록색으로 변경
+					lb_dates[idx].setBackground(Config.GREEN);
 					
-					if(lb_selected != null) {
-						lb_selected.setBackground(Color.white);
-					}
-					
-					lb_dates[idx].setBackground(Color.blue);
+					// 이전에 클릭한 셀 원래 색으로 되돌리기
+				    if (lb_selected != null && lb_selected != lb_dates[idx]) {
+				        lb_selected.setBackground(Config.WHITE);
+				    }
+				    
 					lb_selected = lb_dates[idx];
 					
 					if(e.getClickCount() == 2) {
@@ -181,14 +204,27 @@ public class DatePicker extends JFrame{
 						lb.setText(year + "." + formattedMonth + "." + formattedDay);
 						dispose();
 					}
-					
-					
+				}
+				
+				public void mouseEntered(MouseEvent e) {
+					// 선택이 되어있는 셀은 마우스가 오버되도 색상이 바뀌지 않음
+					if (lb_dates[idx] != lb_selected)
+						lb_dates[idx].setBackground(Config.LIGHT_GREEN);
+					// 날짜가 적혀있지 않은 칸은 색상을 바꾸지 않
+				    if (lb_dates[idx].getText().length() == 0)
+				        lb_dates[idx].setBackground(Config.WHITE);
+				}
+				
+				public void mouseExited(MouseEvent e) {
+					// 선택된 셀 밖으로 마우스가 나갔을 시 흰색으로 변경되지 않도록 설정
+				     if (lb_dates[idx] != lb_selected) 
+				        lb_dates[idx].setBackground(Config.WHITE);
 				}
 			});
 		}
 
 		setVisible(true);
-		setBounds(500, 300, 500, 400);
+		setBounds(500, 300, 450, 400);
 		
 	}
 	
