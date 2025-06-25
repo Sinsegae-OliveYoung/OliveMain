@@ -163,6 +163,10 @@ public class ManagePage extends Page{
         }
 	 }
 	 
+	 public void refreshAll() {
+		 approvalListPanel.clearFilter();
+		 approvalListPanel.refresh();
+	 }
 	 
 
 }

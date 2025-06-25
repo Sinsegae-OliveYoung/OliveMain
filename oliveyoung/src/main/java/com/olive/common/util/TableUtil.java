@@ -9,12 +9,15 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
+
 
 import com.olive.common.config.Config;
 
 public class TableUtil{
+
    static Font headerFont = new Font("SansSerif", Font.BOLD, 13);
    static Font tableFont = new Font("SansSerif", Font.PLAIN, 13);
    

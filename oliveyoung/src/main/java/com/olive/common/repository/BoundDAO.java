@@ -737,6 +737,7 @@ public class BoundDAO {
 		sql.append(" where bo.br_id in (");
 		sql.append(" select br_id from member");
 		sql.append(" where user_id = ?)");
+		
 		params.add(filter.getUser_id());
 		
 		if(filter.getBr_id() != 0) {

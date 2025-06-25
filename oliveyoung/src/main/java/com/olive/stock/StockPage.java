@@ -206,7 +206,7 @@ public class StockPage extends Page {
 		}
 		
 		createPanel();
-		showPanel(-1);
+		showPanel(0);
 		
 		setPreferredSize(new Dimension(Config.LAYOUT_W, Config.CONTENT_H));
 	}

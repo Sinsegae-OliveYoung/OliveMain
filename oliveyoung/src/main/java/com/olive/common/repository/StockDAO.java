@@ -387,6 +387,8 @@ public class StockDAO {
 
         return list;
     }
+      
+
     
     public void updateProductQuantity(int st_id, int st_quantity) {
     	  Connection con = null;
@@ -488,6 +490,46 @@ public class StockDAO {
         }
 
         return list;
+    }
+    
+    
+    public Stock select(int option_id, int br_id) {
+    	 Connection con = null;
+         PreparedStatement pstmt = null;
+         ResultSet rs = null;
+         Stock st = null;
+         
+         StringBuffer sql = new StringBuffer();
+         sql.append("select * from stock where option_id = ? and br_id = ?");
+
+         try {
+             con = dbManager.getConnection();
+             pstmt = con.prepareStatement(sql.toString());
+             pstmt.setInt(1, option_id);
+             pstmt.setInt(2, br_id);
+             rs = pstmt.executeQuery();
+             st = new Stock();
+             while (rs.next()) {
+            	 st.setSt_id(rs.getInt("st_id"));
+            	 
+            	 ProductOption po = new ProductOption();
+            	 po.setOption_id(rs.getInt("option_id"));
+            	 st.setProductOption(po);
+            	 
+            	 Branch br = new Branch();
+            	 br.setBr_id(rs.getInt("br_id"));
+            	 st.setBranch(br);
+            	 
+            	 st.setSt_quantity(rs.getInt("st_quantity"));
+            	 st.setSt_update(rs.getDate("st_update"));
+             }
+         } catch (SQLException e) {
+             e.printStackTrace();
+         } finally {
+             dbManager.release(pstmt, rs);
+         }
+
+         return st;
     }
 
 }

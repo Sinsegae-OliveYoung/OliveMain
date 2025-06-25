@@ -18,6 +18,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -25,11 +26,11 @@ import javax.swing.SwingUtilities;
 
 import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
-import com.olive.common.model.Role;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.StockDAO;
+import com.olive.common.repository.UserDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
@@ -204,7 +205,7 @@ public class MainLayout extends JFrame {
 		add(p_content, BorderLayout.CENTER);
 
 		createPage();
-
+		
 		// listener
 		for (JButton btn : new JButton[] { bt_pd, bt_title, bt_io, bt_st, bt_cl, bt_sh, bt_ma, bt_lo }) {
 			btn.addMouseListener(new MouseAdapter() {
@@ -226,8 +227,13 @@ public class MainLayout extends JFrame {
 						showPage(Config.PRODUCT_PAGE);
 					else if (source == bt_io)
 						showPage(Config.BOUND_PAGE);
-					else if (source == bt_st)
-						showPage(Config.STOCK_PAGE);
+					else if (source == bt_st) {
+						if(user.getRole().getRole_id() == 1) {
+							JOptionPane.showMessageDialog(MainLayout.this, "팀장은 지점 관리에서 볼 수 있습니다");
+						} else {
+							showPage(Config.STOCK_PAGE);
+						}
+					}
 					else if (source == bt_sh)
 						showPage(Config.STORE_PAGE);
 					else if (source == bt_ma)
@@ -264,6 +270,15 @@ public class MainLayout extends JFrame {
 		// 자동 출고 쓰레드 초기화 작업 <- 페이지 생성 후에 run
 		startAutoOutboundThread();	
 	}
+	
+	public static void main(String[] args) {
+		final User user = new UserDAO().selectAll().get(0);
+		SwingUtilities.invokeLater(() -> {
+			new MainLayout(user).setVisible(true);
+		});
+
+	}
+
 
 	public void createPage() {
 		pages = new Page[6];
@@ -322,18 +337,18 @@ public class MainLayout extends JFrame {
 
                     for (Stock stock : stockList) {
                         if (stock.getSt_quantity() > 0) {
+                        	if(!running) break;
                             // 2. 수량 감소 처리
                             int newQty = stock.getSt_quantity() - 1;
                             stock.setSt_quantity(newQty);
-                            if(!running) break;
                             stockDAO.updateQuantity(stock.getSt_id(), newQty, user);
 
                             showAutoOutboundDialog(stock, newQty);
                             System.out.println("자동 출고: " + stock.getSt_id() + " → 수량: " + newQty);
+                            // 패널 업데이트
+                            setDataDirty(true); 
+                            refreshIfDirty();
                         }
-                        // 패널 업데이트
-                        setDataDirty(true); 
-                        refreshIfDirty();
                         // 3. 60초 대기
                         Thread.sleep(60 * 1000);
                     }
