@@ -113,16 +113,12 @@ public class OutboundShowPanel extends Panel{
     List<Branch> userBranches; // 사용자 소유 지점 목록
     
     BoundProduct selected; // 선택된 요청서 객체
-
-    private static OutboundShowPanel instance; // ✅ 정적 필드 추가
     
     private List<BoundProduct> originalProductList = new ArrayList<>();
     
     public OutboundShowPanel(MainLayout mainLayout) {
         super(mainLayout);
         setLayout(new BorderLayout());
-        
-        instance = this; // ✅ 생성자에서 자기 자신 저장
         
         this.mainLayout = mainLayout;
 		this.user = mainLayout.user;
@@ -600,7 +596,7 @@ public class OutboundShowPanel extends Panel{
             javax.swing.JOptionPane.showMessageDialog(null, "출고 요청서가 삭제되었습니다.");
 
             // 목록 새로고침
-            refreshStaticList();
+            refresh();
             
             mainLayout.setDataDirty(true); 
             mainLayout.refreshIfDirty();
@@ -707,7 +703,7 @@ public class OutboundShowPanel extends Panel{
         JOptionPane.showMessageDialog(null, "요청서가 성공적으로 저장되었습니다.");
 
         // 테이블 새로고침
-        refreshStaticList();
+        refresh();
         mainLayout.setDataDirty(true); 
         mainLayout.refreshIfDirty();
     }
@@ -893,15 +889,9 @@ public class OutboundShowPanel extends Panel{
         return result == JOptionPane.YES_OPTION;
     }
 
-    
-    // 테이블 새로고침을 위함
-    public static void refreshStaticList() {
-        if (instance != null) {
-            instance.refreshList(); // ✅ 내부 리프레시 메서드 호출
-        }
-    }
 
-    public void refreshList() {
+    @Override
+    public void refresh() {
     	this.model = new BoundListModel(userBranches, "out");
         table_list.setModel(model);
         table_list.revalidate();
@@ -920,5 +910,8 @@ public class OutboundShowPanel extends Panel{
         dateChooser.setDate(null);
         cb_branch.setSelectedIndex(-1);
         cb_appuser.setSelectedIndex(-1);
+        
+        table_list.updateUI();
+        table_detail.updateUI();
     }
 }

@@ -2,7 +2,6 @@ package com.olive.common.util.style;
 
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.util.List;
 
@@ -14,9 +13,11 @@ import javax.swing.plaf.basic.BasicComboBoxUI;
 import com.olive.common.config.Config;
 import com.olive.common.model.BoundState;
 import com.olive.common.model.Branch;
+import com.olive.common.model.Category;
 import com.olive.common.model.Role;
 import com.olive.common.repository.BoundStateDAO;
 import com.olive.common.repository.BranchDAO;
+import com.olive.common.repository.CategoryDAO;
 import com.olive.common.repository.RoleDAO;
 
 /* 각 페이지에서 크기와 border style만 추가로 설정해주세요!
@@ -96,5 +97,24 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 		}
 
 		return cb;
+	}
+	
+	public static JComboBox<Category> createCategoryComboBox() {
+	    CategoryDAO categoryDAO = new CategoryDAO();
+	    List<Category> list = categoryDAO.selectAll();
+
+	    JComboBox<Category> cb = new JComboBox<>();
+	    cb.setUI(new ComboBoxUtil());
+	    cb.setEditable(true); // ✅ 입력 가능하도록 설정
+
+	    Category ct = new Category();
+	    ct.setCt_name("전체");
+	    cb.addItem(ct);
+
+	    for (Category category : list) {
+	        cb.addItem(category);
+	    }
+
+	    return cb;
 	}
 }
