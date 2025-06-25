@@ -14,7 +14,7 @@ public class CategoryDAO {
 
 	DBManager dbManager = DBManager.getInstance();
 	
-	public List selectAll() {
+	public List<Category> selectAll() {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -42,4 +42,34 @@ public class CategoryDAO {
 		
 		return list;
 	};
+	
+	  public Category selectById(int ct_id) {
+	        Connection con = null;
+	        PreparedStatement pstmt = null;
+	        ResultSet rs = null;
+	        Category category = null;
+
+	        String sql = "SELECT * FROM category WHERE ct_id = ?";
+
+	        try {
+	            con = dbManager.getConnection();
+	            pstmt = con.prepareStatement(sql);
+	            pstmt.setInt(1, ct_id);
+	            rs = pstmt.executeQuery();
+
+	            if (rs.next()) {
+	                category = new Category();
+	                category.setCt_id(rs.getInt("ct_id"));
+	                category.setCt_name(rs.getString("ct_name"));
+	                // 필요한 다른 컬럼이 있다면 여기 추가
+	            }
+
+	        } catch (SQLException e) {
+	            e.printStackTrace();
+	        } finally {
+	            dbManager.release(pstmt, rs);
+	        }
+
+	        return category;
+	    }
 }

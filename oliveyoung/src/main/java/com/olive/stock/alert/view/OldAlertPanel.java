@@ -16,10 +16,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
@@ -49,7 +51,7 @@ public class OldAlertPanel extends Panel{
 	        // 상단 패널
 	        JPanel topPanel = new JPanel(new BorderLayout());
 	        StockConfig.panelStyle(topPanel);
-	        topPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
+	        topPanel.setBorder(BorderFactory.createEmptyBorder(30, 27, 10, 20));
 
 	        JLabel titleLabel = new JLabel("오래된 재고 알림");
 	        LabelUtil.applyTitleStyle(titleLabel);
@@ -66,20 +68,14 @@ public class OldAlertPanel extends Panel{
 	        Color buttonGreen = new Color(170, 225, 130); // 조화로운 색상
 	        Color buttonText = new Color(40, 40, 40); // 어두운 회색
 
-	        JButton btnDateAsc = new JButton("입고일 ↑");
-	        JButton btnDateDesc = new JButton("입고일 ↓");
-	        JButton btnQtyDesc = new JButton("재고수량 ↓");
-	        JButton btnNameAsc = new JButton("상품명 ↑");
-	        JButton btnNameDesc = new JButton("상품명 ↓");
+	        JButton btnDateAsc = ButtonUtil.greenButtonUtil("입고일 ↑");
+	        JButton btnDateDesc = ButtonUtil.greenButtonUtil("입고일 ↓");
+	        JButton btnQtyDesc = ButtonUtil.greenButtonUtil("재고수량 ↓");
+	        JButton btnNameAsc = ButtonUtil.greenButtonUtil("상품명 ↑");
+	        JButton btnNameDesc = ButtonUtil.greenButtonUtil("상품명 ↓");
 
 	        JButton[] buttons = {btnDateAsc, btnDateDesc, btnQtyDesc, btnNameAsc, btnNameDesc};
 	        for (JButton btn : buttons) {
-	            btn.setPreferredSize(buttonSize);
-	            btn.setFont(buttonFont);
-	            btn.setBackground(buttonGreen);
-	            btn.setForeground(buttonText);
-	            btn.setFocusPainted(false);
-	            btn.setBorder(BorderFactory.createLineBorder(new Color(150, 200, 120))); // 테두리도 조화롭게
 	            buttonPanel.add(btn);
 	        }
 
@@ -109,7 +105,7 @@ public class OldAlertPanel extends Panel{
 	            }
 	        };
 
-	        int[] columnWidths = {120, 100, 120, 210, 90, 80, 70, 110};
+	        int[] columnWidths = {120, 100, 120, 210, 90, 80, 80, 70, 110};
 	        
 	        // 수량 컬럼 인덱스
 	        int quantityColumnIndex = model.findColumn("입고일");
@@ -132,9 +128,29 @@ public class OldAlertPanel extends Panel{
 	        topContainer.setOpaque(false);
 	        topContainer.add(topPanel, BorderLayout.NORTH);
 	        topContainer.add(buttonPanel, BorderLayout.CENTER);
+	        
+	        TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
+	        
+	        // 테이블 header 스타일 추가적으로 적용 가능
+	        JTableHeader header = table.getTableHeader();
+	        header.setBackground(Config.LIGHT_GREEN);
+	        header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
+	        header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
+	        header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 
+	        // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
+	        JPanel scrollWrapper = new JPanel(new BorderLayout());
+	        scrollWrapper.setBackground(Config.WHITE);
+
+	        // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
+	        buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 15));
+	        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+
+	        scrollWrapper.add(scroll, BorderLayout.CENTER);
+	        
+	        // 전체 레이아웃 구성
 	        add(topContainer, BorderLayout.NORTH);
-	        add(scroll, BorderLayout.CENTER);
+	        add(scrollWrapper, BorderLayout.CENTER);
 	        
 	        // 정렬 기능 구현
 	        btnDateAsc.addActionListener(e -> {

@@ -31,6 +31,18 @@ public class CategoryDetail {
 	public void setCategory(Category category) {
 		this.category = category;
 	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof CategoryDetail)) return false;
+        CategoryDetail other = (CategoryDetail) obj;
+        return this.ct_dt_id == other.ct_dt_id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(ct_dt_id);
+    }
 	
 	@Override
 	public String toString() {

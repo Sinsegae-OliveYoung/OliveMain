@@ -26,7 +26,7 @@ public class UpdateModel extends AbstractTableModel {
 
     String[] column = {
         "상품옵션코드", "카테고리명", "상세카테고리명",
-        "상품명", "브랜드", "가격",
+        "상품명", "브랜드", "옵션명", "가격",
         "재고수량", "입고일"
     };
 //    String[] column = {
@@ -95,12 +95,15 @@ public class UpdateModel extends AbstractTableModel {
                              .getBd_name(); 
                 break;
             case 5:
+            	value = stock.getProductOption().getOption_name();
+            	break;
+            case 6:
                 value = Integer.toString(stock.getProductOption().getPrice());
                 break;
-            case 6:
+            case 7:
                 value = Integer.toString(stock.getSt_quantity());
                 break;
-            case 7:
+            case 8:
             	 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         	    value = sdf.format(stock.getSt_update());
                 break;

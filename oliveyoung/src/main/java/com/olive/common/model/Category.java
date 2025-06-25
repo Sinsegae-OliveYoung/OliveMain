@@ -30,4 +30,17 @@ public class Category {
 		return ct_name;
 	}
 	
+	@Override
+	public boolean equals(Object obj) {
+	    if (this == obj) return true;
+	    if (!(obj instanceof Category)) return false;
+	    Category other = (Category) obj;
+	    return this.ct_id == other.ct_id;
+	}
+
+	@Override
+	public int hashCode() {
+	    return Integer.hashCode(ct_id);
+	}
+	
 }
