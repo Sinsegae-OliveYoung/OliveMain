@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.olive.common.util.DBManager;
+import com.olive.common.exception.ProductOptionException;
 import com.olive.common.model.*;
 
 public class ProductOptionDAO {
@@ -18,7 +19,7 @@ public class ProductOptionDAO {
         ResultSet rs = null;
 
         String sql =
-                "SELECT c.ct_name, cd.ct_dt_name, b.bd_name, p.product_id, p.product_name, " +
+                "SELECT c.ct_name, c.ct_code, c.ct_id, cd.ct_dt_name, cd.ct_dt_code, cd.ct_dt_id, b.bd_name, b.bd_id, b.bd_code, p.product_id, p.product_name, " +
                 "       CASE WHEN po.option_no = 99 THEN '-' ELSE po.option_name END AS option_name, " +
                 "       po.option_id, po.option_no, po.option_code, po.price, po.option_active, " +
                 "       COALESCE((SELECT SUM(s.st_quantity) " +
@@ -40,13 +41,20 @@ public class ProductOptionDAO {
             while (rs.next()) {
                 // 조립
                 Category category = new Category();
+                category.setCt_code(rs.getString("ct_code"));
                 category.setCt_name(rs.getString("ct_name"));
+                category.setCt_id(rs.getInt("ct_id"));
 
                 CategoryDetail categoryDetail = new CategoryDetail();
+                categoryDetail.setCt_dt_code(rs.getString("ct_dt_code"));
                 categoryDetail.setCt_dt_name(rs.getString("ct_dt_name"));
+                categoryDetail.setCt_dt_id(rs.getInt("ct_dt_id"));
+                categoryDetail.setCategory(category);
 
                 Brand brand = new Brand();
+                brand.setBd_code(rs.getString("bd_code"));
                 brand.setBd_name(rs.getString("bd_name"));
+                brand.setBd_id(rs.getInt("bd_id"));
 
                 Product product = new Product();
                 product.setProduct_id(rs.getInt("product_id"));
@@ -164,36 +172,89 @@ public class ProductOptionDAO {
  	    return max;
  	}
  	
-//	productOption.setOption_active(active);
-//	productOption.setOption_name(tfOptionName.getText());
-//	productOption.setPrice(Integer.parseInt(tfPrice.getText()));
-//	productOption.setProduct(product);
-//	productOption.setOption_id(productOption_id);
-////	productOption.setOption_code(codeMaker.toString());
-////	productOption.setOption_no(optionNum);
-//
-// 	public void insert(ProductOption productOption) {
-// 		Connection con=null;
-//		PreparedStatement pstmt=null;
-//		
-//		con=dbManager.getConnection();
-//		StringBuffer sql = new StringBuffer();
-//		sql.append("insert into product_option(option_id, product_id, option_no, option_name"
-//				+ " color_id) values(?,?)");
-//		
-//		try {
-//			pstmt=con.prepareStatement(sql.toString());
-//			pstmt.setInt(1, productColor.getProduct().getProduct_id());
-//			pstmt.setInt(2, productColor.getColor().getColor_id());
-//			int result=pstmt.executeUpdate();//DML 실행
-//			if (result == 0) {
-//				throw new ProductColorException("상품의 색상이 등록되지 않았어요");
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//			throw new ProductColorException("상품의 색상 등록시 문제가 발생하였습니다", e);
-//		}finally {
-//			dbManager.release(pstmt);
-//		}
-// 	}
+ 	public void insert(ProductOption productOption) throws ProductOptionException {
+ 		Connection con=null;
+		PreparedStatement pstmt=null;
+		
+		con=dbManager.getConnection();
+		StringBuffer sql = new StringBuffer();
+		sql.append("insert into product_option(product_id, option_no, option_name,"
+				+ " option_code, price, option_active) values(?,?,?,?,?,?)");
+	
+		try {
+			pstmt=con.prepareStatement(sql.toString());
+			pstmt.setInt(1, productOption.getProduct().getProduct_id());
+			pstmt.setInt(2, productOption.getOption_no());
+			pstmt.setString(3, productOption.getOption_name());
+			pstmt.setString(4, productOption.getOption_code());
+			pstmt.setInt(5, productOption.getPrice());
+			pstmt.setString(6, productOption.getOption_active());
+			int result=pstmt.executeUpdate();//DML 실행
+			if (result == 0) {
+				throw new ProductOptionException("상품의 색상이 등록되지 않았어요");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ProductOptionException("상품의 색상 등록시 문제가 발생하였습니다", e);
+		}finally {
+			dbManager.release(pstmt);
+		}
+ 	}
+
+
+	 // 상품 옵션 수정
+	 public void update(ProductOption option, Connection con){
+		PreparedStatement pstmt=null;
+		StringBuffer sql = new StringBuffer();
+	     sql.append("UPDATE product_option SET option_name = ?, price = ?, option_active = ? WHERE option_id = ?");
+	     try {
+    		 pstmt = con.prepareStatement(sql.toString()); 
+	         pstmt.setString(1, option.getOption_name());
+	         pstmt.setInt(2, option.getPrice());
+	         pstmt.setString(3, option.getOption_active());
+	         pstmt.setInt(4, option.getOption_id());
+	         pstmt.executeUpdate();
+	     } catch (SQLException e) {
+	    	 e.printStackTrace();
+	     } finally {
+	    	 dbManager.release(pstmt);
+	     }
+	 }
+	
+	 // 상품 옵션 삭제
+	 public void delete(int optionId ,Connection con) throws ProductOptionException, SQLException {
+		 System.out.println("optionId : " + optionId);
+	    PreparedStatement pstmt1 = null;
+	    PreparedStatement pstmt2 = null;
+	    PreparedStatement pstmt3 = null;
+	    try {
+	        
+	        // 1. 자식 테이블 먼저 삭제
+	        String sql1 = "DELETE FROM bound_product WHERE option_id = ?";
+	        pstmt1 = con.prepareStatement(sql1);
+	        pstmt1.setInt(1, optionId);
+	        pstmt1.executeUpdate();
+	        
+	        // 2. 부모 테이블 삭제
+	        String sql2 = "DELETE FROM stock WHERE option_id = ?";
+	        pstmt2 = con.prepareStatement(sql2);
+	        pstmt2.setInt(1, optionId);
+	        pstmt2.executeUpdate();
+	        
+	        // 3. 부모 테이블 삭제
+	        String sql3 = "DELETE FROM product_option WHERE option_id = ?";
+	        pstmt3 = con.prepareStatement(sql3);
+	        pstmt3.setInt(1, optionId);
+	        pstmt3.executeUpdate();
+	        
+	        con.commit();
+	    } catch (SQLException e) {
+	        con.rollback();
+	        throw new ProductOptionException("상품 옵션이 삭제되지 않았어요");
+	    } finally {
+	        dbManager.release(pstmt1);
+	        dbManager.release(pstmt2);
+	        dbManager.release(pstmt3);
+	    }
+	 }
 } 

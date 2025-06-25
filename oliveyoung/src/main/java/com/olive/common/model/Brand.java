@@ -24,4 +24,10 @@ public class Brand {
 	public void setBd_name(String bd_name) {
 		this.bd_name = bd_name;
 	}
+	
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return bd_name;
+	}
 }

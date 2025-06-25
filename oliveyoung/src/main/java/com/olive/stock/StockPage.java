@@ -13,6 +13,12 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
 
 import com.olive.common.config.Config;
 import com.olive.common.view.Page;
@@ -222,7 +228,8 @@ public class StockPage extends Page {
 			p_content.add(panels[i]);
 		}
 	}
-	
+
+
 	@Override
 	public void refreshAll() {
 	    for (Panel panel : panels) {

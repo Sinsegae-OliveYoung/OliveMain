@@ -31,7 +31,7 @@ public class StockLogDAO {
 		List<StockHistory> list = new ArrayList<>();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, bp.b_count, bd.request_date, u.user_name, bd.approve_date"
+		sql.append("select po.option_code, po.option_name, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, bp.b_count, bd.request_date, u.user_name, bd.approve_date"
 				+ " from product_option po join product p on p.product_id = po.product_id"
 				+ " join category_detail cd on cd.ct_dt_id = p.ct_dt_id"
 				+ " join category ct on ct.ct_id = cd.ct_id"
@@ -74,6 +74,7 @@ public class StockLogDAO {
 				// ProductOption
 				ProductOption option = new ProductOption();
 				option.setOption_code(rs.getString("option_code"));
+				option.setOption_name(rs.getString("option_name"));
 				option.setPrice(rs.getInt("price"));
 				option.setProduct(product);
 
@@ -112,7 +113,7 @@ public class StockLogDAO {
 		java.sql.Date sqlEnd = java.sql.Date.valueOf(localEnd);
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select po.option_code, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, bp.b_count, bd.request_date, u.user_name, bd.approve_date"
+		sql.append("select po.option_code, po.option_name, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, bp.b_count, bd.request_date, u.user_name, bd.approve_date"
 				+ " from product_option po join product p on p.product_id = po.product_id"
 				+ " join category_detail cd on cd.ct_dt_id = p.ct_dt_id"
 				+ " join category ct on ct.ct_id = cd.ct_id"
@@ -158,6 +159,7 @@ public class StockLogDAO {
 				// ProductOption
 				ProductOption option = new ProductOption();
 				option.setOption_code(rs.getString("option_code"));
+				option.setOption_name(rs.getString("option_name"));
 				option.setPrice(rs.getInt("price"));
 				option.setProduct(product);
 				
