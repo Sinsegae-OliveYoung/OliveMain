@@ -105,7 +105,7 @@ public class MainLayout extends JFrame {
 		});
 		
 		bt_float.addActionListener(e -> {
-			chatClient = new Client(); 
+			chatClient = new Client(this); 
 		});
 
 		getLayeredPane().add(bt_float, JLayeredPane.POPUP_LAYER);

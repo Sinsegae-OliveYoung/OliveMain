@@ -7,18 +7,32 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import com.google.gson.Gson;
+
 public class ChatClientThread extends Thread{
 	Client client;
 	Socket socket;
 	BufferedReader br;
 	BufferedWriter bw;
 	
-	public ChatClientThread(Client client, Socket socket) {
+	Gson gson;
+	Sender sender;
+	
+	public ChatClientThread(Client client, Socket socket, Sender sender) {
 		this.socket = socket;
 		this.client = client;
+		this.sender = sender;
+	
+		gson = new Gson();
+		
 		try {
 			br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+			
+			// 초기 방 배정을 위해 서버에 로그인 유저 정보를 송신 
+			Payload p = createPayload("connect");
+			String msg = gson.toJson(p);
+			send(msg);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -52,6 +66,24 @@ public class ChatClientThread extends Thread{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	
+	// connect/disconnect payload
+	public Payload createPayload(String requestType) {  //요청 상태 
+		Payload p = new Payload();
+		p.setRequestType(requestType);
+		p.setSender(sender);
+		
+		return p;
+	}
+	
+	// message 전송 payload
+	public Payload createPayload(String requestType, String msg) {  //요청 상태 
+		Payload p = createPayload(requestType);
+		p.setData(msg);
+		
+		return p;
 	}
 
 }
