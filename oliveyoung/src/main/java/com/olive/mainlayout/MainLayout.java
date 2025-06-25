@@ -325,6 +325,7 @@ public class MainLayout extends JFrame {
                             // 2. 수량 감소 처리
                             int newQty = stock.getSt_quantity() - 1;
                             stock.setSt_quantity(newQty);
+                            if(!running) break;
                             stockDAO.updateQuantity(stock.getSt_id(), newQty, user);
 
                             showAutoOutboundDialog(stock, newQty);

@@ -118,7 +118,7 @@ public class UpdateModel extends AbstractTableModel {
 	  Stock stock = list.get(row);
 
 	    // 가격 컬럼인 경우만 처리
-	    if (col == 6) {
+	    if (col == 7) {
 	    	System.out.println(col);
 	        try {
 	            int quantity = Integer.parseInt(value.toString());
@@ -127,7 +127,7 @@ public class UpdateModel extends AbstractTableModel {
 	            int result = javax.swing.JOptionPane.showConfirmDialog(
 	                null, // parent component (null이면 화면 중앙)
 	                "수정하시겠습니까?",
-	                "가격 수정 확인",
+	                "재고 수량 수정 확인",
 	                javax.swing.JOptionPane.YES_NO_OPTION
 	            );
 
@@ -151,7 +151,7 @@ public class UpdateModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-    	if(columnIndex == 6) {
+    	if(columnIndex == 7) {
     		return true;
     	}
     	else return false;

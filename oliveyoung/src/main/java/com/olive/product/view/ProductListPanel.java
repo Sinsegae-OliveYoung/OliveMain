@@ -117,7 +117,7 @@ public class ProductListPanel extends Panel {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
         buttonPanel.setOpaque(false);
-        buttonPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 20));
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(35, 10, 20, 30));
 
         Font buttonFont = new Font("SansSerif", Font.PLAIN, 13);
         Dimension buttonSize = new Dimension(100, 30);
@@ -428,7 +428,7 @@ public class ProductListPanel extends Panel {
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        int[] columnWidths = {110, 110, 200, 70, 80, 80, 70, 70};
+        int[] columnWidths = {110, 110, 200, 85, 80, 80, 70, 70};
 
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
@@ -442,7 +442,7 @@ public class ProductListPanel extends Panel {
         // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
         JPanel scrollWrapper = new JPanel(new BorderLayout());
         scrollWrapper.setBackground(Config.WHITE);
-    	scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+    	scrollWrapper.setBorder(BorderFactory.createEmptyBorder(25, 25, 10, 15));
         
         scrollWrapper.add(scroll, BorderLayout.CENTER);
         
