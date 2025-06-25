@@ -20,6 +20,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.olive.bound.BoundPage;
+import com.olive.chat.Client;
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
@@ -46,7 +47,11 @@ import com.olive.store.StorePage;
 public class MainLayout extends JFrame {
 
 	JPanel p_navi;
-
+	JButton bt_float;
+	Image img_float_default;
+	Image img_float_hover;
+	Image curImg;
+	
 	JPanel p_title;
 	Image img;
 	ImageUtil img_title = new ImageUtil();
@@ -70,10 +75,48 @@ public class MainLayout extends JFrame {
 
 	public User user;
 	BranchDAO branchDAO;
+	Client chatClient;
 
-	public MainLayout(User user) {
-		this.user = user;
+	public void createFloatButton() {
+		curImg = img_float_hover;
+		bt_float = new JButton() {
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				
+				g.drawImage(curImg, 0, 0, 40, 40, bt_float);
+			}
+		};
+		bt_float.setSize(40, 40);
+		bt_float.setContentAreaFilled(false); // 배경 제거
+		bt_float.setBorderPainted(false);    // 테두리 제거
+		bt_float.setFocusPainted(false);
+		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
 		
+		bt_float.addMouseListener(new MouseAdapter() {
+		    public void mouseEntered(MouseEvent e) {
+		        curImg = img_float_default;
+		        bt_float.repaint();
+		    }
+
+		    public void mouseExited(MouseEvent e) {
+		    	curImg = img_float_hover;
+		        bt_float.repaint();
+		    }
+		});
+		
+		bt_float.addActionListener(e -> {
+			chatClient = new Client(); 
+		});
+
+		getLayeredPane().add(bt_float, JLayeredPane.POPUP_LAYER);
+	}
+	
+	public MainLayout(User user) {
+		
+		this.user = user;
+		img_float_default = img_title.getImage("images/chat.png", 40, 40);
+		img_float_hover = img_title.getImage("images/chat_hover.png", 40, 40);
+
 		branchDAO = new BranchDAO();
 
 		// create
@@ -116,7 +159,7 @@ public class MainLayout extends JFrame {
 		bt_title.setFocusPainted(false);
 		bt_title.setBorder(null);
 
-		p_menu.setBorder(BorderFactory.createEmptyBorder(14, 0, 0, 200));
+		p_menu.setBorder(BorderFactory.createEmptyBorder(14, 0, 0, 30));
 		p_menu.setOpaque(false);
 
 		bt_pd.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
@@ -235,6 +278,8 @@ public class MainLayout extends JFrame {
 				}
 			});
 		}
+		
+		createFloatButton();
 
 		showPage(Config.MAIN_PAGE);
 
