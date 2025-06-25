@@ -53,7 +53,7 @@ public class ProductPage extends Page {
 		
 		la_menu1 = new JLabel("상품 관리");
 		bt_menu1 = new JButton("상품 리스트");
-		bt_menu2 = new JButton("  -");
+		bt_menu2 = new JButton("");
 		
 		la_menu2 = new JLabel("분류 항목");
 		bt_menu3 = new JButton("상품 카테고리");
@@ -147,7 +147,7 @@ public class ProductPage extends Page {
 		}
 		
 		createPanel();
-		showPanel(-1);
+		showPanel(0);
 		
 		setPreferredSize(new Dimension(Config.LAYOUT_W, Config.CONTENT_H));
 	}

@@ -3,17 +3,24 @@ package com.olive.mainlayout;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -21,6 +28,8 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
@@ -35,6 +44,7 @@ import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
+import com.olive.manage.ManageConfig;
 import com.olive.manage.ManagePage;
 import com.olive.product.ProductPage;
 import com.olive.stock.StockPage;
@@ -63,11 +73,12 @@ public class MainLayout extends JFrame {
 	JButton bt_pd; // 상품 product
 	JButton bt_io; // 입출고 in,out
 	JButton bt_st; // 재고 stock
-	JButton bt_cl; // 일정 calendar
 	JButton bt_sh; // 지점 store(shop)
 	JButton bt_ma; // 관리 manage
 
 	JPanel p_my;
+	JButton bt_alert;
+	JLabel lb_alertCount; // 알람 숫자 label
 	JLabel lb_me; // ooo지점 oo님
 	JButton bt_lo; // logout
 
@@ -75,8 +86,13 @@ public class MainLayout extends JFrame {
 
 	Page[] pages; // 페이지 담을 배열
 	
+	private int alertCount = 0;
 	private boolean isDataDirty = false;
     private boolean running = true;
+    
+    private List<String> autoOutboundLog = Collections.synchronizedList(new ArrayList<>());
+    
+	ImageUtil imgUtil = new ImageUtil();
 
 	public User user;
 	BranchDAO branchDAO;
@@ -102,16 +118,31 @@ public class MainLayout extends JFrame {
 		bt_pd = new JButton("상품");
 		bt_io = new JButton("입출고");
 		bt_st = new JButton("재고");
-		bt_cl = new JButton("일정");
 		bt_sh = new JButton("지점");
 		bt_ma = new JButton("관리");
 
 		p_my = new JPanel();
-
+		
+		Image img = imgUtil.getImage(Config.ALERT_IMAGE, 27, 27);
+		bt_alert = new JButton(new ImageIcon(img));
+		
+		bt_alert.setPreferredSize(new Dimension(30, 30)); // 이미지보다 살짝 여유
+		bt_alert.setBorderPainted(false);           // 테두리 제거 
+		bt_alert.setContentAreaFilled(false);       // 배경 제거 
+		bt_alert.setMargin(new Insets(0, 0, 0, 0)); // 마진 제거
+		bt_alert.setBackground(Config.GREEN);    // 배경색 설정 , 적용안됨
+		bt_alert.setOpaque(false);
+		
+		bt_alert.addActionListener(e -> showAutoOutboundLogDialog());
 		lb_me = new JLabel(setProfile());
 		bt_lo = new JButton("로그아웃");
 
 		p_content = new JPanel();
+		
+		bt_alert.addActionListener(e -> {
+		    alertCount = 0;
+		    lb_alertCount.setText("0");
+		});
 
 		// style
 		p_navi.setBackground(Config.GREEN);
@@ -146,12 +177,6 @@ public class MainLayout extends JFrame {
 		bt_st.setBackground(Config.GREEN);
 		bt_st.setFocusPainted(false);
 		bt_st.setBorder(null);
-
-		bt_cl.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
-		bt_cl.setHorizontalAlignment(JButton.LEFT);
-		bt_cl.setBackground(Config.GREEN);
-		bt_cl.setFocusPainted(false);
-		bt_cl.setBorder(null);
 
 		bt_sh.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
 		bt_sh.setHorizontalAlignment(JButton.LEFT);
@@ -189,13 +214,24 @@ public class MainLayout extends JFrame {
 		p_menu.add(Box.createHorizontalStrut(50));
 		p_menu.add(bt_st);
 		p_menu.add(Box.createHorizontalStrut(50));
-		p_menu.add(bt_cl);
-		p_menu.add(Box.createHorizontalStrut(50));
 		p_menu.add(bt_sh);
 		p_menu.add(Box.createHorizontalStrut(50));
 		p_menu.add(bt_ma);
 		p_navi.add(p_menu);
+		
+		// 숫자 라벨 (초기값 0)
+		lb_alertCount = new JLabel("0");
+		lb_alertCount.setFont(new Font("Noto Sans KR", Font.BOLD, 13));
+		lb_alertCount.setForeground(Color.RED);
 
+		// 버튼과 숫자를 나란히 배치할 패널
+		JPanel alertPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+		alertPanel.setOpaque(false);
+		alertPanel.add(bt_alert);
+		alertPanel.add(lb_alertCount);
+
+		// 기존 패널에 붙이기
+		p_my.add(alertPanel);
 		p_my.add(lb_me);
 		p_my.add(Box.createHorizontalStrut(10));
 		p_my.add(bt_lo);
@@ -207,7 +243,7 @@ public class MainLayout extends JFrame {
 		createPage();
 		
 		// listener
-		for (JButton btn : new JButton[] { bt_pd, bt_title, bt_io, bt_st, bt_cl, bt_sh, bt_ma, bt_lo }) {
+		for (JButton btn : new JButton[] { bt_pd, bt_title, bt_io, bt_st, bt_sh, bt_ma, bt_lo }) {
 			btn.addMouseListener(new MouseAdapter() {
 				public void mouseEntered(MouseEvent e) {
 					btn.setForeground(Color.WHITE);
@@ -342,9 +378,13 @@ public class MainLayout extends JFrame {
                             int newQty = stock.getSt_quantity() - 1;
                             stock.setSt_quantity(newQty);
                             stockDAO.updateQuantity(stock.getSt_id(), newQty, user);
+                            
+                            String logEntry = "- 재고 ID: " + stock.getSt_id() + ", 남은 수량: " + newQty;
+                            autoOutboundLog.add(logEntry);
+                            System.out.println("자동 출고 - " + logEntry);
 
-                            showAutoOutboundDialog(stock, newQty);
-                            System.out.println("자동 출고: " + stock.getSt_id() + " → 수량: " + newQty);
+                    	   	alertCount++;
+                    	    lb_alertCount.setText(String.valueOf(alertCount));
                             // 패널 업데이트
                             setDataDirty(true); 
                             refreshIfDirty();
@@ -362,33 +402,35 @@ public class MainLayout extends JFrame {
         autoOutboundThread.setDaemon(true); // 창 종료 시 스레드도 종료되도록
         autoOutboundThread.start();
     }
-   
-	   private void showAutoOutboundDialog(Stock stock, int newQty) {
-		    SwingUtilities.invokeLater(() -> {
-		        JDialog dialog = new JDialog();
-		        dialog.setTitle("자동 출고 알림");
-		        dialog.setSize(300, 180);
-		        dialog.setLocationRelativeTo(null);
-		        dialog.setModal(false);
-	
-		        JPanel panel = new JPanel();
-		        panel.setLayout(new BorderLayout(10, 10));
-		        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-	
-		        JLabel message = new JLabel("<html>자동 출고가 발생했습니다.<br>재고 ID: <b>" + stock.getSt_id() +
-		                "</b><br>남은 수량: <b>" + newQty + "</b></html>", SwingConstants.CENTER);
-		        message.setFont(new Font("SansSerif", Font.PLAIN, 14));
-		        panel.add(message, BorderLayout.CENTER);
-	
-		        JButton btnClose = new JButton("확인");
-		        btnClose.addActionListener(e -> dialog.dispose());
-		        panel.add(btnClose, BorderLayout.SOUTH);
-	
-		        dialog.add(panel);
-		        dialog.setVisible(true);
-		    });
-		}
+   private void showAutoOutboundLogDialog() {
+	   
+	    SwingUtilities.invokeLater(() -> {
+	        JDialog dialog = new JDialog();
+	        dialog.setTitle("자동 출고 기록");
+	        dialog.setSize(400, 300);
+	        dialog.setLocationRelativeTo(null);
+	        dialog.setModal(true);
 
+	        JPanel panel = new JPanel(new BorderLayout(10, 10));
+	        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+
+	        JTextArea textArea = new JTextArea();
+	        textArea.setEditable(false);
+	        for (String log : autoOutboundLog) {
+	            textArea.append(log + "\n");
+	        }
+
+	        JScrollPane scrollPane = new JScrollPane(textArea);
+	        panel.add(scrollPane, BorderLayout.CENTER);
+
+	        JButton btnClose = new JButton("닫기");
+	        btnClose.addActionListener(ev -> dialog.dispose());
+	        panel.add(btnClose, BorderLayout.SOUTH);
+
+	        dialog.add(panel);
+	        dialog.setVisible(true);
+	    });
+	}
 
 	public String setProfile() {
 		String profile = null;

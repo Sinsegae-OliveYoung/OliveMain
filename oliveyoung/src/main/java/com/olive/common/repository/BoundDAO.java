@@ -711,7 +711,6 @@ public class BoundDAO {
     
     // 결재 목록 페이지에서 검색 조건에 따라 조회
     public List<Bound> select(BoundFilterDTO filter){
-		System.out.println("BoundDAO.select()");
 		
 		Connection con = dbManager.getConnection();
 		PreparedStatement pstmt = null;
@@ -767,7 +766,6 @@ public class BoundDAO {
 		
 		sql.append(" order by request_date desc");   //최신순 
 		
-		System.out.println("BoundDAO.select(): " + sql.toString());
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -816,7 +814,6 @@ public class BoundDAO {
 				list.add(bo);
 			}
 			
-			System.out.println("BoundDAO.list.size(): "+ list.size());
 			
 		} catch (SQLException e) {
 			e.printStackTrace();

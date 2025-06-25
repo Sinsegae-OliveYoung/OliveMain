@@ -107,21 +107,6 @@ public class CountAlertPanel extends Panel{
             }
         };
 
-        // 수량 컬럼 인덱스
-        int quantityColumnIndex = model.findColumn("재고수량");
-        
-        int[] columnWidths = {120, 100, 120, 210, 90, 80, 80, 70, 110};
-
-        // 컬럼별 렌더러 적용
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            if (i == quantityColumnIndex) {
-                table.getColumnModel().getColumn(i).setCellRenderer(redTextRenderer);
-            } else {
-                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-            }
-        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-        }
-
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setBackground(Color.WHITE);
         
@@ -132,6 +117,21 @@ public class CountAlertPanel extends Panel{
         topContainer.add(buttonPanel, BorderLayout.CENTER);
 
         TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
+        
+        // 수량 컬럼 인덱스
+        int quantityColumnIndex = model.findColumn("재고수량");
+        
+        int[] columnWidths = {120, 100, 120, 210, 90, 80, 80, 70, 110};
+        
+        // 컬럼별 렌더러 적용
+        for (int i = 0; i < table.getColumnCount(); i++) {
+        	if (i == quantityColumnIndex) {
+        		table.getColumnModel().getColumn(i).setCellRenderer(redTextRenderer);
+        	} else {
+        		table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        	}
+        	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+        }
         
         // 테이블 header 스타일 추가적으로 적용 가능
         JTableHeader header = table.getTableHeader();

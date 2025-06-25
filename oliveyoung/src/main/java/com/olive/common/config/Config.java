@@ -15,6 +15,7 @@ public class Config {
 	public static final String pass = "1234";
 	
 	public static final String LOGO_PATH = "/images/logo2.png";
+	public static final String ALERT_IMAGE = "images/auto_alert.png";
 	
 	/*--------------------------------------------
 	 *  페이지 정의
