@@ -47,13 +47,12 @@ public class ChatClientThread extends Thread{
 	public void listen() {
 		while(true) {
 			try {
-				String jsonStr = br.readLine();
-				//json 문자열을 다시 Payload로 변환 후 파싱 
-				Payload p = gson.fromJson(jsonStr, Payload.class);
-				String msg = p.getSender().getUser_name() + ": " + p.getData() + "\n"; 
+				String jsonStr = br.readLine();  //json문자열을 서버로부터 수신한다.
+				Payload p = gson.fromJson(jsonStr, Payload.class); //json 문자열을 다시 Payload로 변환 
+				String msg = p.getSender().getUser_name() + ": " + p.getData() + "\n";
+				
 				System.out.println(this + " 클라이언트 메시지 수신: " + msg);
-				//화면에 메시지 표시
-				//client.ta.append(msg + "\n");
+				
 				try {
 					client.doc.setParagraphAttributes(client.doc.getLength(), 1, client.leftAlign, false);
 					client.doc.insertString(client.doc.getLength(), msg, client.leftAlign);
@@ -69,7 +68,7 @@ public class ChatClientThread extends Thread{
 	//서버에 메시지 송신
 	public void send(String requestType, String msg) {
 		try {
-			Payload p = createPayload(requestType, msg);
+			Payload p = createPayload(requestType, msg); 
 			String data = gson.toJson(p);
 			System.out.println(this + " 서버로 메시지 전송:  " + msg);
 			
@@ -81,21 +80,12 @@ public class ChatClientThread extends Thread{
 	}
 
 	
-	// connect/disconnect payload
-	public Payload createPayload(String requestType) {  //요청 상태 
+	public Payload createPayload(String requestType, String msg) {  //요청 상태 
 		Payload p = new Payload();
 		p.setRequestType(requestType);
 		p.setSender(sender);
-		
-		return p;
-	}
-	
-	// message 전송 payload
-	public Payload createPayload(String requestType, String msg) {  //요청 상태 
-		Payload p = createPayload(requestType);
 		p.setData(msg);
 		
 		return p;
 	}
-
 }

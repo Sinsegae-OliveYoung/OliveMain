@@ -8,6 +8,8 @@ import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -19,8 +21,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import com.google.gson.Gson;
 import com.olive.bound.BoundPage;
 import com.olive.chat.Client;
+import com.olive.chat.Payload;
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
@@ -75,7 +79,7 @@ public class MainLayout extends JFrame {
 
 	public User user;
 	BranchDAO branchDAO;
-	Client chatClient;
+	Client client;
 
 	public void createFloatButton() {
 		curImg = img_float_hover;
@@ -105,18 +109,20 @@ public class MainLayout extends JFrame {
 		});
 		
 		bt_float.addActionListener(e -> {
-			chatClient = new Client(this); 
+			client.setVisible(true);
 		});
 
 		getLayeredPane().add(bt_float, JLayeredPane.POPUP_LAYER);
 	}
 	
 	public MainLayout(User user) {
-		
 		this.user = user;
+		
+		client = new Client(this);  //채팅 클라이언트 연결
+		client.setVisible(false);
+		
 		img_float_default = img_title.getImage("images/chat.png", 40, 40);
 		img_float_hover = img_title.getImage("images/chat_hover.png", 40, 40);
-
 		branchDAO = new BranchDAO();
 
 		// create
@@ -283,6 +289,16 @@ public class MainLayout extends JFrame {
 
 		showPage(Config.MAIN_PAGE);
 
+		//채팅 서버와 연결 끊기
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+	            client.clientThread.send("disconnect", null);
+	            client.dispose();
+			}
+		});
+		
+		
 		getContentPane().setBackground(Config.WHITE);
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
 		setLocationRelativeTo(null);
