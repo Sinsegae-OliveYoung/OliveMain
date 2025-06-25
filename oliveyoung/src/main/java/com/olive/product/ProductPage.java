@@ -53,9 +53,8 @@ public class ProductPage extends Page {
 		
 		la_menu1 = new JLabel("상품 관리");
 		bt_menu1 = new JButton("상품 리스트");
-		bt_menu2 = new JButton("");
 		
-		bt_menu3 = new JButton("분류 항목 설정");
+		bt_menu2 = new JButton("분류 항목 설정");
 //		la_menu2 = new JLabel("분류 항목 설정");
 //		bt_menu3 = new JButton("상품 카테고리");
 //		bt_menu4 = new JButton("브랜드 설정");
@@ -82,10 +81,10 @@ public class ProductPage extends Page {
 
 //		la_menu2.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
 		
-		bt_menu3.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		bt_menu3.setBackground(Config.LIGHT_GRAY);
-		bt_menu3.setFocusPainted(false);
-		bt_menu3.setBorder(null);
+//		bt_menu3.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
+//		bt_menu3.setBackground(Config.LIGHT_GRAY);
+//		bt_menu3.setFocusPainted(false);
+//		bt_menu3.setBorder(null);
 		
 //		bt_menu4.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 //		bt_menu4.setBackground(Config.LIGHT_GRAY);
@@ -103,8 +102,8 @@ public class ProductPage extends Page {
 		p_side.add(bt_menu1);	
 		p_side.add(Box.createVerticalStrut(10));
 		p_side.add(bt_menu2);
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(bt_menu3);	
+//		p_side.add(Box.createVerticalStrut(10));
+//		p_side.add(bt_menu3);	
 
 		add(p_side, BorderLayout.WEST);
 		
@@ -112,7 +111,7 @@ public class ProductPage extends Page {
 		
 
 		// listener
-		for (JButton btn : new JButton[] { bt_menu1, bt_menu2, bt_menu3} ) {
+		for (JButton btn : new JButton[] { bt_menu1, bt_menu2} ) {
 			btn.addMouseListener(new MouseAdapter() {
 				public void mouseEntered(MouseEvent e) {btn.setForeground(Config.DARK_GREEN);}
 				public void mouseExited(MouseEvent e) {btn.setForeground(Color.BLACK);}
@@ -135,9 +134,7 @@ public class ProductPage extends Page {
 				    	  showPanel(0);
 				      } else if (source == bt_menu2) {
 				    	  showPanel(1);				    	  
-				      } else if (source == bt_menu3) {
-				    	  showPanel(2);				    	  
-				      } 
+				      }
 				}
 			});
 		}
@@ -150,11 +147,10 @@ public class ProductPage extends Page {
 
 	public void createPanel() {
 
-		panels = new Panel[3];
+		panels = new Panel[2];
 
 		panels[0] = new ProductListPanel(mainLayout);
-		panels[1] = new ProductListPanel(mainLayout);
-		panels[2] = new BrandPanel(mainLayout);
+		panels[1] = new BrandPanel(mainLayout);
 		
 		for (int i = 0; i < panels.length; i++)
 			p_content.add(panels[i]);
