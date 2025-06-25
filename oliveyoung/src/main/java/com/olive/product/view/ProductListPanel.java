@@ -29,6 +29,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -43,6 +44,7 @@ import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
@@ -54,11 +56,13 @@ import com.olive.common.model.Brand;
 import com.olive.common.model.Category;
 import com.olive.common.model.CategoryDetail;
 import com.olive.common.model.Product;
+import com.olive.common.model.ProductImg;
 import com.olive.common.model.ProductOption;
 import com.olive.common.repository.BrandDAO;
 import com.olive.common.repository.CategoryDAO;
 import com.olive.common.repository.CategoryDetailDAO;
 import com.olive.common.repository.ProductDAO;
+import com.olive.common.repository.ProductImgDAO;
 import com.olive.common.repository.ProductOptionDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.TableUtil;
@@ -95,6 +99,7 @@ public class ProductListPanel extends Panel {
 	ProductDAO productDAO;
 	ProductOptionDAO productOptionDAO;
 	CategoryDetailDAO categoryDetailDAO;
+	ProductImgDAO productImgDAO;
 
 	DBManager dbManager = DBManager.getInstance();
 
@@ -111,6 +116,7 @@ public class ProductListPanel extends Panel {
 		productDAO = new ProductDAO();
 		productOptionDAO = new ProductOptionDAO();
 		categoryDetailDAO = new CategoryDetailDAO();
+		productImgDAO = new ProductImgDAO();
 
 		Color bgColor = Config.WHITE;
 		Font defaultFont = new Font("SansSerif", Font.PLAIN, 13);
@@ -313,6 +319,28 @@ public class ProductListPanel extends Panel {
 					contentPanel.add(lblActive, gbc);
 					gbc.gridx = 1;
 					contentPanel.add(cbActive, gbc);
+					
+					JPanel p_preview = new JPanel(); // 이미 선언되어 있다고 가정
+					p_preview.setPreferredSize(new Dimension(180, 200));
+					p_preview.setBorder(BorderFactory.createEmptyBorder());
+					
+					// 이미지 미리보기 구성
+					ProductImg productImg = new ProductImgDAO().selectByOptionId(selectedOption.getOption_id());
+					p_preview.removeAll(); // 기존 내용 제거
+
+					try {
+						String filename = productImg.getImg_filename();
+						File imgFile = new File(Config.IMG_PATH + File.separator + filename); // 경로는 환경에 맞게
+						BufferedImage bufferedImage;
+						bufferedImage = ImageIO.read(imgFile);
+						Image scaled = bufferedImage.getScaledInstance(160, 160, Image.SCALE_SMOOTH);
+						JLabel imgLabel = new JLabel(new ImageIcon(scaled));
+						p_preview.add(imgLabel);
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					p_preview.revalidate();
+					p_preview.repaint();
 
 					JPanel btnPanel = new JPanel();
 
@@ -396,8 +424,15 @@ public class ProductListPanel extends Panel {
 
 					gbc.anchor = GridBagConstraints.SOUTH;
 					contentPanel.add(btnPanel, gbc);
+					
+					// 외부 패널로 전체 레이아웃 감싸기 (왼쪽 미리보기, 오른쪽 입력)
+					JPanel dialogPanel = new JPanel(new BorderLayout());
+					dialogPanel.setBackground(Config.WHITE);
+					dialogPanel.add(p_preview, BorderLayout.WEST);
+					dialogPanel.add(contentPanel, BorderLayout.CENTER);
 
-					dialog.add(contentPanel);
+					// 최종 다이얼로그에 세팅
+					dialog.add(dialogPanel);
 					dialog.setVisible(true);
 				}
 			}
@@ -852,20 +887,6 @@ public class ProductListPanel extends Panel {
 			productOption.setPrice(Integer.parseInt(tfPrice.getText()));
 			productOption.setProduct(product);
 
-			int productOption_id = productOptionDAO.selectRecentPk();
-			productOption.setOption_id(productOption_id);
-
-			StringBuffer codeMaker = new StringBuffer();
-			codeMaker.append(category.getCt_code());
-			codeMaker.append("-");
-			codeMaker.append(categoryDetail.getCt_dt_code());
-			codeMaker.append("-");
-			codeMaker.append(brand.getBd_code());
-			codeMaker.append("-");
-			codeMaker.append(productOption_id);
-
-			productOption.setOption_code(codeMaker.toString());
-
 			if (active.equals("y")) {
 				int maxOptionNo = productOptionDAO.selectMaxOptionNo(product_id);
 				optionNum = maxOptionNo + 1;
@@ -873,8 +894,28 @@ public class ProductListPanel extends Panel {
 				optionNum = 99;
 			}
 			productOption.setOption_no(optionNum);
-
+			
+			StringBuffer codeMaker = new StringBuffer();
+			codeMaker.append(category.getCt_code());
+			codeMaker.append("-");
+			codeMaker.append(categoryDetail.getCt_dt_code());
+			codeMaker.append("-");
+			codeMaker.append(brand.getBd_code());
+			codeMaker.append("-");
+			codeMaker.append(50+optionNum);
+			
+			productOption.setOption_code(codeMaker.toString());
+			
 			productOptionDAO.insert(productOption);
+			
+			int productOption_id = productOptionDAO.selectRecentPk();
+			productOption.setOption_id(productOption_id);
+
+			//상품에 딸려있는 이미지 등록 
+			ProductImg productImg = new ProductImg();
+			productImg.setProductOption(productOption); //1) 어떤 상품에.. 
+			productImg.setImg_filename(file.getName()); //2) 어떤 파일명으로..
+			productImgDAO.insert(productImg, con);
 
 			con.commit();
 			mainLayout.setDataDirty(true);
