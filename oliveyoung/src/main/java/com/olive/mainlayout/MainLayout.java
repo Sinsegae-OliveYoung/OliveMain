@@ -14,14 +14,16 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import com.olive.bound.BoundPage;
 import com.olive.common.config.Config;
-import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
+import com.olive.common.repository.UserDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
@@ -240,7 +242,19 @@ public class MainLayout extends JFrame {
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
 		setLocationRelativeTo(null);
 		setVisible(true);
+		
+		
+		
 	}
+	
+	public static void main(String[] args) {
+		final User user = new UserDAO().selectAll().get(0);
+		SwingUtilities.invokeLater(() -> {
+			new MainLayout(user).setVisible(true);
+		});
+
+	}
+
 
 	public void createPage() {
 		pages = new Page[6];

@@ -28,6 +28,7 @@ public class TableUtil{
         for (int i = 0; i < table.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
+        table.setDefaultRenderer(Object.class, centerRenderer);
 	}
 }
 

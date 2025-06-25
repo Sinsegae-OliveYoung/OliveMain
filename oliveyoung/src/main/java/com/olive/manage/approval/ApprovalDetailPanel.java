@@ -8,8 +8,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
 import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
@@ -17,7 +15,6 @@ import java.awt.print.PrinterJob;
 import java.sql.Date;
 import java.time.LocalDate;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -29,13 +26,15 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import com.olive.bound.model.BoundProductEditModel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
+import com.olive.common.model.BoundProduct;
 import com.olive.common.model.BoundState;
+import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BoundDAO;
 import com.olive.common.repository.BoundStateDAO;
+import com.olive.common.repository.StockDAO;
 import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.TableUtil;
 import com.olive.mainlayout.MainLayout;
@@ -49,12 +48,12 @@ public class ApprovalDetailPanel extends BasePanel {
 	JLabel lb_boundId;
 	JLabel lb_requester;
 	JLabel lb_requestDate;
-	JLabel lb_status;
-
-	BoundProductEditModel model;
+	JLabel lb_status; 
+	
+	ApprovalDetailModel model;
 	JTable table;
 	JScrollPane scroll;
-
+	
 	JTextArea ta_memo;
 	JPanel p_button;
 	JButton bt_approve;
@@ -68,6 +67,7 @@ public class ApprovalDetailPanel extends BasePanel {
 
 	BoundDAO boundDAO = new BoundDAO();
 	BoundStateDAO boundStateDAO = new BoundStateDAO();
+	StockDAO stockDAO = new StockDAO();
 	Bound bound;
 
 	public ApprovalDetailPanel(MainLayout mainLayout, String title, ManagePage managePage) {
@@ -121,9 +121,11 @@ public class ApprovalDetailPanel extends BasePanel {
 		lb_items.setFont(ManageConfig.BOLD_FONT);
 		lb_items.setPreferredSize(d);
 		p_center.add(lb_items);
+		
+		model = new ApprovalDetailModel(1);  // 임시 bound
 
-		model = new BoundProductEditModel(1); // 최초 생성 시 임시 bound 값
 		table = new JTable(model);
+		
 		TableUtil.applyStyle(table);
 
 		scroll = new JScrollPane(table);
@@ -216,6 +218,26 @@ public class ApprovalDetailPanel extends BasePanel {
 				confirm(bs);
 				setBound(bound);
 				boundDAO.update(bound);
+				
+				
+				// 재고 테이블에 반영 
+				for(int i = 0; i < model.list.size(); i++) {
+					// 품목 하나하나 재고 테이블에 반영 
+					BoundProduct bp = model.list.get(i);
+					// 해당 품목의 option_id, 기존 재고 가져오기,  st_quantity 
+					// bound state id == in 이면 더하기, out이면 빼기
+					
+					Stock stock = stockDAO.select(bp.getProductOption().getOption_id(), bound.getBranch().getBr_id());
+					
+					if(bound.getBound_flag().equals("in")) {
+						stockDAO.updateProductQuantity(stock.getSt_id(), stock.getSt_quantity() + bp.getB_count());
+					} else {
+						stockDAO.updateProductQuantity(stock.getSt_id(), stock.getSt_quantity() - bp.getB_count());
+					}					
+				}
+				
+				mainLayout.setDataDirty(true);
+				mainLayout.refreshIfDirty();
 			}
 		});
 
@@ -309,7 +331,7 @@ public class ApprovalDetailPanel extends BasePanel {
 		lb_requestDate.setText("요청일                " + bound.getRequest_date().toString());
 		lb_status.setText("요청 상태            " + bound.getBoundState().getBo_state_name());
 		// 테이블 모델 갱신
-		model = new BoundProductEditModel(bound.getBound_id());
+		model = new ApprovalDetailModel(bound.getBound_id());
 		table.setModel(model); // 모델만 교체
 
 		if (bound.getBoundState().getBo_state_id() == 1) {

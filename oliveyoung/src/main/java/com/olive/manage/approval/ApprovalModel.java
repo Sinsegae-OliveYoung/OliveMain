@@ -13,7 +13,7 @@ public class ApprovalModel extends AbstractTableModel{
 	BoundDAO boundDAO = new BoundDAO();
 	
 	List<Bound> list;
-	String[] column = { "번호", "입출고", "요청자", "요청일", "상태" };
+	String[] column = { "번호", "지점", "입출고", "요청자", "요청일", "상태" };
 	
 	public ApprovalModel(BoundFilterDTO filter) {
 		list = boundDAO.select(filter);
@@ -40,10 +40,11 @@ public class ApprovalModel extends AbstractTableModel{
 		
 		switch(col) {
 			case 0: return bo.getBound_id();
-			case 1: return bo.getBound_flag();
-			case 2: return bo.getUser().getUser_name();
-			case 3: return bo.getRequest_date();
-			case 4: return bo.getBoundState().getBo_state_name();
+			case 1: return bo.getBranch().getBr_name();
+			case 2: return bo.getBound_flag();
+			case 3: return bo.getUser().getUser_name();
+			case 4: return bo.getRequest_date();
+			case 5: return bo.getBoundState().getBo_state_name();
 			default: return null;
 		}
 	}
