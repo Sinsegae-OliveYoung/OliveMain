@@ -177,7 +177,7 @@ public class LoginPage extends JFrame {
 		
 		// 해당되는 유저가 있다면
 		if (user != null) {
-			JOptionPane.showMessageDialog(this, "로그인 중...\n여기에 프로그레스바?");
+			JOptionPane.showMessageDialog(this, "반갑습니다 올리브영 입니다!\n" + user.getUser_name() + "님 안녕하세요◠‿◠");
 			mainLayout = new MainLayout(user); // 메인 페이지로 유저 정보를 갖고 이동
 			dispose(); // 현재 창 닫기
 			// 해당되는 유저가 없다면

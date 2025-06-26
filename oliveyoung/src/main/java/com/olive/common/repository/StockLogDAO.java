@@ -31,17 +31,38 @@ public class StockLogDAO {
 		List<StockHistory> list = new ArrayList<>();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select po.option_code, po.option_name, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, bp.b_count, bd.request_date, u.user_name, bd.approve_date"
-				+ " from product_option po join product p on p.product_id = po.product_id"
-				+ " join category_detail cd on cd.ct_dt_id = p.ct_dt_id"
-				+ " join category ct on ct.ct_id = cd.ct_id"
-				+ " join brand b on b.bd_id = p.bd_id"
-				+ " join bound_product bp on bp.option_id = po.option_id"
-				+ " join bound bd on bd.bound_id = bp.bound_id"
-				+ " join user u on u.user_id = bd.approver_id "
-				+ " join branch br on br.br_id = bd.br_id"
+		sql.append("select po.option_code"
+				+ "		 , CASE WHEN po.option_no = 99"
+				+ "			   THEN '-' "
+				+ "			   ELSE po.option_name"
+				+ "			   END 	AS option_name"
+				+ "		 , ct.ct_name"
+				+ "		 , cd.ct_dt_name"
+				+ "		 , p.product_name"
+				+ "		 , b.bd_name"
+				+ "		 , po.price"
+				+ "		 , bp.b_count"
+				+ "		 , bd.request_date"
+				+ "		 , ("
+				+ "				select u.user_name"
+				+ "				from   user u"
+				+ "				join   bound b on bd.approver_id = u.user_id"
+				+ "				where  b.bound_id = bp.bound_id\r\n"
+				+ "		   ) as user_name" // 승인자
+				+ "		 , bd.approve_date"
+				+ " from product_option po"
+				+ " join product p 			on p.product_id = po.product_id"
+				+ " join category_detail cd on cd.ct_dt_id  = p.ct_dt_id"
+				+ " join category ct 		on ct.ct_id 	= cd.ct_id"
+				+ " join brand b 			on b.bd_id 		= p.bd_id"
+				+ " join bound_product bp 	on bp.option_id = po.option_id"
+				+ " join bound bd 			on bd.bound_id 	= bp.bound_id"
+				+ " join user u 			on u.user_id 	= bd.approver_id"
+				+ " join branch br 			on br.br_id 	= bd.br_id"
 				+ " where br.br_id = 1"
-				+ " and bd.bound_flag = ?");
+				+ " and	  bd.bo_state_id IN (2, 3)"
+				+ " and   bd.bound_flag = ?"
+		);
 
 		try {
 			con = dbManager.getConnection();
@@ -113,18 +134,39 @@ public class StockLogDAO {
 		java.sql.Date sqlEnd = java.sql.Date.valueOf(localEnd);
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("select po.option_code, po.option_name, ct.ct_name, cd.ct_dt_name, p.product_name, b.bd_name, po.price, bp.b_count, bd.request_date, u.user_name, bd.approve_date"
-				+ " from product_option po join product p on p.product_id = po.product_id"
-				+ " join category_detail cd on cd.ct_dt_id = p.ct_dt_id"
-				+ " join category ct on ct.ct_id = cd.ct_id"
-				+ " join brand b on b.bd_id = p.bd_id"
-				+ " join bound_product bp on bp.option_id = po.option_id"
-				+ " join bound bd on bd.bound_id = bp.bound_id"
-				+ " join user u on u.user_id = bd.approver_id "
-				+ " join branch br on br.br_id = bd.br_id"
-				+ " where br.br_id = 1"
-				+ " and bd.bound_flag = ?"
-				+ " and bd.request_date between ? and ?");
+		sql.append("select "
+				+ "		  po.option_code"
+				+ "		 , CASE WHEN po.option_no = 99"
+				+ "			   THEN '-' "
+				+ "			   ELSE po.option_name"
+				+ "			   END 	AS option_name"
+				+ "		, ct.ct_name"
+				+ "		, cd.ct_dt_name"
+				+ "		, p.product_name"
+				+ "		, b.bd_name"
+				+ "		, po.price"
+				+ "		, bp.b_count"
+				+ "		, bd.request_date"
+				+ "		 , ("
+				+ "				select u.user_name"
+				+ "				from   user u"
+				+ "				join   bound b on bd.approver_id = u.user_id"
+				+ "				where  b.bound_id = bp.bound_id\r\n"
+				+ "		   ) as user_name" // 승인자
+				+ "		, bd.approve_date"
+				+ " from product_option po "
+				+ " join product p 			on p.product_id = po.product_id"
+				+ " join category_detail cd on cd.ct_dt_id 	= p.ct_dt_id"
+				+ " join category ct 		on ct.ct_id 	= cd.ct_id"
+				+ " join brand b 			on b.bd_id 		= p.bd_id"
+				+ " join bound_product bp 	on bp.option_id = po.option_id"
+				+ " join bound bd 			on bd.bound_id 	= bp.bound_id"
+				+ " join user u 			on u.user_id 	= bd.approver_id "
+				+ " join branch br 			on br.br_id 	= bd.br_id"
+				+ " where br.br_id 	  = 1"
+				+ " and	  bd.bo_state_id IN (2, 3)"
+				+ " and   bd.bound_flag = ?"
+				+ " and   bd.request_date between ? and ?");
 		
 		try {
 			con = dbManager.getConnection();

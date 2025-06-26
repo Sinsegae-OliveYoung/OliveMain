@@ -17,6 +17,8 @@ public class StockModel extends AbstractTableModel{
     List<StockHistory> list;
     String status = null;
     
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    
     String[] column = {
     	    "옵션 코드",       // po.option_code
     	    "카테고리명",   // ct.ct_name
@@ -103,16 +105,23 @@ public class StockModel extends AbstractTableModel{
             	value = Integer.toString(his.getQuantity());
                 break;
             case 8:
-            	SimpleDateFormat sdf_req = new SimpleDateFormat("yyyy-MM-dd");
-        	    value = sdf_req.format(his.getRequestDate());
-                break;
+            	if (his.getRequestDate() != null) {
+                    
+                    return sdf.format(his.getRequestDate());
+                } else {
+                    return ""; // 또는 "요청일 없음"
+                }
             case 9:
             	value = his.getManager().getUser_name();
             	break;
             case 10:
-            	SimpleDateFormat sdf_app = new SimpleDateFormat("yyyy-MM-dd");
-            	value = sdf_app.format(his.getApprovalDate());
-            	break;
+            	if (his.getApprovalDate() != null) {
+                    return sdf.format(his.getApprovalDate());
+                } else {
+                    return ""; // 또는 "결재일 없음"
+                }
+            default:
+                return null;
         }
 
         return value;

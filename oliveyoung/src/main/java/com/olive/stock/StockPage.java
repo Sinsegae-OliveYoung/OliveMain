@@ -47,8 +47,6 @@ public class StockPage extends Page {
 	
 	JLabel la_menu3;	
 	JButton bt_menu4;	
-	JButton bt_menu5;	
-	JButton bt_menu6;	
 	
 	JLabel la_menu4;	
 	JButton bt_menu7;	
@@ -79,9 +77,9 @@ public class StockPage extends Page {
 		bt_menu3 = new JButton("수동 수량 재고 조정");
 		
 		la_menu3 = new JLabel("재고 이력 관리");	
-		bt_menu4 = new JButton("재고 입고 기록");	
-		bt_menu5 = new JButton("재고 출고 기록");	
-		bt_menu6 = new JButton("시간별 필터");	
+		bt_menu4 = new JButton("재고 입출고 기록");	
+//		bt_menu5 = new JButton("재고 출고 기록");	
+//		bt_menu6 = new JButton("시간별 필터");	
 		
 		la_menu4 = new JLabel("안전 재고 알림");	
 		bt_menu7 = new JButton("재고 수량 부족");	
@@ -120,16 +118,7 @@ public class StockPage extends Page {
 		bt_menu4.setBackground(Config.LIGHT_GRAY);
 		bt_menu4.setFocusPainted(false);
 		bt_menu4.setBorder(null);
-		
-		bt_menu5.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		bt_menu5.setBackground(Config.LIGHT_GRAY);
-		bt_menu5.setFocusPainted(false);
-		bt_menu5.setBorder(null);
-		
-		bt_menu6.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		bt_menu6.setBackground(Config.LIGHT_GRAY);
-		bt_menu6.setFocusPainted(false);
-		bt_menu6.setBorder(null);
+
 		
 		la_menu4.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
 		
@@ -161,11 +150,7 @@ public class StockPage extends Page {
 		p_side.add(Box.createVerticalStrut(25));
 		p_side.add(la_menu3);	
 		p_side.add(Box.createVerticalStrut(15));
-		p_side.add(bt_menu4);	
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(bt_menu5);
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(bt_menu6);	
+		p_side.add(bt_menu4);		
 		p_side.add(Box.createVerticalStrut(25));
 		p_side.add(la_menu4);	
 		p_side.add(Box.createVerticalStrut(15));
@@ -178,7 +163,7 @@ public class StockPage extends Page {
 		
 
 		// listener
-		for (JButton btn : new JButton[] { bt_menu1, bt_menu2, bt_menu3, bt_menu4, bt_menu5, bt_menu6, bt_menu7, bt_menu8, } ) {
+		for (JButton btn : new JButton[] { bt_menu1, bt_menu2, bt_menu3, bt_menu4, bt_menu7, bt_menu8} ) {
 			btn.addMouseListener(new MouseAdapter() {
 				public void mouseEntered(MouseEvent e) {btn.setForeground(Config.DARK_GREEN);}
 				public void mouseExited(MouseEvent e) {btn.setForeground(Color.BLACK);}
@@ -193,14 +178,10 @@ public class StockPage extends Page {
 				    	  showPanel(2);
 				      if (source == bt_menu4)
 				    	  showPanel(3);
-				      if (source == bt_menu5)
-				    	  showPanel(4);
-				      if (source == bt_menu6)
-				    	  showPanel(5);
 				      if (source == bt_menu7)
-				    	  showPanel(6);
+				    	  showPanel(4);
 				      if (source == bt_menu8)
-				    	  showPanel(7);
+				    	  showPanel(5);
 				}
 			});
 		}
@@ -213,16 +194,14 @@ public class StockPage extends Page {
 
 	public void createPanel() {
 		
-		panels = new Panel[8];
+		panels = new Panel[6];
 
 		panels[0] = new StockNowPanel(mainLayout);
 		panels[1] = new StockCatPanel(mainLayout);
 		panels[2] = new StockUpdatePanel(mainLayout, this);
-		panels[3] = new StockIBPanel(mainLayout);
-		panels[4] = new StockOBPanel(mainLayout);
-		panels[5] = new StockFiltPanel(mainLayout);
-		panels[6] = new CountAlertPanel(mainLayout);
-		panels[7] = new OldAlertPanel(mainLayout);
+		panels[3] = new StockFiltPanel(mainLayout);
+		panels[4] = new CountAlertPanel(mainLayout);
+		panels[5] = new OldAlertPanel(mainLayout);
 		
 		for(int i=0; i<panels.length; i++) {
 			p_content.add(panels[i]);
