@@ -7,9 +7,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 
+import javax.swing.JLabel;
 import javax.swing.text.BadLocationException;
 
 import com.google.gson.Gson;
+import com.olive.mainlayout.MainLayout;
 
 public class ChatClientThread extends Thread{
 	Client client;
@@ -52,6 +54,13 @@ public class ChatClientThread extends Thread{
 				String msg = p.getSender().getUser_name() + ": " + p.getData() + "\n";
 				
 				System.out.println(this + " 클라이언트 메시지 수신: " + msg);
+
+				if(!client.isVisible()) {
+					JLabel lb = client.mainLayout.lb_chatCount; 
+					int chatcount = Integer.parseInt(lb.getText()) + 1;
+					lb.setText(Integer.toString(chatcount));
+					client.mainLayout.lb_chatCount.setVisible(true);
+				}
 				
 				try {
 					client.doc.setParagraphAttributes(client.doc.getLength(), 1, client.leftAlign, false);
