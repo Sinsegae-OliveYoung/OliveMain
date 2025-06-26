@@ -61,7 +61,7 @@ public class StoreConfigMenu extends Panel {
 		p_btns = new JPanel();
 		bt_regist = ButtonUtil.greenButtonUtil("등록");
 		bt_edit = ButtonUtil.greenButtonUtil("수정");
-		bt_delete = ButtonUtil.greenButtonUtil("삭제");
+		bt_delete = ButtonUtil.pinkButtonUtil("삭제");
 
 		table = new JTable(storeConfigModel = new StoreConfigModel());
 		scroll = new JScrollPane(table);
@@ -137,7 +137,7 @@ public class StoreConfigMenu extends Panel {
 	
 	
 	// 테이블 로드 및 출력
-	public void loadData() {
+	public void refresh() {
 		storeConfigModel.list = storeConfigModel.branchDAO.selectBranch();
 		storeConfigModel.fireTableDataChanged();
 		table.revalidate();
@@ -152,7 +152,7 @@ public class StoreConfigMenu extends Panel {
 		branchDAO.delete(branch, mainLayout.user);	// 쿼리문 날리기
 		
 		JOptionPane.showMessageDialog(this, "지점이 삭제되었습니다");
-		loadData();	// 테이블 재출력
+		refresh();	// 테이블 재출력
 		((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
 		storePage.showPanel(0);	// 삭제 후 보여줄 페이지 설정
 	}

@@ -236,7 +236,7 @@ public class ReportStoreMenu extends Panel {
 		return chart;
 	}
 
-	public void loadData() {
+	public void refresh() {
 		chart.getXYPlot().setDataset(createSalesDataset(year));
 	}
 	

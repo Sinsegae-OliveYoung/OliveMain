@@ -152,7 +152,7 @@ public class ReportTotalMenu extends Panel {
 	public XYDataset createSalesDataset(int year) {
 		brList = branchDAO.getBranchList(userId); // 유저에 해당되는 지점 리스트를 가져옴
 		XYSeriesCollection dataset = new XYSeriesCollection(); // 데이터 집합 생성
-		XYSeries series = new XYSeries("관리 지점 매출 합산"); // 데이터명 설정
+		XYSeries series = new XYSeries("소속 지점 매출 합"); // 데이터명 설정
 
 		// 1~12월 매출 0으로 초기화
 		Map<Integer, Integer> totalSalesMap = new HashMap<>(); // 1~12월까지의 데이터를 세팅할 맵 선언
@@ -228,7 +228,7 @@ public class ReportTotalMenu extends Panel {
 		return chart;
 	}
 
-	public void loadData() {
+	public void refresh() {
 		chart.getXYPlot().setDataset(createSalesDataset(year));
 	}
 	
