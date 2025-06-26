@@ -60,7 +60,6 @@ import com.olive.store.StorePage;
 public class MainLayout extends JFrame {
 
 	JPanel p_navi;
-
 	JPanel p_title;
 	Image img;
 	ImageUtil img_title = new ImageUtil();
@@ -97,11 +96,17 @@ public class MainLayout extends JFrame {
 
 	public User user;
 	BranchDAO branchDAO;
-	Client chatClient;
+	Client client;
 
+	
 	public MainLayout(User user) {
 		this.user = user;
 		
+		client = new Client(this);  //채팅 클라이언트 연결
+		client.setVisible(false);
+		
+		img_float_default = img_title.getImage("images/chat.png", 40, 40);
+		img_float_hover = img_title.getImage("images/chat_hover.png", 40, 40);
 		branchDAO = new BranchDAO();
 
 		// create
@@ -161,7 +166,7 @@ public class MainLayout extends JFrame {
 		bt_title.setFocusPainted(false);
 		bt_title.setBorder(null);
 
-		p_menu.setBorder(BorderFactory.createEmptyBorder(14, 0, 0, 200));
+		p_menu.setBorder(BorderFactory.createEmptyBorder(14, 0, 0, 30));
 		p_menu.setOpaque(false);
 
 		for (JButton button : new JButton[] {bt_pd, bt_io, bt_st, bt_sh, bt_ma}) {
@@ -253,10 +258,12 @@ public class MainLayout extends JFrame {
 					else if (source == bt_ma)
 						showPage(Config.MANAGE_PAGE);
 					else if (source == bt_lo) {
-						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
-								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
-							setVisible(false);
-
+						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
+							if(client != null) {
+								System.out.println("클라이언트 종료");
+			    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
+			    				client.dispose();
+							}
 							dispose();
 							new LoginPage();
 						}
@@ -269,11 +276,25 @@ public class MainLayout extends JFrame {
 
 		showPage(Config.MAIN_PAGE);
 
+		//채팅 서버와 연결 끊기
+		addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if(client != null) {
+					System.out.println("클라이언트 종료");
+    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
+    				client.dispose();
+				}
+                System.exit(0);
+			}	
+		});
+			
+		
 		getContentPane().setBackground(Config.WHITE);
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
 		// 윈도우 닫으면 쓰레드 종료
 		addWindowListener(new WindowAdapter() {
 		    @Override
@@ -286,15 +307,6 @@ public class MainLayout extends JFrame {
 		// 자동 출고 쓰레드 초기화 작업 <- 페이지 생성 후에 run
 		startAutoOutboundThread();	
 	}
-	
-	public static void main(String[] args) {
-		final User user = new UserDAO().selectAll().get(0);
-		SwingUtilities.invokeLater(() -> {
-			new MainLayout(user).setVisible(true);
-		});
-
-	}
-
 
 	public void createPage() {
 		pages = new Page[6];
@@ -340,7 +352,7 @@ public class MainLayout extends JFrame {
 		});
 		
 		bt_float.addActionListener(e -> {
-			chatClient = new Client(); 
+			client = new Client(this); 
 		});
 
 		getLayeredPane().add(bt_float, JLayeredPane.POPUP_LAYER);
