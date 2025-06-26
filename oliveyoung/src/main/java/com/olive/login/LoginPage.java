@@ -80,8 +80,8 @@ public class LoginPage extends JFrame {
 		t_pwd = new JPasswordField(16);
 		
 		// 임시 로그인 패스 -> 추후 제거
-		t_id.setText("1021");
-		t_pwd.setText("1234");
+		t_id.setText("2107");
+		t_pwd.setText("2345");
 
 		bt_login = new JButton("로그인");
 

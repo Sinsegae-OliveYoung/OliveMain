@@ -84,9 +84,9 @@ public class StockCatPanel extends Panel {
 
         cb_category = new JComboBox<>();
         cb_category.setUI(new ComboBoxUtil());
-        ComboBoxUtil.applyDefaultStyle(cb_category);
         cb_category.setPreferredSize(new Dimension(190, 30));
-        cb_category.setBackground(Config.LIGHT_GREEN); // 이건 applyDefaultStyle에 없으니 유지
+        ComboBoxUtil.applyDefaultStyle(cb_category);
+        cb_category.setBackground(Config.LIGHT_GRAY); // 이건 applyDefaultStyle에 없으니 유지
         comboPanel.add(cb_category);
 
 
