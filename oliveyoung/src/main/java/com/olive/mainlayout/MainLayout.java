@@ -8,8 +8,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -30,10 +28,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import com.olive.bound.BoundPage;
+import com.olive.chat.Client;
 import com.olive.common.config.Config;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
@@ -44,7 +42,6 @@ import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
-import com.olive.manage.ManageConfig;
 import com.olive.manage.ManagePage;
 import com.olive.product.ProductPage;
 import com.olive.stock.StockPage;
@@ -63,7 +60,6 @@ import com.olive.store.StorePage;
 public class MainLayout extends JFrame {
 
 	JPanel p_navi;
-
 	JPanel p_title;
 	Image img;
 	ImageUtil img_title = new ImageUtil();
@@ -83,7 +79,11 @@ public class MainLayout extends JFrame {
 	JButton bt_lo; // logout
 
 	JPanel p_content;
-
+	JButton bt_float;
+	Image img_float_default;
+	Image img_float_hover;
+	Image curImg;
+	
 	Page[] pages; // 페이지 담을 배열
 	
 	private int alertCount = 0;
@@ -96,17 +96,24 @@ public class MainLayout extends JFrame {
 
 	public User user;
 	BranchDAO branchDAO;
+	Client client;
 
+	
 	public MainLayout(User user) {
 		this.user = user;
 		
+		client = new Client(this);  //채팅 클라이언트 연결
+		client.setVisible(false);
+		
+		img_float_default = img_title.getImage("images/chat.png", 40, 40);
+		img_float_hover = img_title.getImage("images/chat_hover.png", 40, 40);
 		branchDAO = new BranchDAO();
 
 		// create
 		p_navi = new JPanel();
 
 		p_title = new JPanel();
-		img = img_title.getImage(Config.LOGO_PATH, 180, 20);
+		img = img_title.getImage("images/logo2.png", 180, 20);
 		bt_title = new JButton() {
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -138,6 +145,8 @@ public class MainLayout extends JFrame {
 		bt_lo = new JButton("로그아웃");
 
 		p_content = new JPanel();
+		img_float_default = img_title.getImage("images/chat.png", 40, 40);
+		img_float_hover = img_title.getImage("images/chat_hover.png", 40, 40);
 		
 		bt_alert.addActionListener(e -> {
 		    alertCount = 0;
@@ -157,38 +166,16 @@ public class MainLayout extends JFrame {
 		bt_title.setFocusPainted(false);
 		bt_title.setBorder(null);
 
-		p_menu.setBorder(BorderFactory.createEmptyBorder(14, 0, 0, 200));
+		p_menu.setBorder(BorderFactory.createEmptyBorder(14, 0, 0, 30));
 		p_menu.setOpaque(false);
 
-		bt_pd.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
-		bt_pd.setHorizontalAlignment(JButton.LEFT);
-		bt_pd.setBackground(Config.GREEN);
-		bt_pd.setFocusPainted(false);
-		bt_pd.setBorder(null);
-
-		bt_io.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
-		bt_io.setHorizontalAlignment(JButton.LEFT);
-		bt_io.setBackground(Config.GREEN);
-		bt_io.setFocusPainted(false);
-		bt_io.setBorder(null);
-
-		bt_st.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
-		bt_st.setHorizontalAlignment(JButton.LEFT);
-		bt_st.setBackground(Config.GREEN);
-		bt_st.setFocusPainted(false);
-		bt_st.setBorder(null);
-
-		bt_sh.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
-		bt_sh.setHorizontalAlignment(JButton.LEFT);
-		bt_sh.setBackground(Config.GREEN);
-		bt_sh.setFocusPainted(false);
-		bt_sh.setBorder(null);
-
-		bt_ma.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
-		bt_ma.setHorizontalAlignment(JButton.LEFT);
-		bt_ma.setBackground(Config.GREEN);
-		bt_ma.setFocusPainted(false);
-		bt_ma.setBorder(null);
+		for (JButton button : new JButton[] {bt_pd, bt_io, bt_st, bt_sh, bt_ma}) {
+			button.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
+			button.setHorizontalAlignment(JButton.LEFT);
+			button.setBackground(Config.GREEN);
+			button.setFocusPainted(false);
+			button.setBorder(null);
+		}
 
 		p_my.setOpaque(false);
 		p_my.setBorder(BorderFactory.createEmptyBorder(17, 0, 0, 10));
@@ -208,14 +195,10 @@ public class MainLayout extends JFrame {
 		p_title.add(bt_title);
 		p_navi.add(p_title, BorderLayout.WEST);
 
-		p_menu.add(bt_pd);
-		p_menu.add(Box.createHorizontalStrut(50));
-		p_menu.add(bt_io);
-		p_menu.add(Box.createHorizontalStrut(50));
-		p_menu.add(bt_st);
-		p_menu.add(Box.createHorizontalStrut(50));
-		p_menu.add(bt_sh);
-		p_menu.add(Box.createHorizontalStrut(50));
+		for (JButton button : new JButton[] {bt_pd, bt_io, bt_st, bt_sh}) {
+			p_menu.add(button);
+			p_menu.add(Box.createHorizontalStrut(50));
+		}
 		p_menu.add(bt_ma);
 		p_navi.add(p_menu);
 		
@@ -275,10 +258,12 @@ public class MainLayout extends JFrame {
 					else if (source == bt_ma)
 						showPage(Config.MANAGE_PAGE);
 					else if (source == bt_lo) {
-						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
-								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
-							setVisible(false);
-
+						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
+							if(client != null) {
+								System.out.println("클라이언트 종료");
+			    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
+			    				client.dispose();
+							}
 							dispose();
 							new LoginPage();
 						}
@@ -286,14 +271,30 @@ public class MainLayout extends JFrame {
 				}
 			});
 		}
+		
+		createFloatButton();
 
 		showPage(Config.MAIN_PAGE);
 
+		//채팅 서버와 연결 끊기
+		addWindowListener(new WindowAdapter() {
+			
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if(client != null) {
+					System.out.println("클라이언트 종료");
+    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
+    				client.dispose();
+				}
+                System.exit(0);
+			}	
+		});
+			
+		
 		getContentPane().setBackground(Config.WHITE);
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
 		// 윈도우 닫으면 쓰레드 종료
 		addWindowListener(new WindowAdapter() {
 		    @Override
@@ -306,15 +307,6 @@ public class MainLayout extends JFrame {
 		// 자동 출고 쓰레드 초기화 작업 <- 페이지 생성 후에 run
 //		startAutoOutboundThread();	
 	}
-	
-	public static void main(String[] args) {
-		final User user = new UserDAO().selectAll().get(0);
-		SwingUtilities.invokeLater(() -> {
-			new MainLayout(user).setVisible(true);
-		});
-
-	}
-
 
 	public void createPage() {
 		pages = new Page[6];
@@ -331,6 +323,42 @@ public class MainLayout extends JFrame {
 		}
 	}
 
+
+	public void createFloatButton() {
+		curImg = img_float_hover;
+		bt_float = new JButton() {
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				
+				g.drawImage(curImg, 0, 0, 40, 40, bt_float);
+			}
+		};
+		bt_float.setSize(40, 40);
+		bt_float.setContentAreaFilled(false); // 배경 제거
+		bt_float.setBorderPainted(false);    // 테두리 제거
+		bt_float.setFocusPainted(false);
+		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
+		
+		bt_float.addMouseListener(new MouseAdapter() {
+		    public void mouseEntered(MouseEvent e) {
+		        curImg = img_float_default;
+		        bt_float.repaint();
+		    }
+
+		    public void mouseExited(MouseEvent e) {
+		    	curImg = img_float_hover;
+		        bt_float.repaint();
+		    }
+		});
+		
+		bt_float.addActionListener(e -> {
+			client = new Client(this); 
+		});
+
+		getLayeredPane().add(bt_float, JLayeredPane.POPUP_LAYER);
+	}
+	
+	
 	/* 
 	 * 데이터 수정 시 모든 패널 업데이트 코드
 	 */

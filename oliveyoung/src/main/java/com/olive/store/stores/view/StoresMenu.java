@@ -101,7 +101,7 @@ public class StoresMenu extends Panel {
 	}
 
 	// 테이블 로드 및 출력
-	public void loadData() {
+	public void refresh() {
 		storesModel = new StoresModel(storeName);
 		table.setModel(storesModel);
 		storesModel.fireTableDataChanged();

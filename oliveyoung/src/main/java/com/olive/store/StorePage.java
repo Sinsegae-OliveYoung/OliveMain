@@ -54,7 +54,6 @@ public class StorePage extends Page {
 	int index; // 선택된 메뉴를 가르킬 변수
 	MainLayout mainLayout;
 	int roleId; // 로그인 한 유저의 아이디
-	List<Branch> branches; // 모든 지점 리스트
 	List<Branch> userBranches = new ArrayList(); // 로그인 한 유저의 지점 리스트
 	BranchDAO branchDAO = new BranchDAO();
 
@@ -104,23 +103,19 @@ public class StorePage extends Page {
 			btn.addActionListener(e -> {
 				JButton source = (JButton) e.getSource(); // 클릭된 버튼 변수 선언
 				if (source == mn_store_config && roleId == 1) {
-					StoreConfigMenu storeConfigMenu = (StoreConfigMenu) panels[0];
-					storeConfigMenu.loadData();
+					refreshAll();
 					showPanel(0);
 				}
 				else if (source == mn_report_total) {
-					ReportTotalMenu reportTotalMenu = (ReportTotalMenu) panels[index];
-					reportTotalMenu.loadData();
+					refreshAll();
 					showPanel(index);
 				}
 				else if (source == mn_report_product) {
-					ReportProductMenu reportProductMenu = (ReportProductMenu) panels[index+1];
-					reportProductMenu.loadData();
+					refreshAll();
 					showPanel(index + 1);
 				}
 				else if (source == mn_report_store && roleId == 1) {
-					ReportStoreMenu reportStoreMenu = (ReportStoreMenu) panels[index+2];
-					reportStoreMenu.loadData();
+					refreshAll();
 					showPanel(index + 2);
 				}
 				else
@@ -134,7 +129,6 @@ public class StorePage extends Page {
 
 	// 메뉴(버튼)를 생성/재생성 하는 메서드
 	public void createMenus() {
-		branches = new BranchDAO().selectBranch(); // DB에서 모든 지점 목록 가져오기
 		userBranches = branchDAO.getBranchList(mainLayout.user.getUser_id()); // 유저의 지점 목록 가져오기
 		
 		// 이전 메뉴들 초기화
@@ -147,15 +141,14 @@ public class StorePage extends Page {
 		p_side.add(mn_store_config);
 
 		index = 1; 	// panels[0]은 보고서라 1부터 시작하여 지점 메뉴들 담기
-		for (Branch allBranch : branches) { // 모든 지점 리스트만큼 반복
+		for (Branch allBranch : userBranches) { // 소유 지점 리스트만큼 반복
 			JButton branchBtn = new JButton("  " + allBranch.getBr_name()); // 메뉴 버튼 생성
 			setButtonStyle(branchBtn); // 메뉴 버튼 스타일
 
 			final int panelIndex = index++;	// 버튼 하나당 소유할 패널값 선언
 			branchBtn.addActionListener(e -> {
 				if (userBranches.contains(allBranch)) {// 유저의 지점 중 선택된 지점이 포함된다면
-					StoresMenu storesMenu = (StoresMenu) panels[panelIndex];
-					storesMenu.loadData();
+					refreshAll();
 					showPanel(panelIndex); // 해당 패널로 이동
 				}
 				else
@@ -181,7 +174,7 @@ public class StorePage extends Page {
 
 		add(p_content, BorderLayout.CENTER);
 
-		createPanels(branches);
+		createPanels(userBranches);
 
 		// 테이블 재생성
 		revalidate();
@@ -232,6 +225,13 @@ public class StorePage extends Page {
 			panels[i].setVisible((i == target) ? true : false);
 	}
 
+	@Override
+	public void refreshAll() {
+	    for (Panel panel : panels) {
+	        panel.refresh(); // 각 Panel에서 refresh() 오버라이드 가능
+	    }
+	}
+	
 	public void tableStyleUtil(JTable table, JScrollPane scroll, int height){
 		// 테이블 헤더
         JTableHeader header = table.getTableHeader();
@@ -255,8 +255,10 @@ public class StorePage extends Page {
         table.getColumnModel().getColumn(2).setPreferredWidth(60);
         table.getColumnModel().getColumn(3).setPreferredWidth(300);
         table.getColumnModel().getColumn(4).setPreferredWidth(30);
-        if (table.getColumnCount() >= 6)
-        	table.getColumnModel().getColumn(5).setPreferredWidth(40);
+        if (table.getColumnCount() >= 6) {
+        	table.getColumnModel().getColumn(5).setPreferredWidth(30);
+        	table.getColumnModel().getColumn(6).setPreferredWidth(40);
+        }
         
 		// 셀 글자 정렬
 		DefaultTableCellRenderer dtcr = new DefaultTableCellRenderer();
