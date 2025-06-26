@@ -43,8 +43,6 @@ import javax.swing.JTextField;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableModel;
@@ -71,7 +69,6 @@ import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
-import com.olive.product.ProductPage;
 import com.olive.product.model.ProductModel;
 import com.olive.stock.StockConfig;
 
