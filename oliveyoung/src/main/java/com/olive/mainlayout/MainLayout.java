@@ -37,7 +37,6 @@ import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.StockDAO;
-import com.olive.common.repository.UserDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
@@ -352,7 +351,6 @@ public class MainLayout extends JFrame {
 		});
 		
 		bt_float.addActionListener(e -> {
-			client = new Client(this); 
 			client.setVisible(true);
 		});
 
