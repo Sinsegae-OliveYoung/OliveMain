@@ -939,23 +939,9 @@ public class ProductListPanel extends Panel {
 			int productOption_id = productOptionDAO.selectRecentPk();
 			productOption.setOption_id(productOption_id);
 			
-			// 상품에 딸려있는 이미지 등록 (null 체크 추가)
-			if (file != null) {
-			    ProductImg productImg = new ProductImg();
-			    productImg.setProductOption(productOption); // 어떤 상품에
-			    productImg.setImg_filename(file.getName()); // 어떤 파일명으로
-			    productImgDAO.insert(productImg, con);
-			}
-
 			// 상품에 딸려있는 이미지 등록
-//			ProductImg productImg = new ProductImg();
-//			productImg.setProductOption(productOption); // 1) 어떤 상품에..
-//			productImg.setImg_filename(file.getName()); // 2) 어떤 파일명으로..
-//			productImgDAO.insert(productImg, con);
-			
-			// 상품에 딸려있는 이미지 등록
+			ProductImg productImg = new ProductImg();
 			if (file != null) {
-			    ProductImg productImg = new ProductImg();
 			    productImg.setProductOption(productOption); // 1) 어떤 상품에..
 			    productImg.setImg_filename(file.getName()); // 2) 어떤 파일명으로..
 			    productImgDAO.insert(productImg, con);
