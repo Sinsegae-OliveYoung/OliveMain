@@ -43,6 +43,7 @@ import javax.swing.JTextField;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -526,10 +527,7 @@ public class ProductListPanel extends Panel {
 
 		int[] columnWidths = { 110, 110, 200, 85, 80, 80, 70, 70 };
 
-		for (int i = 0; i < table.getColumnCount(); i++) {
-			table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-			table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-		}
+
 
 		scroll = new JScrollPane(table);
 		scroll.setBackground(Config.WHITE); // scroll 자체도 같은 배경색으로
@@ -543,6 +541,12 @@ public class ProductListPanel extends Panel {
 		scrollWrapper.add(scroll, BorderLayout.CENTER);
 
 		TableUtil.tableStyleUtil(table, scroll, 700, true);
+		SwingUtilities.invokeLater(() -> {
+			for (int i = 0; i < table.getColumnCount(); i++) {
+				table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+				table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+			}
+		});
 
 		add(titlePanel, BorderLayout.NORTH);
 		add(buttonPanel, BorderLayout.EAST);
