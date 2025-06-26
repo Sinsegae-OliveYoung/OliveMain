@@ -99,7 +99,7 @@ public class StockFiltPanel extends Panel {
 
 
         // 테이블 생성 및 스타일
-        model = new StockModel("in");
+        model = new StockModel("in", mainLayout.user);
         table = new JTable(model);
         // 테이블 스타일 적용
         TableUtil.applyStyle(table);
@@ -151,7 +151,7 @@ public class StockFiltPanel extends Panel {
             }
 
             // 필터링 로직 추가 가능
-            model = new StockModel(state ,start, end);
+            model = new StockModel(state ,start, end, mainLayout.user);
             table.setModel(model);
             
             // 선택 변경 후 렌더러 다시 설정

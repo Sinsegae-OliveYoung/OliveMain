@@ -1,9 +1,11 @@
 package com.olive.common.repository;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -410,6 +412,30 @@ public class StockDAO {
         	  dbManager.release(pstmt);
           }
     }
+    
+    public void updateStockDate(int st_id) {
+  	  Connection con = null;
+        PreparedStatement pstmt = null;
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = sdf.format(new java.util.Date());
+
+        StringBuffer sql = new StringBuffer();
+        sql.append("UPDATE stock set st_update = ? where st_id = ?");
+        
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setString(1, formattedDate);
+            pstmt.setInt(2, st_id);
+            pstmt.execute();
+            
+        } catch ( SQLException e) {
+      	  e.printStackTrace();
+        } finally {
+      	  dbManager.release(pstmt);
+        }
+  }
     
  // 로그인한 user가 관리하는 branch 목록 반환
  	public int getBranchID(User user){
