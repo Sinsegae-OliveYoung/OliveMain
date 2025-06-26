@@ -111,7 +111,6 @@ public class UserDAO {
 		con = dbManager.getConnection();
 		
 		String sql = "update user set user_no = ?, user_name = ?, role_id = ?, tel = ?, email = ?, hiredate = ? where user_id = ?";
-		System.out.println("UserDAO.update(): " + sql);
 		try {
 			pstmt = con.prepareStatement(sql);
 			

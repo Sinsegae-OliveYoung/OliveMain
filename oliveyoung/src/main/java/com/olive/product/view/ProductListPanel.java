@@ -102,11 +102,7 @@ public class ProductListPanel extends Panel {
 	DBManager dbManager = DBManager.getInstance();
 	JScrollPane scroll;
 
-	@Override
-	public void refresh() {
-		model.reload(); // ListModel에서 최신 데이터 로드
-		TableUtil.tableStyleUtil(table, scroll, 700, true);
-	}
+
 
 	public ProductListPanel(MainLayout mainLayout) {
 		super(mainLayout);
@@ -156,6 +152,331 @@ public class ProductListPanel extends Panel {
 			buttonPanel.add(Box.createRigidArea(new Dimension(0, 30)));
 		}
 
+		// 테이블 생성
+		model = new ProductModel(mainLayout.user);
+		table = new JTable(model);
+
+		// 테이블 header 스타일 추가적으로 적용 가능
+		JTableHeader header = table.getTableHeader();
+		header.setBackground(Config.LIGHT_GREEN);
+		header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
+		header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
+		header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+
+		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+		int[] columnWidths = { 110, 110, 200, 85, 80, 80, 70, 70 };
+
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+			table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+		}
+
+		scroll = new JScrollPane(table);
+		scroll.setBackground(Config.WHITE); // scroll 자체도 같은 배경색으로
+		scroll.getViewport().setBackground(Config.WHITE);
+
+		// scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
+		JPanel scrollWrapper = new JPanel(new BorderLayout());
+		scrollWrapper.setBackground(Config.WHITE);
+		scrollWrapper.setBorder(BorderFactory.createEmptyBorder(15, 25, 10, 15));
+
+		scrollWrapper.add(scroll, BorderLayout.CENTER);
+
+		TableUtil.tableStyleUtil(table, scroll, 700, true);
+
+		add(titlePanel, BorderLayout.NORTH);
+		add(buttonPanel, BorderLayout.EAST);
+		add(scrollWrapper, BorderLayout.CENTER);
+
+		// 1. 정렬 기능 설정
+		TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table.getModel());
+		table.setRowSorter(sorter_list);
+
+		// 2. 헤더 클릭 이벤트로 정렬 상태 출력
+		JTableHeader header_list = table.getTableHeader();
+		header_list.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int columnIndex = header_list.columnAtPoint(e.getPoint());
+				String columnName = table.getColumnName(columnIndex);
+				SortOrder order = getSortOrder(sorter_list, columnIndex);
+			}
+
+			private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+				for (RowSorter.SortKey key : sorter.getSortKeys()) {
+					if (key.getColumn() == columnIndex) {
+						return key.getSortOrder();
+					}
+				}
+				return SortOrder.UNSORTED;
+			}
+		});
+
+		
+		
+		// 상품 추가
+		btnAdd.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (mainLayout.user.getRole().getRole_id() == 3) {
+					JOptionPane.showMessageDialog(ProductListPanel.this, "상품 수정 권한 없음");
+				} else {
+					JDialog dialog = new JDialog();
+					dialog.setTitle("상품 등록");
+					dialog.setSize(600, 500);
+					dialog.setLocationRelativeTo(null);
+					dialog.setModal(true);
+
+					JPanel contentPanel = new JPanel(new GridBagLayout());
+					GridBagConstraints gbc = new GridBagConstraints();
+					gbc.insets = new Insets(10, 10, 10, 10);
+					gbc.fill = GridBagConstraints.HORIZONTAL;
+
+					JLabel lblBrand = new JLabel("브랜드명:");
+					cbBrand = new JComboBox<>();
+					cbBrand.setPreferredSize(new Dimension(200, 30));
+					cbBrand.setUI(new ComboBoxUtil());  
+					ComboBoxUtil.applyDefaultStyle(cbBrand); 
+					for (Brand b : new BrandDAO().selectAll())
+						cbBrand.addItem(b);
+
+					JLabel lblName = new JLabel("상품명:");
+					tfName = new JTextField();
+					tfName.setPreferredSize(new Dimension(200, 30));
+
+					JLabel lblCategory = new JLabel("카테고리:");
+					cbCategory = new JComboBox<>();
+					cbCategory.setPreferredSize(new Dimension(200, 30));
+					cbCategory.setUI(new ComboBoxUtil());
+					ComboBoxUtil.applyDefaultStyle(cbCategory);
+
+					Category dummy = new Category();
+					dummy.setCt_name("카테고리를 선택하세요");
+					dummy.setCt_id(0);
+					cbCategory.addItem(dummy);
+
+					List<Category> categories = new CategoryDAO().selectAll();
+					for (Category c : categories)
+						cbCategory.addItem(c);
+
+					// 최상위 카테고리에 이벤트 연결
+					cbCategory.addItemListener(new ItemListener() {
+						public void itemStateChanged(ItemEvent e) {
+							if (e.getStateChange() == ItemEvent.SELECTED) {
+								Category category = (Category) cbCategory.getSelectedItem();
+
+								getCategoryDetail(category);
+							}
+						}
+					});
+
+					JLabel lblCategoryDetail = new JLabel("상세 카테고리:");
+					cbCategoryDetail = new JComboBox<>();
+					cbCategoryDetail.setPreferredSize(new Dimension(200, 30));
+					cbCategoryDetail.setUI(new ComboBoxUtil());
+					ComboBoxUtil.applyDefaultStyle(cbCategoryDetail);
+
+					JLabel lblOptionName = new JLabel("상품 옵션명:");
+					tfOptionName = new JTextField();
+					tfOptionName.setPreferredSize(new Dimension(200, 30));
+
+					JLabel lblPrice = new JLabel("가격:");
+					tfPrice = new JTextField();
+					tfPrice.setPreferredSize(new Dimension(200, 30));
+
+					JLabel lblActive = new JLabel("활성화:");
+					cbActive = new JComboBox<>(new String[] { "y", "n" });
+					cbActive.setPreferredSize(new Dimension(200, 30));
+					cbActive.setUI(new ComboBoxUtil());
+					ComboBoxUtil.applyDefaultStyle(cbActive);
+
+					bt_open = ButtonUtil.greenButtonUtil("상품 사진 등록");
+//					bt_open = new JButton("상품사진 등록");
+
+					p_preview = new JPanel() {
+						protected void paintComponent(Graphics g) {
+							super.paintComponent(g);
+
+							g.drawImage(img, 20, 100, 150, 150, this);
+
+						}
+					}; // 추후 익명 내부 클래스로 전환
+
+					chooser = new JFileChooser("C:\\public");
+
+					// 파일 탐색기 띄우기
+					bt_open.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							int result = chooser.showOpenDialog(ProductListPanel.this);
+
+							if (result == JFileChooser.APPROVE_OPTION)
+								preview();
+						}
+					});
+
+					// 콤보박스 가운데 정렬 렌더러
+					DefaultListCellRenderer centerRenderer = new DefaultListCellRenderer();
+					centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+					cbBrand.setRenderer(centerRenderer);
+					cbCategory.setRenderer(centerRenderer);
+					cbCategoryDetail.setRenderer(centerRenderer);
+					cbActive.setRenderer(centerRenderer);
+
+					// 스타일
+					Color dialogBgColor = Config.WHITE;
+					Color labelColor = new Color(60, 60, 60);
+
+					contentPanel.setBackground(dialogBgColor);
+					lblBrand.setForeground(labelColor);
+					lblName.setForeground(labelColor);
+					lblCategory.setForeground(labelColor);
+					lblCategoryDetail.setForeground(labelColor);
+					lblOptionName.setForeground(labelColor);
+					lblPrice.setForeground(labelColor);
+					lblActive.setForeground(labelColor);
+
+					// 텍스트 필드 가운데 정렬
+					tfName.setHorizontalAlignment(SwingConstants.CENTER);
+					tfPrice.setHorizontalAlignment(SwingConstants.CENTER);
+					tfOptionName.setHorizontalAlignment(SwingConstants.CENTER);
+
+					gbc.gridx = 0;
+					gbc.gridy = 0;
+					contentPanel.add(lblBrand, gbc);
+					gbc.gridx = 1;
+					contentPanel.add(cbBrand, gbc);
+
+					gbc.gridx = 0;
+					gbc.gridy++;
+					contentPanel.add(lblName, gbc);
+					gbc.gridx = 1;
+					contentPanel.add(tfName, gbc);
+
+					gbc.gridx = 0;
+					gbc.gridy++;
+					contentPanel.add(lblCategory, gbc);
+					gbc.gridx = 1;
+					contentPanel.add(cbCategory, gbc);
+
+					gbc.gridx = 0;
+					gbc.gridy++;
+					contentPanel.add(lblCategoryDetail, gbc);
+					gbc.gridx = 1;
+					contentPanel.add(cbCategoryDetail, gbc);
+
+					gbc.gridx = 0;
+					gbc.gridy++;
+					contentPanel.add(lblOptionName, gbc);
+					gbc.gridx = 1;
+					contentPanel.add(tfOptionName, gbc);
+
+					gbc.gridx = 0;
+					gbc.gridy++;
+					contentPanel.add(lblPrice, gbc);
+					gbc.gridx = 1;
+					contentPanel.add(tfPrice, gbc);
+
+					gbc.gridx = 0;
+					gbc.gridy++;
+					contentPanel.add(lblActive, gbc);
+					gbc.gridx = 1;
+					contentPanel.add(cbActive, gbc);
+
+					bt_open.setPreferredSize(new Dimension(130, 25)); // 가로 80px, 세로 25px
+					gbc.gridx = 1;
+					gbc.gridy++;
+					gbc.anchor = GridBagConstraints.EAST; // 버튼을 오른쪽 정렬 (선택사항)
+					gbc.fill = GridBagConstraints.NONE;    // 버튼 크기 강제
+					gbc.weightx = 0;
+					contentPanel.add(bt_open, gbc);
+
+					JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
+
+//					JButton btnSave = new JButton("저장");
+					JButton btnSave = ButtonUtil.blueButtonUtil("저장");
+					gbc.gridx = 0;
+					gbc.gridy++;
+					gbc.gridwidth = 2;
+					// 저장 버튼 스타일
+					btnSave.setPreferredSize(new Dimension(100, 35));
+					btnSave.setFont(new Font("SansSerif", Font.BOLD, 13));
+					btnSave.setBackground(new Color(130, 180, 250));
+					btnSave.setForeground(Color.WHITE);
+					btnSave.setFocusPainted(false);
+//                btnSave.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
+					btnSave.setCursor(new Cursor(Cursor.HAND_CURSOR));
+					
+					// 저장 버튼 위치 설정 (기존 설정 변경)
+					gbc.anchor = GridBagConstraints.WEST;
+					gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
+					gbc.weightx = 0; // 공간 분배 없음
+					btnPanel.add(btnSave, gbc);
+
+					JButton btnCancel = new JButton("취소");
+
+					// 취소 버튼 스타일
+					btnCancel.setPreferredSize(new Dimension(100, 35));
+					btnCancel.setFont(new Font("SansSerif", Font.BOLD, 13));
+					btnCancel.setBackground(Color.gray);
+					btnCancel.setForeground(Color.WHITE);
+					btnCancel.setFocusPainted(false);
+//					btnCancel.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
+					btnCancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+					// 취소 버튼 위치 설정 (기존 설정 변경)
+					gbc.anchor = GridBagConstraints.EAST;
+					gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
+					gbc.weightx = 0; // 공간 분배 없음
+					btnPanel.add(btnCancel, gbc);
+
+					btnSave.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							insert();
+							
+							mainLayout.setDataDirty(true);
+							mainLayout.refreshIfDirty();
+							
+							JOptionPane.showMessageDialog(dialog, "상품이 등록되었습니다.");
+							dialog.dispose();
+						}
+					});
+					btnCancel.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							dialog.dispose();
+						}
+					});
+
+
+					gbc.anchor = GridBagConstraints.SOUTH;
+					contentPanel.add(btnPanel, gbc);
+
+					btnPanel.setBackground(Config.WHITE); // 다이얼로그 배경색과 맞춤
+					// 미리보기 설정중
+					p_preview.setPreferredSize(new Dimension(180, 200)); // 원하는 크기로 설정
+
+					// 기존 contentPanel은 그대로 유지
+					JPanel dialogPanel = new JPanel(new BorderLayout());
+					dialogPanel.add(p_preview, BorderLayout.WEST);
+					dialogPanel.add(contentPanel, BorderLayout.CENTER);
+
+					// 마지막에 Dialog에 붙이기
+					dialog.add(dialogPanel);
+					// 미리보기 설정중
+//					dialog.add(contentPanel);
+					dialog.setVisible(true);
+				}
+			}
+		});
+
+
+		
+		
+		// 상품 수정
 		btnEdit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -507,332 +828,6 @@ public class ProductListPanel extends Panel {
 			}
 		});
 
-		// 테이블 생성
-		model = new ProductModel(mainLayout.user);
-		table = new JTable(model);
-
-		// 테이블 header 스타일 추가적으로 적용 가능
-		JTableHeader header = table.getTableHeader();
-		header.setBackground(Config.LIGHT_GREEN);
-		header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
-		header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
-		header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-
-		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-		centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-		int[] columnWidths = { 110, 110, 200, 85, 80, 80, 70, 70 };
-
-		for (int i = 0; i < table.getColumnCount(); i++) {
-			table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-			table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-		}
-
-		scroll = new JScrollPane(table);
-		scroll.setBackground(Config.WHITE); // scroll 자체도 같은 배경색으로
-		scroll.getViewport().setBackground(Config.WHITE);
-
-		// scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
-		JPanel scrollWrapper = new JPanel(new BorderLayout());
-		scrollWrapper.setBackground(Config.WHITE);
-		scrollWrapper.setBorder(BorderFactory.createEmptyBorder(15, 25, 10, 15));
-
-		scrollWrapper.add(scroll, BorderLayout.CENTER);
-
-		TableUtil.tableStyleUtil(table, scroll, 700, true);
-
-		add(titlePanel, BorderLayout.NORTH);
-		add(buttonPanel, BorderLayout.EAST);
-		add(scrollWrapper, BorderLayout.CENTER);
-
-		btnAdd.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (mainLayout.user.getRole().getRole_id() == 3) {
-					JOptionPane.showMessageDialog(ProductListPanel.this, "상품 수정 권한 없음");
-				} else {
-					JDialog dialog = new JDialog();
-					dialog.setTitle("상품 등록");
-					dialog.setSize(600, 500);
-					dialog.setLocationRelativeTo(null);
-					dialog.setModal(true);
-
-					JPanel contentPanel = new JPanel(new GridBagLayout());
-					GridBagConstraints gbc = new GridBagConstraints();
-					gbc.insets = new Insets(10, 10, 10, 10);
-					gbc.fill = GridBagConstraints.HORIZONTAL;
-
-					JLabel lblBrand = new JLabel("브랜드명:");
-					cbBrand = new JComboBox<>();
-					cbBrand.setPreferredSize(new Dimension(200, 30));
-					cbBrand.setUI(new ComboBoxUtil());  
-					ComboBoxUtil.applyDefaultStyle(cbBrand); 
-					for (Brand b : new BrandDAO().selectAll())
-						cbBrand.addItem(b);
-
-					JLabel lblName = new JLabel("상품명:");
-					tfName = new JTextField();
-					tfName.setPreferredSize(new Dimension(200, 30));
-
-					JLabel lblCategory = new JLabel("카테고리:");
-					cbCategory = new JComboBox<>();
-					cbCategory.setPreferredSize(new Dimension(200, 30));
-					cbCategory.setUI(new ComboBoxUtil());
-					ComboBoxUtil.applyDefaultStyle(cbCategory);
-
-					Category dummy = new Category();
-					dummy.setCt_name("카테고리를 선택하세요");
-					dummy.setCt_id(0);
-					cbCategory.addItem(dummy);
-
-					List<Category> categories = new CategoryDAO().selectAll();
-					for (Category c : categories)
-						cbCategory.addItem(c);
-
-					// 최상위 카테고리에 이벤트 연결
-					cbCategory.addItemListener(new ItemListener() {
-						public void itemStateChanged(ItemEvent e) {
-							if (e.getStateChange() == ItemEvent.SELECTED) {
-								Category category = (Category) cbCategory.getSelectedItem();
-
-								getCategoryDetail(category);
-							}
-						}
-					});
-
-					JLabel lblCategoryDetail = new JLabel("상세 카테고리:");
-					cbCategoryDetail = new JComboBox<>();
-					cbCategoryDetail.setPreferredSize(new Dimension(200, 30));
-					cbCategoryDetail.setUI(new ComboBoxUtil());
-					ComboBoxUtil.applyDefaultStyle(cbCategoryDetail);
-
-					JLabel lblOptionName = new JLabel("상품 옵션명:");
-					tfOptionName = new JTextField();
-					tfOptionName.setPreferredSize(new Dimension(200, 30));
-
-					JLabel lblPrice = new JLabel("가격:");
-					tfPrice = new JTextField();
-					tfPrice.setPreferredSize(new Dimension(200, 30));
-
-					JLabel lblActive = new JLabel("활성화:");
-					cbActive = new JComboBox<>(new String[] { "y", "n" });
-					cbActive.setPreferredSize(new Dimension(200, 30));
-					cbActive.setUI(new ComboBoxUtil());
-					ComboBoxUtil.applyDefaultStyle(cbActive);
-
-					bt_open = ButtonUtil.greenButtonUtil("상품 사진 등록");
-//					bt_open = new JButton("상품사진 등록");
-
-					p_preview = new JPanel() {
-						protected void paintComponent(Graphics g) {
-							super.paintComponent(g);
-
-							g.drawImage(img, 20, 100, 150, 150, this);
-
-						}
-					}; // 추후 익명 내부 클래스로 전환
-
-					chooser = new JFileChooser("C:\\public");
-
-					// 파일 탐색기 띄우기
-					bt_open.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							int result = chooser.showOpenDialog(ProductListPanel.this);
-
-							if (result == JFileChooser.APPROVE_OPTION)
-								preview();
-						}
-					});
-
-					// 콤보박스 가운데 정렬 렌더러
-					DefaultListCellRenderer centerRenderer = new DefaultListCellRenderer();
-					centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
-
-					cbBrand.setRenderer(centerRenderer);
-					cbCategory.setRenderer(centerRenderer);
-					cbCategoryDetail.setRenderer(centerRenderer);
-					cbActive.setRenderer(centerRenderer);
-
-					// 스타일
-					Color dialogBgColor = Config.WHITE;
-					Color labelColor = new Color(60, 60, 60);
-
-					contentPanel.setBackground(dialogBgColor);
-					lblBrand.setForeground(labelColor);
-					lblName.setForeground(labelColor);
-					lblCategory.setForeground(labelColor);
-					lblCategoryDetail.setForeground(labelColor);
-					lblOptionName.setForeground(labelColor);
-					lblPrice.setForeground(labelColor);
-					lblActive.setForeground(labelColor);
-
-					// 텍스트 필드 가운데 정렬
-					tfName.setHorizontalAlignment(SwingConstants.CENTER);
-					tfPrice.setHorizontalAlignment(SwingConstants.CENTER);
-					tfOptionName.setHorizontalAlignment(SwingConstants.CENTER);
-
-					gbc.gridx = 0;
-					gbc.gridy = 0;
-					contentPanel.add(lblBrand, gbc);
-					gbc.gridx = 1;
-					contentPanel.add(cbBrand, gbc);
-
-					gbc.gridx = 0;
-					gbc.gridy++;
-					contentPanel.add(lblName, gbc);
-					gbc.gridx = 1;
-					contentPanel.add(tfName, gbc);
-
-					gbc.gridx = 0;
-					gbc.gridy++;
-					contentPanel.add(lblCategory, gbc);
-					gbc.gridx = 1;
-					contentPanel.add(cbCategory, gbc);
-
-					gbc.gridx = 0;
-					gbc.gridy++;
-					contentPanel.add(lblCategoryDetail, gbc);
-					gbc.gridx = 1;
-					contentPanel.add(cbCategoryDetail, gbc);
-
-					gbc.gridx = 0;
-					gbc.gridy++;
-					contentPanel.add(lblOptionName, gbc);
-					gbc.gridx = 1;
-					contentPanel.add(tfOptionName, gbc);
-
-					gbc.gridx = 0;
-					gbc.gridy++;
-					contentPanel.add(lblPrice, gbc);
-					gbc.gridx = 1;
-					contentPanel.add(tfPrice, gbc);
-
-					gbc.gridx = 0;
-					gbc.gridy++;
-					contentPanel.add(lblActive, gbc);
-					gbc.gridx = 1;
-					contentPanel.add(cbActive, gbc);
-
-					bt_open.setPreferredSize(new Dimension(130, 25)); // 가로 80px, 세로 25px
-					gbc.gridx = 1;
-					gbc.gridy++;
-					gbc.anchor = GridBagConstraints.EAST; // 버튼을 오른쪽 정렬 (선택사항)
-					gbc.fill = GridBagConstraints.NONE;    // 버튼 크기 강제
-					gbc.weightx = 0;
-					contentPanel.add(bt_open, gbc);
-
-					JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
-
-//					JButton btnSave = new JButton("저장");
-					JButton btnSave = ButtonUtil.blueButtonUtil("저장");
-					gbc.gridx = 0;
-					gbc.gridy++;
-					gbc.gridwidth = 2;
-					// 저장 버튼 스타일
-					btnSave.setPreferredSize(new Dimension(100, 35));
-					btnSave.setFont(new Font("SansSerif", Font.BOLD, 13));
-					btnSave.setBackground(new Color(130, 180, 250));
-					btnSave.setForeground(Color.WHITE);
-					btnSave.setFocusPainted(false);
-//                btnSave.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
-					btnSave.setCursor(new Cursor(Cursor.HAND_CURSOR));
-					
-					// 저장 버튼 위치 설정 (기존 설정 변경)
-					gbc.anchor = GridBagConstraints.WEST;
-					gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
-					gbc.weightx = 0; // 공간 분배 없음
-					btnPanel.add(btnSave, gbc);
-
-					JButton btnCancel = new JButton("취소");
-
-					// 취소 버튼 스타일
-					btnCancel.setPreferredSize(new Dimension(100, 35));
-					btnCancel.setFont(new Font("SansSerif", Font.BOLD, 13));
-					btnCancel.setBackground(Color.gray);
-					btnCancel.setForeground(Color.WHITE);
-					btnCancel.setFocusPainted(false);
-//					btnCancel.setBorder(BorderFactory.createLineBorder(new Color(100, 150, 220)));
-					btnCancel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-					// 취소 버튼 위치 설정 (기존 설정 변경)
-					gbc.anchor = GridBagConstraints.EAST;
-					gbc.fill = GridBagConstraints.NONE; // 이걸로 크기 강제
-					gbc.weightx = 0; // 공간 분배 없음
-					btnPanel.add(btnCancel, gbc);
-
-					btnSave.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							insert();
-							
-							mainLayout.setDataDirty(true);
-							mainLayout.refreshIfDirty();
-							
-							JOptionPane.showMessageDialog(dialog, "상품이 등록되었습니다.");
-							dialog.dispose();
-						}
-					});
-					btnCancel.addActionListener(new ActionListener() {
-						@Override
-						public void actionPerformed(ActionEvent e) {
-							dialog.dispose();
-						}
-					});
-
-
-					gbc.anchor = GridBagConstraints.SOUTH;
-					contentPanel.add(btnPanel, gbc);
-
-					btnPanel.setBackground(Config.WHITE); // 다이얼로그 배경색과 맞춤
-					// 미리보기 설정중
-					p_preview.setPreferredSize(new Dimension(180, 200)); // 원하는 크기로 설정
-
-					// 기존 contentPanel은 그대로 유지
-					JPanel dialogPanel = new JPanel(new BorderLayout());
-					dialogPanel.add(p_preview, BorderLayout.WEST);
-					dialogPanel.add(contentPanel, BorderLayout.CENTER);
-
-					// 마지막에 Dialog에 붙이기
-					dialog.add(dialogPanel);
-					// 미리보기 설정중
-//					dialog.add(contentPanel);
-					dialog.setVisible(true);
-				}
-			}
-		});
-
-		// 1. 정렬 기능 설정
-		TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table.getModel());
-		table.setRowSorter(sorter_list);
-
-		// 2. 헤더 클릭 이벤트로 정렬 상태 출력
-		JTableHeader header_list = table.getTableHeader();
-		header_list.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int columnIndex = header_list.columnAtPoint(e.getPoint());
-				String columnName = table.getColumnName(columnIndex);
-				SortOrder order = getSortOrder(sorter_list, columnIndex);
-
-//                System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-//                if (order == SortOrder.ASCENDING) {
-//                    System.out.println("정렬 방향: 오름차순");
-//                } else if (order == SortOrder.DESCENDING) {
-//                    System.out.println("정렬 방향: 내림차순");
-//                } else {
-//                    System.out.println("정렬 방향 없음");
-//                }
-			}
-
-			private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
-				for (RowSorter.SortKey key : sorter.getSortKeys()) {
-					if (key.getColumn() == columnIndex) {
-						return key.getSortOrder();
-					}
-				}
-				return SortOrder.UNSORTED;
-			}
-		});
 	}
 
 	// 미리보기
@@ -935,21 +930,7 @@ public class ProductListPanel extends Panel {
 
 			int productOption_id = productOptionDAO.selectRecentPk();
 			productOption.setOption_id(productOption_id);
-			
-			// 상품에 딸려있는 이미지 등록 (null 체크 추가)
-			if (file != null) {
-			    ProductImg productImg = new ProductImg();
-			    productImg.setProductOption(productOption); // 어떤 상품에
-			    productImg.setImg_filename(file.getName()); // 어떤 파일명으로
-			    productImgDAO.insert(productImg, con);
-			}
 
-			// 상품에 딸려있는 이미지 등록
-//			ProductImg productImg = new ProductImg();
-//			productImg.setProductOption(productOption); // 1) 어떤 상품에..
-//			productImg.setImg_filename(file.getName()); // 2) 어떤 파일명으로..
-//			productImgDAO.insert(productImg, con);
-			
 			// 상품에 딸려있는 이미지 등록
 			if (file != null) {
 			    ProductImg productImg = new ProductImg();
@@ -974,5 +955,11 @@ public class ProductListPanel extends Panel {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	@Override
+	public void refresh() {
+		model.reload(); // ListModel에서 최신 데이터 로드
+		TableUtil.tableStyleUtil(table, scroll, 700, true);
 	}
 }
