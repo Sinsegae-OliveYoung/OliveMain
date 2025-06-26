@@ -75,7 +75,7 @@ public class ChatClientThread extends Thread{
 			bw.write(data + "\n");
 			bw.flush();
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.out.println("클라이언트 연결 종료됨: " + e.getMessage());
 		}
 	}
 

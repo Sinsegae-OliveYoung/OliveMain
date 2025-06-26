@@ -43,7 +43,6 @@ import javax.swing.JTextField;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -527,7 +526,10 @@ public class ProductListPanel extends Panel {
 
 		int[] columnWidths = { 110, 110, 200, 85, 80, 80, 70, 70 };
 
-
+		for (int i = 0; i < table.getColumnCount(); i++) {
+			table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+			table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+		}
 
 		scroll = new JScrollPane(table);
 		scroll.setBackground(Config.WHITE); // scroll 자체도 같은 배경색으로
@@ -541,12 +543,6 @@ public class ProductListPanel extends Panel {
 		scrollWrapper.add(scroll, BorderLayout.CENTER);
 
 		TableUtil.tableStyleUtil(table, scroll, 700, true);
-		SwingUtilities.invokeLater(() -> {
-			for (int i = 0; i < table.getColumnCount(); i++) {
-				table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
-				table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-			}
-		});
 
 		add(titlePanel, BorderLayout.NORTH);
 		add(buttonPanel, BorderLayout.EAST);
@@ -942,12 +938,30 @@ public class ProductListPanel extends Panel {
 
 			int productOption_id = productOptionDAO.selectRecentPk();
 			productOption.setOption_id(productOption_id);
+			
+			// 상품에 딸려있는 이미지 등록 (null 체크 추가)
+			if (file != null) {
+			    ProductImg productImg = new ProductImg();
+			    productImg.setProductOption(productOption); // 어떤 상품에
+			    productImg.setImg_filename(file.getName()); // 어떤 파일명으로
+			    productImgDAO.insert(productImg, con);
+			}
 
 			// 상품에 딸려있는 이미지 등록
-			ProductImg productImg = new ProductImg();
-			productImg.setProductOption(productOption); // 1) 어떤 상품에..
-			productImg.setImg_filename(file.getName()); // 2) 어떤 파일명으로..
-			productImgDAO.insert(productImg, con);
+//			ProductImg productImg = new ProductImg();
+//			productImg.setProductOption(productOption); // 1) 어떤 상품에..
+//			productImg.setImg_filename(file.getName()); // 2) 어떤 파일명으로..
+//			productImgDAO.insert(productImg, con);
+			
+			// 상품에 딸려있는 이미지 등록
+			if (file != null) {
+			    ProductImg productImg = new ProductImg();
+			    productImg.setProductOption(productOption); // 1) 어떤 상품에..
+			    productImg.setImg_filename(file.getName()); // 2) 어떤 파일명으로..
+			    productImgDAO.insert(productImg, con);
+			} else {
+			    System.out.println("이미지 파일이 없어도 저장 진행");
+			}
 
 			con.commit();
 			mainLayout.setDataDirty(true);

@@ -58,14 +58,19 @@ public class ProductImgDAO {
 	            productImg = new ProductImg();
 	            productImg.setImg_filename(rs.getString("img_filename"));
 
-	            // 필요한 경우 ProductOption 객체도 세팅 가능
 	            ProductOption option = new ProductOption();
 	            option.setOption_id(rs.getInt("option_id"));
 	            productImg.setProductOption(option);
 	        }
+
 	    } catch (SQLException e) {
-	        e.printStackTrace();
-	        throw new ProductImgException("상품 이미지 조회 실패", e);
+	        // Table doesn't exist 에러는 무시
+	        if (e.getMessage().contains("doesn't exist")) {
+	            System.out.println("[INFO] product_img 테이블이 존재하지 않아도 무시하고 진행합니다.");
+	        } else {
+	            e.printStackTrace();
+	            throw new ProductImgException("상품 이미지 조회 실패", e);
+	        }
 	    } finally {
 	        dbManager.release(pstmt, rs);
 	    }

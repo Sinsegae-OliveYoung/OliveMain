@@ -353,6 +353,7 @@ public class MainLayout extends JFrame {
 		
 		bt_float.addActionListener(e -> {
 			client = new Client(this); 
+			client.setVisible(true);
 		});
 
 		getLayeredPane().add(bt_float, JLayeredPane.POPUP_LAYER);
