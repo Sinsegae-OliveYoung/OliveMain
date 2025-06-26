@@ -304,8 +304,7 @@ public class MainLayout extends JFrame {
 		});
 		
 		// 자동 출고 쓰레드 초기화 작업 <- 페이지 생성 후에 run
-		// 주석 뺴기
-//		startAutoOutboundThread();	
+		startAutoOutboundThread();	
 	}
 	
 	public static void main(String[] args) {
