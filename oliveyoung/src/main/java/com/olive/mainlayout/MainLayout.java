@@ -21,10 +21,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.google.gson.Gson;
 import com.olive.bound.BoundPage;
 import com.olive.chat.Client;
-import com.olive.chat.Payload;
 import com.olive.common.config.Config;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
@@ -273,10 +271,12 @@ public class MainLayout extends JFrame {
 					else if (source == bt_ma)
 						showPage(Config.MANAGE_PAGE);
 					else if (source == bt_lo) {
-						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
-								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
-							setVisible(false);
-
+						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
+							if(client != null) {
+								System.out.println("클라이언트 종료");
+			    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
+			    				client.dispose();
+							}
 							dispose();
 							new LoginPage();
 						}
@@ -291,31 +291,25 @@ public class MainLayout extends JFrame {
 
 		//채팅 서버와 연결 끊기
 		addWindowListener(new WindowAdapter() {
+			
 			@Override
 			public void windowClosing(WindowEvent e) {
-	            client.clientThread.send("disconnect", null);
-	            client.dispose();
-			}
+				if(client != null) {
+					System.out.println("클라이언트 종료");
+    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
+    				client.dispose();
+				}
+                System.exit(0);
+			}	
 		});
-		
+			
 		
 		getContentPane().setBackground(Config.WHITE);
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
 		setLocationRelativeTo(null);
 		setVisible(true);
-		
-		
-		
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE); //끄기 버튼 누르면 취소 다이얼로그 눌러도 꺼지는것 방지
 	}
-	
-	public static void main(String[] args) {
-		final User user = new UserDAO().selectAll().get(0);
-		SwingUtilities.invokeLater(() -> {
-			new MainLayout(user).setVisible(true);
-		});
-
-	}
-
 
 	public void createPage() {
 		pages = new Page[6];
