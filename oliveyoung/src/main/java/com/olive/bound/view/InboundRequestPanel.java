@@ -42,8 +42,8 @@ import com.olive.common.model.BoundProduct;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Stock;
 import com.olive.common.model.User;
-import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.BoundDAO;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.view.Panel;
@@ -101,8 +101,6 @@ public class InboundRequestPanel extends Panel{
 	User user; // 로그인한 계정 객체
 	User manager; // 로그인한 계정 지점의 점주(role = 2)
 	List<BoundProduct> productList;
-	
-	private static InboundRequestPanel instance; // ✅ 정적 필드 추가
 	
 	public InboundRequestPanel(MainLayout mainLayout) {
 		super(mainLayout);
@@ -231,7 +229,7 @@ public class InboundRequestPanel extends Panel{
         calendarButton.setOpaque(true);
         calendarButton.setPreferredSize(new Dimension(30, 20));
         
-        calendarButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        calendarButton.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) {
                 calendarButton.setBackground(Config.GREEN);
             }
@@ -540,7 +538,7 @@ public class InboundRequestPanel extends Panel{
         }
 
         // 오늘 날짜와 비교
-        Date today = new java.util.Date();
+        Date today = new Date();
 
         Calendar cal1 = Calendar.getInstance();
         cal1.setTime(today);
@@ -607,8 +605,7 @@ public class InboundRequestPanel extends Panel{
 			boundProductModel.clear(); // 테이블 초기화용 clear() 메서드 필요
 			tf_memo.setText("");
 			
-			// ✅ 정적 메서드 호출로 새로고침
-			InboundShowPanel.refreshStaticList();
+			refresh();
 			
 			mainLayout.setDataDirty(true); 
 	        mainLayout.refreshIfDirty();
@@ -667,14 +664,8 @@ public class InboundRequestPanel extends Panel{
         return result == JOptionPane.YES_OPTION;
     }
     
-    // 테이블 새로고침을 위함
-    public static void refreshStaticList() {
-        if (instance != null) {
-            instance.refreshList(); // ✅ 내부 리프레시 메서드 호출
-        }
-    }
-
-    public void refreshList() {
+    @Override
+    public void refresh() {
         // 콤보박스 선택값 초기화
         cb_branch.setSelectedIndex(0); // 첫 번째 지점 선택
 
@@ -714,5 +705,8 @@ public class InboundRequestPanel extends Panel{
         table.repaint();
         table_re.revalidate();
         table_re.repaint();
+    	
+    	table.updateUI();
+    	table_re.updateUI();
     }
 }

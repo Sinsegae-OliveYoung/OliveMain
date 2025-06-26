@@ -187,7 +187,7 @@ public class RegistFrame extends JFrame {
 		branchDAO.insert(branch);	// 쿼리문 날리기
 
 		JOptionPane.showMessageDialog(this, "지점이 등록되었습니다");
-		storeConfigMenu.loadData();	// 테이블 재출력
+		storeConfigMenu.refresh();	// 테이블 재출력
 		((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
 		storePage.showPanel(0);
 		dispose();		// 현재 창 종료

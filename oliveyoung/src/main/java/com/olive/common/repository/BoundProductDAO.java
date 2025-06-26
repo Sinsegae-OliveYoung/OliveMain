@@ -41,7 +41,6 @@ public class BoundProductDAO {
 		sql.append(" and po.product_id = p.product_id");
 		sql.append(" where bo.bound_id = ?");
 		
-		System.out.println(sql.toString());
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());

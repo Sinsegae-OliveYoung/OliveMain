@@ -97,7 +97,7 @@ public class StockCatPanel extends Panel {
         // JScrollPane 생성
         JScrollPane scroll = new JScrollPane(table);
         TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
-        int[] columnWidths = {125, 100, 125, 215, 90, 80, 80, 80, 110};
+        int[] columnWidths = {125, 100, 130, 240, 75, 70, 70, 70, 70};
         
         for (int i = 0; i < table.getColumnCount(); i++) {
         	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);

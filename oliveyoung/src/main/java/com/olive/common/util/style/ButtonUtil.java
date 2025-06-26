@@ -1,6 +1,7 @@
 package com.olive.common.util.style;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
@@ -15,18 +16,19 @@ public class ButtonUtil {
 	
 	public static JButton greenButtonUtil(String title) {
 		JButton bt = new JButton(title);
-		bt.setBackground(Config.LIGHT_GRAY);
-		bt.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
-		bt.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt.setPreferredSize(Config.BUTTON_SIZE);
-		bt.setFocusPainted(false);
+		
+		bt.setFont(new Font("SansSerif", Font.BOLD, 13));
+        bt.setForeground(Color.WHITE);
+        bt.setBackground(new Color(90, 160, 90));
+        bt.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        bt.setFocusPainted(false);
 		
 		bt.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
 				bt.setBackground(Config.GREEN);
 			}
 			public void mouseExited(MouseEvent e) {
-				bt.setBackground(Config.LIGHT_GRAY);
+			    bt.setBackground(new Color(90, 160, 90));
 			}
 		});
 
@@ -35,18 +37,19 @@ public class ButtonUtil {
 	
 	public static JButton pinkButtonUtil(String title) {
 		JButton bt = new JButton(title);
-		bt.setBackground(Config.LIGHT_GRAY);
-		bt.setBorder(new LineBorder(Color.LIGHT_GRAY, 1, true));
-		bt.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
-		bt.setPreferredSize(Config.BUTTON_SIZE);
-		bt.setFocusPainted(false);
+		
+		bt.setFont(new Font("SansSerif", Font.BOLD, 13));
+        bt.setForeground(Color.WHITE);
+        bt.setBackground(Config.PINK);
+        bt.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        bt.setFocusPainted(false);
 		
 		bt.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
-				bt.setBackground(Config.PINK);
+				bt.setBackground(Config.LIGHT_GRAY);
 			}
 			public void mouseExited(MouseEvent e) {
-				bt.setBackground(Config.LIGHT_GRAY);
+				bt.setBackground(Config.PINK);
 			}
 		});
 

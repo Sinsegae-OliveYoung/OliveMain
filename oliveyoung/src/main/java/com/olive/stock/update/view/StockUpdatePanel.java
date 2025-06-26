@@ -6,9 +6,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -19,8 +22,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.Branch;
 import com.olive.common.model.User;
 import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.ButtonUtil;
+import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.mainlayout.MainLayout;
 import com.olive.stock.StockConfig;
@@ -33,6 +39,7 @@ import com.olive.store.StorePage;
 public class StockUpdatePanel extends Panel{
 	
 	    JTable table;
+	    JPanel topContainer;
 	    UpdateModel model;
 	    
 	    @Override
@@ -44,6 +51,8 @@ public class StockUpdatePanel extends Panel{
 	    public StockUpdatePanel(MainLayout mainLayout, StockPage stockPage) {
 	        super(mainLayout);
 	        setLayout(new BorderLayout());
+	        
+	        topContainer = new JPanel(new BorderLayout());
 
 	        // 상단 패널
 	        JPanel topPanel = new JPanel(new BorderLayout());
@@ -55,7 +64,13 @@ public class StockUpdatePanel extends Panel{
 	        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
 	        topPanel.add(titleLabel, BorderLayout.WEST);
 	        topPanel.setBackground(Config.WHITE); 
-
+	        
+	        // 콤보박스 패널
+	        JPanel comboPanel = new JPanel(new BorderLayout());
+	        
+	        // 테이블 수정 버튼
+	        JButton bt_update = ButtonUtil.pinkButtonUtil("수정 버튼");
+	        
 	        // 테이블 생성
 	        model = new UpdateModel(stockPage, mainLayout, mainLayout.user);
 	        table = new JTable(model);
@@ -81,7 +96,15 @@ public class StockUpdatePanel extends Panel{
 
 	        JScrollPane scroll = new JScrollPane(table);
 	        scroll.getViewport().setBackground(Color.WHITE);
-	        TableUtil.tableStyleUtil(table, scroll, 500, true); // 스타일 유틸 적용
+	        TableUtil.tableStyleUtil(table, scroll, 100, false); // 스타일 유틸 적용
+	        
+	        bt_update.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+			        table.setCellSelectionEnabled(true);	// 행 선택
+			        table.setRequestFocusEnabled(true);	// 셀 선택	
+				}
+			});
 	        
 	        // 테이블 header 스타일 추가적으로 적용 가능
 	        JTableHeader header = table.getTableHeader();
@@ -95,11 +118,15 @@ public class StockUpdatePanel extends Panel{
 	        scrollWrapper.setBackground(Config.WHITE);
 
 	        // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
-	        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(35, 25, 10, 25));
-
+	        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
 	        scrollWrapper.add(scroll, BorderLayout.CENTER);
 	        
+	        comboPanel.add(bt_update, BorderLayout.EAST);
+	        comboPanel.setBorder(BorderFactory.createEmptyBorder(50, 10, 0, 10));
+	        comboPanel.setBackground(Config.WHITE);
 	        // 전체 레이아웃 구성
+	        topPanel.add(comboPanel, BorderLayout.SOUTH);
+	        
 	        add(topPanel, BorderLayout.NORTH);
 	        add(scrollWrapper, BorderLayout.CENTER);
 	    }

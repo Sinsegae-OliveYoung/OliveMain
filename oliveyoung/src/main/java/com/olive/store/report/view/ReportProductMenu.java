@@ -209,7 +209,7 @@ public class ReportProductMenu extends Panel {
 
 	}
 	
-	public void loadData() {
+	public void refresh() {
 		ItemListener[] listeners = cb_months.getItemListeners();
 		for (ItemListener listener : listeners)
 			cb_months.removeItemListener(listener);		// 리스너 잠시 없애기

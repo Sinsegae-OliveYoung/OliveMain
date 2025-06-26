@@ -30,9 +30,9 @@ public class ProductPage extends Page {
 	JButton bt_menu1;	// 상위 메뉴 A - 하위 메뉴1
 	JButton bt_menu2;	// 상위 메뉴 A - 하위 메뉴2
 
-	JLabel la_menu2;		// 상위 메뉴 B
+//	JLabel la_menu2;		// 상위 메뉴 B
 	JButton bt_menu3;	// 상위 메뉴 B - 하위 메뉴1
-	JButton bt_menu4;	// 상위 메뉴 B - 하위 메뉴2
+//	JButton bt_menu4;	// 상위 메뉴 B - 하위 메뉴2
 	
 	JPanel p_content;
 	
@@ -53,11 +53,11 @@ public class ProductPage extends Page {
 		
 		la_menu1 = new JLabel("상품 관리");
 		bt_menu1 = new JButton("상품 리스트");
-		bt_menu2 = new JButton("  -");
 		
-		la_menu2 = new JLabel("분류 항목");
-		bt_menu3 = new JButton("상품 카테고리");
-		bt_menu4 = new JButton("브랜드 설정");
+		bt_menu2 = new JButton("분류 항목 설정");
+//		la_menu2 = new JLabel("분류 항목 설정");
+//		bt_menu3 = new JButton("상품 카테고리");
+//		bt_menu4 = new JButton("브랜드 설정");
 		
 		p_content = new JPanel();
 		
@@ -79,17 +79,17 @@ public class ProductPage extends Page {
 		bt_menu2.setFocusPainted(false);
 		bt_menu2.setBorder(null);
 
-		la_menu2.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
+//		la_menu2.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
 		
-		bt_menu3.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		bt_menu3.setBackground(Config.LIGHT_GRAY);
-		bt_menu3.setFocusPainted(false);
-		bt_menu3.setBorder(null);
+//		bt_menu3.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
+//		bt_menu3.setBackground(Config.LIGHT_GRAY);
+//		bt_menu3.setFocusPainted(false);
+//		bt_menu3.setBorder(null);
 		
-		bt_menu4.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-		bt_menu4.setBackground(Config.LIGHT_GRAY);
-		bt_menu4.setFocusPainted(false);
-		bt_menu4.setBorder(null);
+//		bt_menu4.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
+//		bt_menu4.setBackground(Config.LIGHT_GRAY);
+//		bt_menu4.setFocusPainted(false);
+//		bt_menu4.setBorder(null);
 				
 		p_content.setBackground(Config.WHITE);
 		p_content.setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
@@ -102,19 +102,16 @@ public class ProductPage extends Page {
 		p_side.add(bt_menu1);	
 		p_side.add(Box.createVerticalStrut(10));
 		p_side.add(bt_menu2);
-		p_side.add(Box.createVerticalStrut(25));
-		p_side.add(la_menu2);	
-		p_side.add(Box.createVerticalStrut(15));
-		p_side.add(bt_menu3);	
-		p_side.add(Box.createVerticalStrut(10));
-		p_side.add(bt_menu4);	
+//		p_side.add(Box.createVerticalStrut(10));
+//		p_side.add(bt_menu3);	
+
 		add(p_side, BorderLayout.WEST);
 		
 		add(p_content, BorderLayout.CENTER);
 		
 
 		// listener
-		for (JButton btn : new JButton[] { bt_menu1, bt_menu2, bt_menu3, bt_menu4 } ) {
+		for (JButton btn : new JButton[] { bt_menu1, bt_menu2} ) {
 			btn.addMouseListener(new MouseAdapter() {
 				public void mouseEntered(MouseEvent e) {btn.setForeground(Config.DARK_GREEN);}
 				public void mouseExited(MouseEvent e) {btn.setForeground(Color.BLACK);}
@@ -137,29 +134,23 @@ public class ProductPage extends Page {
 				    	  showPanel(0);
 				      } else if (source == bt_menu2) {
 				    	  showPanel(1);				    	  
-				      } else if (source == bt_menu3) {
-				    	  showPanel(2);				    	  
-				      } else if (source == bt_menu4) {
-				    	  showPanel(3);				    	  
 				      }
 				}
 			});
 		}
 		
 		createPanel();
-		showPanel(-1);
+		showPanel(0);
 		
 		setPreferredSize(new Dimension(Config.LAYOUT_W, Config.CONTENT_H));
 	}
 
 	public void createPanel() {
 
-		panels = new Panel[4];
+		panels = new Panel[2];
 
 		panels[0] = new ProductListPanel(mainLayout);
-		panels[1] = new ProductListPanel(mainLayout);
-		panels[2] = new BrandPanel(mainLayout);
-		panels[3] = new BrandPanel(mainLayout);
+		panels[1] = new BrandPanel(mainLayout);
 		
 		for (int i = 0; i < panels.length; i++)
 			p_content.add(panels[i]);

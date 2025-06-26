@@ -114,16 +114,12 @@ public class InboundShowPanel extends Panel{
     List<Branch> userBranches; // 사용자 소유 지점 목록
     
     BoundProduct selected; // 선택된 요청서 객체
-
-    private static InboundShowPanel instance; // ✅ 정적 필드 추가
     
     private List<BoundProduct> originalProductList = new ArrayList<>();
     
     public InboundShowPanel(MainLayout mainLayout) {
         super(mainLayout);
         setLayout(new BorderLayout());
-        
-        instance = this; // ✅ 생성자에서 자기 자신 저장
         
         this.mainLayout = mainLayout;
 		this.user = mainLayout.user;
@@ -217,11 +213,7 @@ public class InboundShowPanel extends Panel{
         
         p_center.add(p_left, BorderLayout.WEST);
         
-        
-        
-        
-        
-        
+
         // ------------------------------------------------------------
         // 오른쪽 패널
         p_detail = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
@@ -280,7 +272,7 @@ public class InboundShowPanel extends Panel{
         calendarButton.setOpaque(true);
         calendarButton.setPreferredSize(new Dimension(30, 20));
         
-        calendarButton.addMouseListener(new java.awt.event.MouseAdapter() {
+        calendarButton.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent evt) {
                 calendarButton.setBackground(Config.GREEN);
             }
@@ -600,10 +592,10 @@ public class InboundShowPanel extends Panel{
             int boundId = boundProduct.getBound().getBound_id();
             boundDAO.deleteBound(boundId);
 
-            javax.swing.JOptionPane.showMessageDialog(null, "입고 요청서가 삭제되었습니다.");
+            JOptionPane.showMessageDialog(null, "입고 요청서가 삭제되었습니다.");
 
             // 목록 새로고침
-            refreshStaticList();
+            refresh();
             
             mainLayout.setDataDirty(true); 
             mainLayout.refreshIfDirty();
@@ -710,12 +702,13 @@ public class InboundShowPanel extends Panel{
         JOptionPane.showMessageDialog(null, "요청서가 성공적으로 저장되었습니다.");
 
         // 테이블 새로고침
-        refreshStaticList();
+        refresh();
         
         mainLayout.setDataDirty(true); 
         mainLayout.refreshIfDirty();
     }
     
+    // 엑셀 출력
     private void printBound(BoundProduct boundProduct) {
     	if (boundProduct == null) {
             JOptionPane.showMessageDialog(this, "선택된 요청서가 없습니다.");
@@ -878,9 +871,6 @@ public class InboundShowPanel extends Panel{
         }
     }
 
-
-
-
     
     // 요청서 저장 확인 폼
     private boolean showConfirmationDialog(String requesterName, String approverName, int totalCount, int totalPrice, String requestDate) {
@@ -901,14 +891,8 @@ public class InboundShowPanel extends Panel{
         return result == JOptionPane.YES_OPTION;
     }
 
-    // 테이블 새로고침을 위함
-    public static void refreshStaticList() {
-        if (instance != null) {
-            instance.refreshList(); // ✅ 내부 리프레시 메서드 호출
-        }
-    }
-
-    public void refreshList() {
+    @Override
+    public void refresh() {
     	this.model = new BoundListModel(userBranches, "in");
         table_list.setModel(model);
         table_list.revalidate();

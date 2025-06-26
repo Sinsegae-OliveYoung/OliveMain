@@ -14,7 +14,7 @@ public class StoresModel extends AbstractTableModel {
 	BranchDAO branchDAO;
 	List<Stock> list;
 	
-	String[] column = { "브랜드", "상위 카테고리", "하위 카테고리", "상품명", "재고", "최근 수정일"};
+	String[] column = { "브랜드", "상위 카테고리", "하위 카테고리", "상품명", "옵션명", "재고", "최근 수정일"};
 	
 	public StoresModel(String br_name) {
 		branchDAO = new BranchDAO();
@@ -42,8 +42,9 @@ public class StoresModel extends AbstractTableModel {
 		case 1: value = stock.getProductOption().getProduct().getCategory_detail().getCategory().getCt_name(); break;
 		case 2: value = stock.getProductOption().getProduct().getCategory_detail().getCt_dt_name(); break;
 		case 3: value = stock.getProductOption().getProduct().getProduct_name(); break;
-		case 4: value = Integer.toString(stock.getSt_quantity()); break;
-		case 5: value = stock.getSt_update().toString(); break;
+		case 4: value = stock.getProductOption().getOption_name(); break;
+		case 5: value = Integer.toString(stock.getSt_quantity()); break;
+		case 6: value = stock.getSt_update().toString(); break;
 		}
 		return value;
 	}

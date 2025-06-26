@@ -8,6 +8,7 @@ import java.awt.Font;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -15,8 +16,10 @@ import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 
 import com.olive.common.config.Config;
+import com.olive.common.model.Branch;
 import com.olive.common.util.TableUtil;
 import com.olive.common.util.style.ButtonUtil;
+import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.common.util.style.LabelUtil;
 import com.olive.common.view.Panel;
 import com.olive.mainlayout.MainLayout;
@@ -56,6 +59,9 @@ public class StockNowPanel extends Panel {
         buttonPanel.setOpaque(false);
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 20));
         buttonPanel.setBackground(Config.WHITE); 
+        
+      
+        
 
         Font buttonFont = new Font("SansSerif", Font.PLAIN, 13);
         Dimension buttonSize = new Dimension(130, 30);
@@ -103,6 +109,7 @@ public class StockNowPanel extends Panel {
         
         scrollWrapper.add(scroll, BorderLayout.CENTER);
 
+        
         // 전체 레이아웃 조립
         JPanel topContainer = new JPanel(new BorderLayout());
         topContainer.setOpaque(false);
