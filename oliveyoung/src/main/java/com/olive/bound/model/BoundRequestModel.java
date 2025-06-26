@@ -50,36 +50,34 @@ public class BoundRequestModel extends AbstractTableModel{
 
 	@Override
 	public Object getValueAt(int row, int col) {
-		Stock stock = list.get(row);
-		
-        String value = null;
+	    Stock stock = list.get(row);
 
-        switch (col) {      
-            case 0: //카테고리
-                value = stock.getProductOption().getProduct().getCategory().getCt_name();
-                break;
-            case 1: //상세카테고리
-            	value = stock.getProductOption().getProduct().getCategory_detail().getCt_dt_name();
-                break;
-            case 2: //브랜드
-            	value = stock.getProductOption().getProduct().getBrand().getBd_name();
-                break;
-            case 3: //제품명
-            	value = stock.getProductOption().getProduct().getProduct_name();
-                break;
-            case 4: //호수
-//            	value = Integer.toString(stock.getProductOption().getOption_no());
-            	value = stock.getProductOption().getOption_name();
-                break;
-            case 5: //가격
-            	value = Integer.toString(stock.getProductOption().getPrice());
-                break;
-            case 6: //재고수량
-            	value =  Integer.toString(stock.getSt_quantity());
-                break;
-        }
+	    switch (col) {      
+	        case 0: // 카테고리
+	            return stock.getProductOption().getProduct().getCategory().getCt_name();
+	        case 1: // 상세카테고리
+	            return stock.getProductOption().getProduct().getCategory_detail().getCt_dt_name();
+	        case 2: // 브랜드
+	            return stock.getProductOption().getProduct().getBrand().getBd_name();
+	        case 3: // 제품명
+	            return stock.getProductOption().getProduct().getProduct_name();
+	        case 4: // 호수
+	            return stock.getProductOption().getOption_name();
+	        case 5: // 가격 → 숫자로 반환
+	            return stock.getProductOption().getPrice();
+	        case 6: // 재고수량 → 숫자로 반환
+	            return stock.getSt_quantity();
+	    }
 
-        return value;
-    }
+	    return null;
+	}
 
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+	    switch (columnIndex) {
+	        case 5: return Integer.class; // 가격
+	        case 6: return Integer.class; // 재고수량
+	        default: return String.class;
+	    }
+	}
 }

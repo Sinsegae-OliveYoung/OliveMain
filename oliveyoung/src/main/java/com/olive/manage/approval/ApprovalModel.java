@@ -41,7 +41,15 @@ public class ApprovalModel extends AbstractTableModel{
 		switch(col) {
 			case 0: return bo.getBound_id();
 			case 1: return bo.getBranch().getBr_name();
-			case 2: return bo.getBound_flag();
+			case 2: // "in" → "입고", "out" → "출고"
+				String flag = bo.getBound_flag();
+				if ("in".equalsIgnoreCase(flag)) {
+					return "입고";
+				} else if ("out".equalsIgnoreCase(flag)) {
+					return "출고";
+				} else {
+					return flag; // 혹시 모를 예외값 처리
+				}
 			case 3: return bo.getUser().getUser_name();
 			case 4: return bo.getRequest_date();
 			case 5: return bo.getBoundState().getBo_state_name();

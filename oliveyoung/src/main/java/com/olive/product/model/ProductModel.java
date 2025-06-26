@@ -60,10 +60,16 @@ public class ProductModel extends AbstractTableModel {
             case 4: return option.getProduct().getCategory_detail().getCt_dt_name();
             case 5: return option.getOption_name();
             case 6: return option.getPrice();
-            case 7: return option.getOption_active().equals("y") ? "활성" : "비활성";
+            case 7: return option.getOption_active().equals("y") ? "O" : "X";
         }
         return null;
     }
     
-    
+    @Override
+    public Class<?> getColumnClass(int columnIndex) {
+        switch (columnIndex) {
+            case 6: return Integer.class; // 가격은 숫자 정렬을 위해 Integer
+            default: return String.class;
+        }
+    }
 }

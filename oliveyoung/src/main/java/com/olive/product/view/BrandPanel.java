@@ -181,14 +181,6 @@ public class BrandPanel extends Panel {
         p_cate.setBackground(Config.WHITE);
         p_cate.add(scroll);
 		
-
-        
-        
-        
-        
-        
-        
-        
         comboPanel_1 = new JPanel();
         comboPanel_1.setLayout(new BoxLayout(comboPanel_1, BoxLayout.Y_AXIS));
         comboPanel_1.setOpaque(false);
@@ -279,10 +271,6 @@ public class BrandPanel extends Panel {
         la_ca2.setFont(new Font("SansSerif", Font.BOLD, 12));
         
         
-        
-        
-        
-        
         // ------------------------------------------------------------
         // 우측 브랜드 테이블
         brandModel = new BrandModel();
@@ -318,9 +306,6 @@ public class BrandPanel extends Panel {
         // 중앙 부착
         p_center.add(p_cate, BorderLayout.WEST);
         p_center.add(p_brand);
-        
-        
-        
         
         
         comboPanel_2 = new JPanel();
@@ -383,33 +368,20 @@ public class BrandPanel extends Panel {
         
         p_brand.add(comboPanel_2);
   
-        
 
-	    
         // ------------------------------------------------------------
         // 최종 패널에 부착
         add(p_north, BorderLayout.NORTH);
         add(p_center, BorderLayout.CENTER);
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+
 		
 		// 좌측 테이블 헤더 클릭 이벤트 추가 ------------------------------------------------------------
 		TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
 		table.setRowSorter(sorter);
 
 		// 헤더 클릭 감지 및 정렬 상태 출력
-		JTableHeader header = table.getTableHeader();
+		header = table.getTableHeader();
 		header.addMouseListener(new MouseAdapter() {
 		    @Override
 		    public void mouseClicked(MouseEvent e) {
@@ -443,11 +415,11 @@ public class BrandPanel extends Panel {
 		table_br.setRowSorter(sorter_br);
 
 		// 헤더 클릭 이벤트로 정렬 상태 출력
-		JTableHeader header_re = table_br.getTableHeader();
-		header_re.addMouseListener(new MouseAdapter() {
+		header_br = table_br.getTableHeader();
+		header_br.addMouseListener(new MouseAdapter() {
 		    @Override
 		    public void mouseClicked(MouseEvent e) {
-		        int columnIndex = header_re.columnAtPoint(e.getPoint());
+		        int columnIndex = header_br.columnAtPoint(e.getPoint());
 		        String columnName = table_br.getColumnName(columnIndex);
 		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
 
