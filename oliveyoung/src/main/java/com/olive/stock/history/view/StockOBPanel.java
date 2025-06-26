@@ -72,7 +72,7 @@ public class StockOBPanel extends Panel{
 
 
         // 테이블 생성
-        model = new StockModel("out");
+        model = new StockModel("out", mainLayout.user);
         table = new JTable(model);
 
         // 테이블 스타일 적용

@@ -135,6 +135,7 @@ public class UpdateModel extends AbstractTableModel {
 	            if (result == javax.swing.JOptionPane.YES_OPTION) {
 	                stock.setSt_quantity(quantity);
 	                stockDAO.updateProductQuantity(stock.getSt_id(), quantity); // stock id에 맞게 수량 변경
+	                stockDAO.updateStockDate(stock.getSt_id());
 	                
 	                // 모든 테이블 리로드
 	                mainLayout.setDataDirty(true); 

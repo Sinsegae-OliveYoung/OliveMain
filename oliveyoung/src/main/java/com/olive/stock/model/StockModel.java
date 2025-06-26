@@ -9,6 +9,7 @@ import javax.swing.table.AbstractTableModel;
 import com.olive.common.model.Category;
 import com.olive.common.model.Stock;
 import com.olive.common.model.StockHistory;
+import com.olive.common.model.User;
 import com.olive.common.repository.StockDAO;
 import com.olive.common.repository.StockLogDAO;
 
@@ -16,6 +17,7 @@ public class StockModel extends AbstractTableModel{
     StockLogDAO stockLogDAO;
     List<StockHistory> list;
     String status = null;
+    User user = null;
     
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     
@@ -33,20 +35,22 @@ public class StockModel extends AbstractTableModel{
     	    "승인일"          // bd.approve_date
     	};
 
-    public StockModel(String str) {
+    public StockModel(String str, User user) {
+    	this.user = user;
     	stockLogDAO = new StockLogDAO();
     	status = str;
-    	list = stockLogDAO.listBound(str);  	
+    	list = stockLogDAO.listBound(str, user);  	
     }
-    public StockModel(String str, String start, String end) {
+    public StockModel(String str, String start, String end, User user) {
+    	this.user = user;
     	stockLogDAO = new StockLogDAO();
     	status = str;
-    	list = stockLogDAO.listBoundDate(str, start, end);  	
+    	list = stockLogDAO.listBoundDate(str, start, end, user);  	
     }
     
     public void reload() {
     	stockLogDAO = new StockLogDAO();
-     	list = stockLogDAO.listBound(status);  	
+     	list = stockLogDAO.listBound(status, user);  	
      	fireTableDataChanged();
     }
 
@@ -137,3 +141,5 @@ public class StockModel extends AbstractTableModel{
         fireTableDataChanged();
     }
 }
+
+

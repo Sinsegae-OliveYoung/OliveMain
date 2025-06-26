@@ -15,6 +15,4 @@ public class ProductImgException extends RuntimeException{
 	public ProductImgException(String msg, Throwable e) {
 		super(msg, e);
 	}
-	
-	
 }

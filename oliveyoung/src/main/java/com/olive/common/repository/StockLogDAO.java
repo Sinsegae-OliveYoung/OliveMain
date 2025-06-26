@@ -24,7 +24,7 @@ public class StockLogDAO {
 	
 	DBManager dbManager = DBManager.getInstance();
 	
-	public List<StockHistory> listBound(String flag){
+	public List<StockHistory> listBound(String flag, User user){
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -59,7 +59,7 @@ public class StockLogDAO {
 				+ " join bound bd 			on bd.bound_id 	= bp.bound_id"
 				+ " join user u 			on u.user_id 	= bd.approver_id"
 				+ " join branch br 			on br.br_id 	= bd.br_id"
-				+ " where br.br_id = 1"
+				+ " where br.br_id = ?"
 				+ " and	  bd.bo_state_id IN (2, 3)"
 				+ " and   bd.bound_flag = ?"
 		);
@@ -67,7 +67,8 @@ public class StockLogDAO {
 		try {
 			con = dbManager.getConnection();
 			pstmt = con.prepareStatement(sql.toString());
-			pstmt.setString(1, flag); // "in" 또는 "out" 값 세팅
+			pstmt.setInt(1, getBranchID(user));
+			pstmt.setString(2, flag); // "in" 또는 "out" 값 세팅
 			rs = pstmt.executeQuery();
 
 			while (rs.next()) {
@@ -100,15 +101,15 @@ public class StockLogDAO {
 				option.setProduct(product);
 
 				// User (승인자)
-				User user = new User();
-				user.setUser_name(rs.getString("user_name"));
+				User approver = new User();
+				approver.setUser_name(rs.getString("user_name"));
 
 				// StockHistory
 				his.setProductOption(option);
 				his.setQuantity(rs.getInt("b_count")); // b_count로 수정
 				his.setRequestDate(rs.getDate("request_date")); // 컬럼명 수정
 				his.setApprovalDate(rs.getDate("approve_date")); // 컬럼명 수정
-				his.setManager(user);
+				his.setManager(approver);
 
 				list.add(his);
 			}
@@ -120,7 +121,7 @@ public class StockLogDAO {
 
 		return list;
 	}
-	public List<StockHistory> listBoundDate(String state, String start, String end){
+	public List<StockHistory> listBoundDate(String state, String start, String end, User user){
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -163,7 +164,7 @@ public class StockLogDAO {
 				+ " join bound bd 			on bd.bound_id 	= bp.bound_id"
 				+ " join user u 			on u.user_id 	= bd.approver_id "
 				+ " join branch br 			on br.br_id 	= bd.br_id"
-				+ " where br.br_id 	  = 1"
+				+ " where br.br_id 	  = ?"
 				+ " and	  bd.bo_state_id IN (2, 3)"
 				+ " and   bd.bound_flag = ?"
 				+ " and   bd.request_date between ? and ?");
@@ -171,9 +172,10 @@ public class StockLogDAO {
 		try {
 			con = dbManager.getConnection();
 			pstmt = con.prepareStatement(sql.toString());
-			pstmt.setString(1, state);
-			pstmt.setDate(2, sqlStart);
-			pstmt.setDate(3, sqlEnd);
+			pstmt.setInt(1, getBranchID(user));
+			pstmt.setString(2, state);
+			pstmt.setDate(3, sqlStart);
+			pstmt.setDate(4, sqlEnd);
 			rs = pstmt.executeQuery();
 			
 			while (rs.next()) {
@@ -206,15 +208,15 @@ public class StockLogDAO {
 				option.setProduct(product);
 				
 				// User (승인자)
-				User user = new User();
-				user.setUser_name(rs.getString("user_name"));
+				User approver = new User();
+				approver.setUser_name(rs.getString("user_name"));
 				
 				// StockHistory
 				his.setProductOption(option);
 				his.setQuantity(rs.getInt("b_count")); // b_count로 수정
 				his.setRequestDate(rs.getDate("request_date")); // 컬럼명 수정
 				his.setApprovalDate(rs.getDate("approve_date")); // 컬럼명 수정
-				his.setManager(user);
+				his.setManager(approver);
 				
 				list.add(his);
 			}
@@ -226,4 +228,42 @@ public class StockLogDAO {
 		
 		return list;
 	}
+	
+	// 로그인한 user가 관리하는 branch 목록 반환
+	 	public int getBranchID(User user){
+	 		
+	 		Connection con = null;
+	 		PreparedStatement pstmt = null;
+	 		ResultSet rs = null;
+	 		int resultID = -1;
+	 		
+	 		con = dbManager.getConnection();
+	 		
+	 		StringBuffer sql = new StringBuffer();
+	 		sql.append("select b.br_id");
+	 		sql.append(" from branch b");
+	 		sql.append(" inner join member m");
+	 		sql.append(" join user u");
+	 		sql.append(" join role r");
+	 		sql.append(" on b.br_id = m.br_id");
+	 		sql.append(" and u.user_id = m.user_id");
+	 		sql.append(" and u.role_id = r.role_id");
+	 		sql.append(" where m.user_id = ?");
+	 	
+	 		try {
+	 			pstmt = con.prepareStatement(sql.toString());
+	 			pstmt.setInt(1, user.getUser_id());  
+	 			rs = pstmt.executeQuery();
+	 			
+	 			while(rs.next()) {
+	 				resultID = rs.getInt("b.br_id");
+	 			}
+	 		} catch (SQLException e) {
+	 			e.printStackTrace();
+	 		} finally {
+	 			dbManager.release(pstmt, rs);
+	 		}
+	 		
+	 		return resultID;
+	 	}
 }
