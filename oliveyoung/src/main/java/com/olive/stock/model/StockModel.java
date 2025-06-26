@@ -142,3 +142,4 @@ public class StockModel extends AbstractTableModel{
     }
 }
 
+
