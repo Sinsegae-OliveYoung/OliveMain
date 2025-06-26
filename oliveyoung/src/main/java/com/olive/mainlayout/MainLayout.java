@@ -106,7 +106,7 @@ public class MainLayout extends JFrame {
 		p_navi = new JPanel();
 
 		p_title = new JPanel();
-		img = img_title.getImage("images/logo2.png", 180, 20);
+		img = img_title.getImage(Config.LOGO_PATH, 180, 20);
 		bt_title = new JButton() {
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);

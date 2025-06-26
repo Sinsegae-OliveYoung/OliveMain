@@ -14,7 +14,7 @@ public class Config {
 	public static final String user = "olive";
 	public static final String pass = "1234";
 	
-	public static final String LOGO_PATH = "/images/logo2.png";
+	public static final String LOGO_PATH = "images/logo2.png";
 	public static final String ALERT_IMAGE = "images/auto_alert.png";
 	public static final String IMG_PATH = "C:\\public";
 	

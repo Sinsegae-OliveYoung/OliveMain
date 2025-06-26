@@ -24,7 +24,11 @@ public class BrandDAO {
 		try {
 			con = dbManager.getConnection();
 			StringBuffer sql = new StringBuffer();
-			sql.append("select * from brand");
+			sql.append("select"
+					+ "		 bd_id"
+					+ "		,bd_code"
+					+ "		,bd_name"
+					+ " from brand");
 			pstmt=con.prepareStatement(sql.toString());
 			rs = pstmt.executeQuery();
 			
@@ -43,4 +47,52 @@ public class BrandDAO {
 		
 		return list;
 	};
+	
+	public int insert(Brand brand) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+	    int result = 0;
+
+	    try {
+	        con = dbManager.getConnection();
+	        String sql = "INSERT INTO brand (bd_code, bd_name) VALUES (?, ?)";
+	        pstmt = con.prepareStatement(sql);
+	        pstmt.setString(1, brand.getBd_code());
+	        pstmt.setString(2, brand.getBd_name());
+
+	        result = pstmt.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        dbManager.release(pstmt, rs);
+	    }
+
+	    return result;
+	}
+	
+	
+	public int delete(int bd_id) {
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    
+	    int result = 0;
+	    try {
+	        con = dbManager.getConnection();
+	        String sql = "DELETE FROM brand WHERE bd_id = ?";
+	        pstmt = con.prepareStatement(sql);
+	        pstmt.setInt(1, bd_id);
+	        result = pstmt.executeUpdate();
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    } finally {
+	        dbManager.release(pstmt, rs);
+	    }
+	    return result;
+	}
+	
+	public List<Brand> load() {
+	    return selectAll(); // selectAll()을 통해 전체 목록을 반환
+	}
 }
