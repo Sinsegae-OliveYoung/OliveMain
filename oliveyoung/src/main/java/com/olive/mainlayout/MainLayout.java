@@ -101,8 +101,8 @@ public class MainLayout extends JFrame {
 	public MainLayout(User user) {
 		this.user = user;
 		
-		client = new Client(this);  //채팅 클라이언트 연결
-		client.setVisible(false);
+		//client = new Client(this);  //채팅 클라이언트 연결
+		//client.setVisible(false);
 		
 		img_float_default = img_title.getImage("images/chat.png", 40, 40);
 		img_float_hover = img_title.getImage("images/chat_hover.png", 40, 40);

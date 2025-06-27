@@ -48,8 +48,6 @@ public class BoundListModel extends AbstractTableModel{
 	public Object getValueAt(int row, int col) {
 		BoundProduct boundproduct = list.get(row);
 		
-		System.out.println(list.get(row));
-		
         String value = null;
 
         switch (col) {      

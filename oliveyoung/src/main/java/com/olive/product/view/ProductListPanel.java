@@ -930,14 +930,10 @@ public class ProductListPanel extends Panel {
 
 			int productOption_id = productOptionDAO.selectRecentPk();
 			productOption.setOption_id(productOption_id);
-<<<<<<< HEAD
 
 			// 상품에 딸려있는 이미지 등록
-=======
-			
-			// 상품에 딸려있는 이미지 등록
 			ProductImg productImg = new ProductImg();
->>>>>>> origin/feature/store
+
 			if (file != null) {
 			    productImg.setProductOption(productOption); // 1) 어떤 상품에..
 			    productImg.setImg_filename(file.getName()); // 2) 어떤 파일명으로..
