@@ -39,7 +39,7 @@ public class ProductDAO {
                 + "		, p.product_id"
                 + "		, p.product_name"
                 + "		, po.option_id"
-                + "		, CASE 	WHEN option_no = 99"
+                + "		, CASE 	WHEN po.option_no = 99"
                 + "		  		THEN '-' "
                 + "		  		ELSE option_name"
                 + "   	  END 	AS option_name"
@@ -220,12 +220,9 @@ public class ProductDAO {
         return list;
     }
     
-    public void insert(Product product) throws ProductException{
-    	Connection con=null;
+    public void insert(Product product, Connection con) throws ProductException{
 		PreparedStatement pstmt=null;
 		int result=0; //쿼리 실행 성공 여부 결정짓는 변수 
-		
-		con=dbManager.getConnection();
 		
 		StringBuffer sql=new StringBuffer();
 		sql.append("insert into product(product_name, ct_id, ct_dt_id, bd_id)");

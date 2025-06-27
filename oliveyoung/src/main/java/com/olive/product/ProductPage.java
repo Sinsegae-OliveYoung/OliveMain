@@ -79,18 +79,6 @@ public class ProductPage extends Page {
 		bt_menu2.setFocusPainted(false);
 		bt_menu2.setBorder(null);
 
-//		la_menu2.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
-		
-//		bt_menu3.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-//		bt_menu3.setBackground(Config.LIGHT_GRAY);
-//		bt_menu3.setFocusPainted(false);
-//		bt_menu3.setBorder(null);
-		
-//		bt_menu4.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
-//		bt_menu4.setBackground(Config.LIGHT_GRAY);
-//		bt_menu4.setFocusPainted(false);
-//		bt_menu4.setBorder(null);
-				
 		p_content.setBackground(Config.WHITE);
 		p_content.setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 		
@@ -102,8 +90,7 @@ public class ProductPage extends Page {
 		p_side.add(bt_menu1);	
 		p_side.add(Box.createVerticalStrut(10));
 		p_side.add(bt_menu2);
-//		p_side.add(Box.createVerticalStrut(10));
-//		p_side.add(bt_menu3);	
+
 
 		add(p_side, BorderLayout.WEST);
 		
@@ -117,19 +104,7 @@ public class ProductPage extends Page {
 				public void mouseExited(MouseEvent e) {btn.setForeground(Color.BLACK);}
 				public void mouseClicked(MouseEvent e) {
 				      JButton source = (JButton) e.getSource();
-				      
-				     /* if (source == bt_menu1)
-				    	  showPanel(0);
-				      else if (source == bt_menu2)
-				    	  showPanel(1);
-				      else if (source == bt_menu3)
-				    	  showPanel(2);
-				      else if (source == bt_menu4)
-				    	  showPanel(3);*/
-				      
-				      /*--------------
-				       *  테스트용
-				       * -------------*/
+
 				      if (source == bt_menu1) {
 				    	  showPanel(0);
 				      } else if (source == bt_menu2) {

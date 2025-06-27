@@ -9,6 +9,7 @@ import javax.swing.table.AbstractTableModel;
 import com.olive.common.model.Category;
 import com.olive.common.model.Stock;
 import com.olive.common.model.StockHistory;
+import com.olive.common.model.User;
 import com.olive.common.repository.StockDAO;
 import com.olive.common.repository.StockLogDAO;
 
@@ -16,6 +17,9 @@ public class StockModel extends AbstractTableModel{
     StockLogDAO stockLogDAO;
     List<StockHistory> list;
     String status = null;
+    User user = null;
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     
     String[] column = {
     	    "옵션 코드",       // po.option_code
@@ -31,20 +35,27 @@ public class StockModel extends AbstractTableModel{
     	    "승인일"          // bd.approve_date
     	};
 
-    public StockModel(String str) {
+    public StockModel(String str, User user) {
+    	this.user = user;
     	stockLogDAO = new StockLogDAO();
     	status = str;
-    	list = stockLogDAO.listBound(str);  	
+    	list = stockLogDAO.listBound(str, user);  	
     }
-    public StockModel(String str, String start, String end) {
+    public StockModel(String str, String start, String end, User user) {
+    	this.user = user;
     	stockLogDAO = new StockLogDAO();
     	status = str;
-    	list = stockLogDAO.listBoundDate(str, start, end);  	
+        if ("in".equals(str)) {
+            column[8] = "입고 날짜";
+        } else if ("out".equals(str)) {
+            column[8] = "출고 날짜";
+        }
+    	list = stockLogDAO.listBoundDate(str, start, end, user);  	
     }
     
     public void reload() {
     	stockLogDAO = new StockLogDAO();
-     	list = stockLogDAO.listBound(status);  	
+     	list = stockLogDAO.listBound(status, user);  	
      	fireTableDataChanged();
     }
 
@@ -103,16 +114,23 @@ public class StockModel extends AbstractTableModel{
             	value = Integer.toString(his.getQuantity());
                 break;
             case 8:
-            	SimpleDateFormat sdf_req = new SimpleDateFormat("yyyy-MM-dd");
-        	    value = sdf_req.format(his.getRequestDate());
-                break;
+            	if (his.getRequestDate() != null) {
+                    
+                    return sdf.format(his.getRequestDate());
+                } else {
+                    return ""; // 또는 "요청일 없음"
+                }
             case 9:
             	value = his.getManager().getUser_name();
             	break;
             case 10:
-            	SimpleDateFormat sdf_app = new SimpleDateFormat("yyyy-MM-dd");
-            	value = sdf_app.format(his.getApprovalDate());
-            	break;
+            	if (his.getApprovalDate() != null) {
+                    return sdf.format(his.getApprovalDate());
+                } else {
+                    return ""; // 또는 "결재일 없음"
+                }
+            default:
+                return null;
         }
 
         return value;
@@ -128,3 +146,5 @@ public class StockModel extends AbstractTableModel{
         fireTableDataChanged();
     }
 }
+
+

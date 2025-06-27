@@ -20,12 +20,12 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
-import javax.swing.plaf.basic.BasicComboBoxUI;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
+import com.olive.common.repository.StockDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
 import com.olive.common.util.style.ButtonUtil;
@@ -50,6 +50,7 @@ public class RegistFrame extends JFrame {
 	DBManager dbManager = DBManager.getInstance();
 	BranchDAO branchDAO;
 	UserDAO userDAO;
+	StockDAO stockDAO;
 
 	StorePage storePage;
 	StoreConfigMenu storeConfigMenu;
@@ -74,6 +75,7 @@ public class RegistFrame extends JFrame {
 
 		branchDAO = new BranchDAO();
 		userDAO = new UserDAO();
+		stockDAO = new StockDAO();
 
 		// style
 		Dimension d1 = new Dimension(140, 30);
@@ -185,6 +187,8 @@ public class RegistFrame extends JFrame {
 		branch.setUser(user);
 
 		branchDAO.insert(branch);	// 쿼리문 날리기
+		
+		stockDAO.insertStock(branch.getBr_id()); // 생성된 지점의 재고 0으로 세팅하기
 
 		JOptionPane.showMessageDialog(this, "지점이 등록되었습니다");
 		storeConfigMenu.refresh();	// 테이블 재출력

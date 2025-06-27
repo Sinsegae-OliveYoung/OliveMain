@@ -14,6 +14,33 @@ import com.olive.common.config.Config;
 
 public class ButtonUtil {
 	
+	public static JButton blueButtonUtil(String title) {
+	    JButton bt = new JButton(title);
+
+	    Color baseBlue = new Color(100, 149, 237); // Cornflower Blue
+	    Color hoverBlue = new Color(70, 130, 180); // Hover color: Steel Blue
+
+	    bt.setFont(new Font("SansSerif", Font.BOLD, 13));
+	    bt.setForeground(Color.WHITE);
+	    bt.setBackground(baseBlue);
+	    bt.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	    bt.setFocusPainted(false);
+	    bt.setBorderPainted(false);
+	    bt.setBorder(null);
+
+	    bt.addMouseListener(new MouseAdapter() {
+	        public void mouseEntered(MouseEvent e) {
+	            bt.setBackground(hoverBlue);
+	        }
+
+	        public void mouseExited(MouseEvent e) {
+	            bt.setBackground(baseBlue);
+	        }
+	    });
+
+	    return bt;
+	}
+	
 	public static JButton greenButtonUtil(String title) {
 		JButton bt = new JButton(title);
 		
@@ -34,6 +61,27 @@ public class ButtonUtil {
 
 		return bt; 
 	}
+	public static JButton grayButtonUtil(String title) {
+		JButton bt = new JButton(title);
+		
+		bt.setFont(new Font("SansSerif", Font.BOLD, 13));
+        bt.setForeground(Color.black);
+        bt.setBackground(Color.LIGHT_GRAY);
+        bt.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        bt.setFocusPainted(false);
+		
+		bt.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				bt.setBackground(Color.GRAY);
+			}
+			public void mouseExited(MouseEvent e) {
+			    bt.setBackground(Color.LIGHT_GRAY);
+			}
+		});
+
+		return bt; 
+	}
+	
 	
 	public static JButton pinkButtonUtil(String title) {
 		JButton bt = new JButton(title);

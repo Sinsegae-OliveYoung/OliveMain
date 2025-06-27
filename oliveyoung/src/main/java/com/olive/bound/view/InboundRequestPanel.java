@@ -271,7 +271,7 @@ public class InboundRequestPanel extends Panel{
         p_bottom.add(comboPanel);
         
 		
-		// 스타일
+		// 스타일 ------------------------------------------------------------
         p_north.setPreferredSize(new Dimension(Config.CONTENT_W , 50));
         p_north.setBackground(Config.WHITE);
         
@@ -322,7 +322,7 @@ public class InboundRequestPanel extends Panel{
 		table.setRowSorter(sorter);
 
 		// 헤더 클릭 감지 및 정렬 상태 출력
-		JTableHeader header = table.getTableHeader();
+		header = table.getTableHeader();
 		header.addMouseListener(new MouseAdapter() {
 		    @Override
 		    public void mouseClicked(MouseEvent e) {
@@ -356,7 +356,7 @@ public class InboundRequestPanel extends Panel{
 		table_re.setRowSorter(sorter_re);
 
 		// 헤더 클릭 이벤트로 정렬 상태 출력
-		JTableHeader header_re = table_re.getTableHeader();
+		header_re = table_re.getTableHeader();
 		header_re.addMouseListener(new MouseAdapter() {
 		    @Override
 		    public void mouseClicked(MouseEvent e) {

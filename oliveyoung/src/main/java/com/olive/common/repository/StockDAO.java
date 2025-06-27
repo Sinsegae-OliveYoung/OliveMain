@@ -1,9 +1,11 @@
 package com.olive.common.repository;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -389,6 +391,34 @@ public class StockDAO {
     }
       
 
+    public void insertStock(int br_id) {
+        Connection con = null;
+        PreparedStatement pstmt = null;
+
+        StringBuffer sql = new StringBuffer();
+        sql.append("INSERT INTO stock (option_id, br_id, st_quantity, st_update) ");
+        sql.append("SELECT po.option_id, ?, 0, CURRENT_DATE ");
+        sql.append("FROM product_option po ");
+        sql.append("WHERE NOT EXISTS ( ");
+        sql.append("    SELECT 1 FROM stock s ");
+        sql.append("    WHERE s.option_id = po.option_id AND s.br_id = ? ");
+        sql.append(")");
+
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setInt(1, br_id); // 첫 번째 '?': br_id for INSERT
+            pstmt.setInt(2, br_id); // 두 번째 '?': br_id for WHERE NOT EXISTS
+
+            int result = pstmt.executeUpdate();
+            System.out.println("➕ 재고 신규 삽입 수: " + result);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            dbManager.release(pstmt);
+        }
+    }
     
     public void updateProductQuantity(int st_id, int st_quantity) {
     	  Connection con = null;
@@ -410,6 +440,30 @@ public class StockDAO {
         	  dbManager.release(pstmt);
           }
     }
+    
+    public void updateStockDate(int st_id) {
+  	  Connection con = null;
+        PreparedStatement pstmt = null;
+        
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String formattedDate = sdf.format(new java.util.Date());
+
+        StringBuffer sql = new StringBuffer();
+        sql.append("UPDATE stock set st_update = ? where st_id = ?");
+        
+        try {
+            con = dbManager.getConnection();
+            pstmt = con.prepareStatement(sql.toString());
+            pstmt.setString(1, formattedDate);
+            pstmt.setInt(2, st_id);
+            pstmt.execute();
+            
+        } catch ( SQLException e) {
+      	  e.printStackTrace();
+        } finally {
+      	  dbManager.release(pstmt);
+        }
+  }
     
  // 로그인한 user가 관리하는 branch 목록 반환
  	public int getBranchID(User user){

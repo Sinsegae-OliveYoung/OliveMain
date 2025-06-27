@@ -77,7 +77,6 @@ public class MemberDAO {
 //		
 		
 		
-		System.out.println(sql.toString());
 		try {
 			pstmt = con.prepareStatement(sql.toString());
 			for(int i = 0; i < params.size(); i++) {
@@ -127,8 +126,6 @@ public class MemberDAO {
 	// count용 쿼리 
 	public int countSelect(MemberFilterDTO filter){
 		
-		System.out.println("MemberDAO.countSelect()");
-		
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -176,7 +173,6 @@ public class MemberDAO {
 			params.add(filter.getEnd_date());
 		}
 		
-		System.out.println(sql.toString());
 		
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -203,7 +199,6 @@ public class MemberDAO {
 		MemberFilterDTO f = new MemberFilterDTO();
 		f.setUser_id(1);
 		f.setRole_id(2);
-		System.out.println(m.countSelect(f));
 		
 	}
 	

@@ -37,7 +37,6 @@ import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.StockDAO;
-import com.olive.common.repository.UserDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
@@ -311,7 +310,7 @@ public class MainLayout extends JFrame {
 		});
 		
 		// 자동 출고 쓰레드 초기화 작업 <- 페이지 생성 후에 run
-		startAutoOutboundThread();	
+//		startAutoOutboundThread();	
 	}
 
 	public void createPage() {
@@ -379,7 +378,9 @@ public class MainLayout extends JFrame {
 		    }
 		});
 		
-
+		bt_float.addActionListener(e -> {
+			client.setVisible(true);
+		});
 
 	}
 	

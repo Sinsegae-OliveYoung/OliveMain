@@ -16,6 +16,7 @@ public class Config {
 	
 	public static final String LOGO_PATH = "images/logo2.png";
 	public static final String ALERT_IMAGE = "images/auto_alert.png";
+	public static final String IMG_PATH = "C:\\public";
 	
 	/*--------------------------------------------
 	 *  페이지 정의

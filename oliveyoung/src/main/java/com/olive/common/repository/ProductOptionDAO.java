@@ -172,11 +172,9 @@ public class ProductOptionDAO {
  	    return max;
  	}
  	
- 	public void insert(ProductOption productOption) throws ProductOptionException {
- 		Connection con=null;
+ 	public void insert(ProductOption productOption, Connection con) throws ProductOptionException {
 		PreparedStatement pstmt=null;
 		
-		con=dbManager.getConnection();
 		StringBuffer sql = new StringBuffer();
 		sql.append("insert into product_option(product_id, option_no, option_name,"
 				+ " option_code, price, option_active) values(?,?,?,?,?,?)");
@@ -223,7 +221,6 @@ public class ProductOptionDAO {
 	
 	 // 상품 옵션 삭제
 	 public void delete(int optionId ,Connection con) throws ProductOptionException, SQLException {
-		 System.out.println("optionId : " + optionId);
 	    PreparedStatement pstmt1 = null;
 	    PreparedStatement pstmt2 = null;
 	    PreparedStatement pstmt3 = null;

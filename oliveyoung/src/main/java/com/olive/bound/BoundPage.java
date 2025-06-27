@@ -123,15 +123,6 @@ public class BoundPage extends Page {
 				public void mouseClicked(MouseEvent e) {
 				      JButton source = (JButton) e.getSource();
 				      
-				     /* if (source == bt_menu1)
-				    	  showPanel(0);
-				      else if (source == bt_menu2)
-				    	  showPanel(1);
-				      else if (source == bt_menu3)
-				    	  showPanel(2);
-				      else if (source == bt_menu4)
-				    	  showPanel(3);*/
-				      
 				      /*--------------
 				       *  테스트용
 				       * -------------*/
@@ -158,8 +149,8 @@ public class BoundPage extends Page {
 		
 		panels = new Panel[4];
 
-		panels[0] = new InboundRequestPanel(mainLayout);		// 입고 요청서
-		panels[1] = new InboundShowPanel(mainLayout);			// 입고 요청 내역 조회
+		panels[0] = new InboundRequestPanel(mainLayout);	// 입고 요청서
+		panels[1] = new InboundShowPanel(mainLayout);		// 입고 요청 내역 조회
 		panels[2] = new OutboundRequestPanel(mainLayout);	// 출고 요청서
 		panels[3] = new OutboundShowPanel(mainLayout);		// 출고 요청 내역 조회
 		
