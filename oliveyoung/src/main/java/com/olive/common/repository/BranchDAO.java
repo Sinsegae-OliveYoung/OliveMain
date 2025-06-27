@@ -60,67 +60,75 @@ public class BranchDAO {
 		return list;
 	};
 	
-	// 한 개의 레코드 삽입 (branch, member에 insert)	
-	public void insert(Branch branch) throws BranchException {
-	    Connection con = null;
-	    PreparedStatement pstmt = null;
-	    ResultSet rs = null;
+	// 한 개의 레코드 삽입 (branch, member에 insert)
+	public void insert(Branch branch, User user) throws BranchException {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
 
-	    StringBuffer branchSql = new StringBuffer();
-	    branchSql.append("INSERT INTO"
-	        + " branch(br_name, br_address, br_tel, user_id)"
-	        + " VALUES(?, ?, ?, ?)");
+		// insert 대상이 둘이므로 insert문도 각각 생성
+		StringBuffer branchSql = new StringBuffer();
+		branchSql.append("INSERT INTO"
+				+ " branch(br_name, br_address, br_tel, user_id)"
+				+ " VALUES(?, ?, ?, ?)");
+		StringBuffer member1Sql = new StringBuffer();
+		member1Sql.append("INSERT INTO"
+				+ " member(br_id, user_id)"
+				+ " VALUES(?, ?)");
+		StringBuffer member2Sql = new StringBuffer();
+		member2Sql.append("INSERT INTO"
+				+ " member(br_id, user_id)"
+				+ " VALUES(?, ?)");
+		
+		try {
+			con = dbManager.getConnection();
+			con.setAutoCommit(false);
+	        
+			// Branch 테이블에 등록
+	        // branch 테이블에 등록 후 그 값으로 member 테이블에 등록하기 위해서 pk값 반환 옵션 추가
+			pstmt = con.prepareStatement(branchSql.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
+			pstmt.setString(1, branch.getBr_name());
+			pstmt.setString(2, branch.getBr_address());
+			pstmt.setString(3, branch.getBr_tel());
+			pstmt.setInt(4, branch.getUser().getUser_id());
+			int brResult = pstmt.executeUpdate();
 
-	    StringBuffer memberSql = new StringBuffer();
-	    memberSql.append("INSERT INTO"
-	        + " member(br_id, user_id)"
-	        + " VALUES(?, ?)");
+			// branch insert 후 그 키 값 다시 받아와 변수에 저장
+			rs = pstmt.getGeneratedKeys();	
+			int br_id = 0;
+			if (rs.next())	{
+				br_id = rs.getInt(1);	// 첫번째 컬럼(br_id) 가져오기
+				branch.setBr_id(br_id); // ✅ 외부에서 사용할 수 있도록 설정 (이건 뭘까여?? 궁금)
+			}
+			// branch에서 사용한 rs, pstmt 닫기
+			rs.close();
+			pstmt.close();
 
-	    try {
-	        con = dbManager.getConnection();
-	        con.setAutoCommit(false);
-
-	        // 1. Branch 테이블에 등록 + 키 값 반환
-	        pstmt = con.prepareStatement(branchSql.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
-	        pstmt.setString(1, branch.getBr_name());
-	        pstmt.setString(2, branch.getBr_address());
-	        pstmt.setString(3, branch.getBr_tel());
-	        pstmt.setInt(4, branch.getUser().getUser_id());
-
-	        int brResult = pstmt.executeUpdate();
-
-	        // 2. 생성된 br_id 추출
-	        rs = pstmt.getGeneratedKeys();
-	        int br_id = 0;
-	        if (rs.next()) {
-	            br_id = rs.getInt(1);
-	            branch.setBr_id(br_id); // ✅ 외부에서 사용할 수 있도록 설정
-	        }
-
-	        rs.close();
-	        pstmt.close();
-
-	        // 3. Member 테이블에 등록
-	        pstmt = con.prepareStatement(memberSql.toString());
-	        pstmt.setInt(1, br_id);
-	        pstmt.setInt(2, branch.getUser().getUser_id());
-	        int mbResult = pstmt.executeUpdate();
-
-	        if (brResult < 1 || mbResult < 1) {
-	            throw new BranchException("지점 등록에 실패하였습니다");
-	        } else {
-	            con.commit();
-	        }
-
-	    } catch (SQLException e) {
-	        try { if (con != null) con.rollback(); } catch (SQLException e1) { e1.printStackTrace(); }
-	        e.printStackTrace();
-	        throw new BranchException("지점 등록에 실패하였습니다", e);
-	    } finally {
-	        try { if (con != null) con.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-	        dbManager.release(pstmt, rs);
-	    }
+			// Member 테이블에 지점 담당자(점장) 등록
+			pstmt = con.prepareStatement(member1Sql.toString());
+			pstmt.setInt(1, br_id);
+			pstmt.setInt(2, branch.getUser().getUser_id());
+			int mb1Result = pstmt.executeUpdate();
+			pstmt.close();
+			
+			// Member 테이블에 지점 관리자(팀장) 등록
+			pstmt = con.prepareStatement(member2Sql.toString());
+			pstmt.setInt(1, br_id);
+			pstmt.setInt(2, user.getUser_id());
+			int mb2Result = pstmt.executeUpdate();
+			
+			if (brResult < 1 || mb1Result < 1 || mb2Result < 1) throw new BranchException("지점 등록에 실패하였습니다");
+			else	con.commit();
+		} catch (SQLException e) {
+			try { if (con != null) con.rollback();} catch (SQLException e1) {e1.printStackTrace();	}
+			e.printStackTrace();
+			throw new BranchException("지점 등록에 실패하였습니다", e);
+		} finally {
+			try { if (con != null) con.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+			dbManager.release(pstmt, rs);
+		}
 	}
+	
 
 	// 한 개의 레코드 수정 (member, branch)
 	public void update(Branch branch, User user) throws BranchException {
@@ -135,6 +143,7 @@ public class BranchDAO {
 				+ " br_tel = ?,"
 				+ " user_id = ?"
 				+ " WHERE br_id = ?");
+		
 		StringBuffer memberSql = new StringBuffer();
 		memberSql.append("UPDATE member"
 				+ " SET br_id = ?"
@@ -284,6 +293,7 @@ public class BranchDAO {
 				+ " ct_name AS '상위 카테고리',"
 				+ " ct_dt_name AS '하위 카테고리',"
 				+ " product_name AS '상품명',"
+				+ " option_name AS '옵션명',"
 				+ " st_quantity AS '재고',"
 				+ " st_update AS '최근 수정일'"
 				+ " FROM brand b"
@@ -326,6 +336,7 @@ public class BranchDAO {
 				product.setCategory_detail(categoryDetail);
 				
 				ProductOption productOption = new ProductOption();
+				productOption.setOption_name(rs.getString("옵션명"));
 				productOption.setProduct(product);
 				
 				Stock stock = new Stock();
@@ -403,26 +414,25 @@ public class BranchDAO {
 		con = dbManager.getConnection();
 		
 		StringBuffer sql = new StringBuffer();
-		sql.append("SELECT b.br_id,"
-				+ " br_name,"
-				+ " br_address,"
-				+ " br_tel,"
-				+ " u.user_id,"
-				+ " user_name,"
-				+ " tel,"
-				+ " hiredate,"
-				+ " email,"
-				+ " r.role_id,"
-				+ " role_name,"
-				+ " role_code"
-				+ " FROM branch b"
-				+ " INNER JOIN member m"
-				+ " JOIN user u"
-				+ " JOIN role r"
-				+ " ON b.br_id = m.br_id"
-				+ " AND u.user_id = m.user_id"
-				+ " AND u.role_id = r.role_id"
-				+ " WHERE m.user_id = ?");
+		sql.append("		SELECT \r\n"
+				+ "    b.br_id,\r\n"
+				+ "    b.br_name,\r\n"
+				+ "    b.br_address,\r\n"
+				+ "    b.br_tel,\r\n"
+				+ "    b.user_id,\r\n"
+				+ "    u2.user_name,\r\n"
+				+ "    u.tel,\r\n"
+				+ "    u.hiredate,\r\n"
+				+ "    u.email,\r\n"
+				+ "    r.role_id,\r\n"
+				+ "    r.role_name,\r\n"
+				+ "    r.role_code\r\n"
+				+ "FROM branch b\r\n"
+				+ "INNER JOIN member m ON b.br_id = m.br_id\r\n"
+				+ "INNER JOIN user u ON u.user_id = m.user_id\r\n"
+				+ "INNER JOIN role r ON u.role_id = r.role_id\r\n"
+				+ "LEFT JOIN user u2 ON b.user_id = u2.user_id\r\n"
+				+ "WHERE u.user_id = ?");
 	
 		try {
 			pstmt = con.prepareStatement(sql.toString());
@@ -437,7 +447,7 @@ public class BranchDAO {
 				role.setRole_name(rs.getString("r.role_name"));
 				
 				User user = new User();
-				user.setUser_id(rs.getInt("u.user_id"));
+				user.setUser_id(rs.getInt("b.user_id"));
 				user.setUser_name(rs.getString("user_name"));
 				user.setTel(rs.getString("tel"));
 				user.setHiredate(rs.getDate("hiredate"));

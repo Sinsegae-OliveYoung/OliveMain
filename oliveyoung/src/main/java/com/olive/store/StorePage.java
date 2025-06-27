@@ -52,7 +52,7 @@ public class StorePage extends Page {
 
 	Panel[] panels; // 하위 메뉴 패널들을 담을 배열
 	int index; // 선택된 메뉴를 가르킬 변수
-	MainLayout mainLayout;
+	public MainLayout mainLayout;
 	int roleId; // 로그인 한 유저의 아이디
 	List<Branch> userBranches = new ArrayList(); // 로그인 한 유저의 지점 리스트
 	BranchDAO branchDAO = new BranchDAO();
