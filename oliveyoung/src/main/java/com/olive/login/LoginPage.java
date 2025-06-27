@@ -58,7 +58,6 @@ public class LoginPage extends JFrame {
 	public User user;
 
 	public LoginPage() {
-
 		// create
 		p_bg = new JPanel();
 		p_login = new JPanel();

@@ -99,6 +99,21 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 		return cb;
 	}
 	
+	public static JComboBox<Branch> createBranchComboBoxWithNoDummy(int userId){
+		BranchDAO branchDAO = new BranchDAO();
+		List<Branch> list = branchDAO.getBranchList(userId);
+	
+		JComboBox<Branch> cb = new JComboBox<>();
+		cb.setUI(new ComboBoxUtil());
+
+		for (int i = 0; i < list.size(); i++) {
+			cb.addItem(list.get(i));
+		}
+
+		return cb;
+	}
+	
+	
 	public static JComboBox<Category> createCategoryComboBox() {
 	    CategoryDAO categoryDAO = new CategoryDAO();
 	    List<Category> list = categoryDAO.selectAll();

@@ -84,11 +84,14 @@ public class MainLayout extends JFrame {
 	JButton bt_lo; // logout
 
 	JPanel p_content;
+	
+	
+	JPanel p_float;
 	JButton bt_float;
 	Image img_float_default;
 	Image img_float_hover;
 	Image curImg;
-	
+	public JLabel lb_chatCount;
 	Page[] pages; // 페이지 담을 배열
 	
 	private int alertCount = 0;
@@ -346,7 +349,16 @@ public class MainLayout extends JFrame {
 
 
 	public void createFloatButton() {
+		getLayeredPane().setLayout(null);
+		
 		curImg = img_float_hover;
+		
+		p_float = new JPanel();
+		p_float.setLayout(null); // 내부 컴포넌트 위치 수동 지정
+		p_float.setBounds(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100, 70, 50); // 위치+크기 지정
+		p_float.setOpaque(false);
+		getLayeredPane().add(p_float, JLayeredPane.POPUP_LAYER);
+		
 		bt_float = new JButton() {
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
@@ -354,11 +366,24 @@ public class MainLayout extends JFrame {
 				g.drawImage(curImg, 0, 0, 40, 40, bt_float);
 			}
 		};
-		bt_float.setSize(40, 40);
+		bt_float.setBounds(0, 0, 40, 40);
 		bt_float.setContentAreaFilled(false); // 배경 제거
 		bt_float.setBorderPainted(false);    // 테두리 제거
 		bt_float.setFocusPainted(false);
-		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
+		p_float.add(bt_float);
+		
+		lb_chatCount = new JLabel("0");
+		lb_chatCount.setVisible(false);
+		lb_chatCount.setBounds(40, 0, 20, 20);
+		lb_chatCount.setForeground(Color.RED);
+		p_float.add(lb_chatCount);
+		
+		bt_float.addActionListener(e -> {
+			lb_chatCount.setText("0");
+		    lb_chatCount.setVisible(false);
+		    client.setVisible(true);
+		    
+		});
 		
 		bt_float.addMouseListener(new MouseAdapter() {
 		    public void mouseEntered(MouseEvent e) {
@@ -376,7 +401,6 @@ public class MainLayout extends JFrame {
 			client.setVisible(true);
 		});
 
-		getLayeredPane().add(bt_float, JLayeredPane.POPUP_LAYER);
 	}
 	
 	

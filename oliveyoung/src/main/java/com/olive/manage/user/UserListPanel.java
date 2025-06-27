@@ -193,7 +193,12 @@ public class UserListPanel extends BasePanel{
 		p_bottom.add(lb_regist);
 		
 		JButton bt_regist = ButtonUtil.greenButtonUtil("+");
-		bt_regist.setPreferredSize(new Dimension(40, 30));
+		bt_regist.setPreferredSize(new Dimension(45, 30));
+		
+		bt_regist.addActionListener(e -> {
+			//등록 다이얼로그 띄우기 
+			new UserRegistDialog(this);
+		});
 		
 		p_bottom.add(bt_regist);
 		
