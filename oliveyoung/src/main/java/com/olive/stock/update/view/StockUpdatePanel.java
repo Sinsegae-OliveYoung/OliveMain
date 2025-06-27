@@ -101,8 +101,8 @@ public class StockUpdatePanel extends Panel{
 	        bt_update.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-			        table.setCellSelectionEnabled(true);	// 행 선택
-			        table.setRequestFocusEnabled(true);	// 셀 선택	
+					table.setCellSelectionEnabled(false);   // 셀 단위 선택 X
+		        	table.setRowSelectionAllowed(true);     // 행 단위 선택 O        
 				}
 			});
 	        

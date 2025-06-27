@@ -64,7 +64,8 @@ public class ProductDialog extends JDialog {
 		add(form);
 
 		JPanel btnPanel = new JPanel();
-		JButton btnSave = ButtonUtil.greenButtonUtil("저장");
+		String buttonName = (option == null ? "저장" : "수정");
+		JButton btnSave = ButtonUtil.greenButtonUtil(buttonName);
 		JButton btnCancel = ButtonUtil.pinkButtonUtil("취소");
 		
 		btnSave.setPreferredSize(new Dimension(100, 30));
