@@ -186,24 +186,25 @@ public class ProductListPanel extends Panel {
 		});
 
 		btnEdit.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (mainLayout.user.getRole().getRole_id() != 2) {
-					JOptionPane.showMessageDialog(ProductListPanel.this, "상품 수정은 점장만 가능합니다");
-					return;
-				}
+		    @Override
+		    public void actionPerformed(ActionEvent e) {
+		        if (mainLayout.user.getRole().getRole_id() != 2) {
+		            JOptionPane.showMessageDialog(ProductListPanel.this, "상품 수정은 점장만 가능합니다");
+		            return;
+		        }
 
-				int row = table.getSelectedRow();
-				if (row == -1) {
-					JOptionPane.showMessageDialog(ProductListPanel.this, "수정할 상품을 선택하세요.");
-					return;
-				}
+		        int row = table.getSelectedRow();
+		        if (row == -1) {
+		            JOptionPane.showMessageDialog(ProductListPanel.this, "수정할 상품을 선택하세요.");
+		            return;
+		        } else {
+		            int modelRow = table.convertRowIndexToModel(row);
+		            ProductOption selectedOption = model.getProductOptionAt(modelRow);
+		            Product selectedProduct = selectedOption.getProduct();
 
-				ProductOption selectedOption = model.getProductOptionAt(row);
-				Product selectedProduct = selectedOption.getProduct();
-
-				new ProductDialog(mainLayout, selectedOption, selectedProduct).setVisible(true);
-			}
+		            new ProductDialog(mainLayout, selectedOption, selectedProduct).setVisible(true);
+		        }
+		    }
 		});
 
 		btnDelete.addActionListener(new ActionListener() {
@@ -309,6 +310,8 @@ public class ProductListPanel extends Panel {
 				int columnIndex = header_list.columnAtPoint(e.getPoint());
 				String columnName = table.getColumnName(columnIndex);
 				SortOrder order = getSortOrder(sorter_list, columnIndex);
+				
+
 
 			}
 

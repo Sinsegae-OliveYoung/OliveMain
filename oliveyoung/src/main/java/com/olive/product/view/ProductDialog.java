@@ -29,6 +29,7 @@ import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.ProductImgDAO;
 import com.olive.common.repository.ProductOptionDAO;
 import com.olive.common.util.DBManager;
+import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.ComboBoxUtil;
 import com.olive.mainlayout.MainLayout;
 
@@ -47,6 +48,8 @@ public class ProductDialog extends JDialog {
 
 	private ProductForm form;
 	private boolean isEditMode;
+	// imageCloud 웹서버 가동시 ip + 톰캣포트번호
+	String imgServerIp = "http://192.168.60.36:8282"; 
 
 	public ProductDialog(MainLayout mainLayout, ProductOption option, Product product) {
 		setTitle(option == null ? "상품 등록" : "상품 수정");
@@ -59,8 +62,13 @@ public class ProductDialog extends JDialog {
 		add(form);
 
 		JPanel btnPanel = new JPanel();
-		JButton btnSave = new JButton("저장");
-		JButton btnCancel = new JButton("취소");
+		JButton btnSave = ButtonUtil.greenButtonUtil("저장");
+		JButton btnCancel = ButtonUtil.pinkButtonUtil("취소");
+		
+		btnSave.setPreferredSize(new Dimension(100, 30));
+		btnCancel.setPreferredSize(new Dimension(100, 30));
+		btnPanel.setBackground(Config.WHITE);
+		
 		btnPanel.add(btnSave);
 		btnPanel.add(btnCancel);
 
@@ -95,7 +103,7 @@ public class ProductDialog extends JDialog {
 		JComboBox<CategoryDetail> cbCategoryDetail = new JComboBox<>();
 		JComboBox<String> cbActive = new JComboBox<>(new String[] { "y", "n" });
 		JPanel p_preview = new JPanel();
-		JButton bt_open = new JButton("사진 선택");
+		JButton bt_open = ButtonUtil.grayButtonUtil("사진 선택");
 		JFileChooser chooser = new JFileChooser("C:/public");
 		File file = null;
 
@@ -122,6 +130,8 @@ public class ProductDialog extends JDialog {
 			tfPrice.setPreferredSize(new Dimension(200, 30));
 			tfOptionName.setPreferredSize(new Dimension(200, 30));
 			cbBrand.setPreferredSize(new Dimension(200, 30));
+			cbBrand.setUI(new ComboBoxUtil());
+			ComboBoxUtil.applyDefaultStyle(cbBrand);
 			cbCategory.setPreferredSize(new Dimension(200, 30));
 			cbCategory.setUI(new ComboBoxUtil());
 			ComboBoxUtil.applyDefaultStyle(cbCategory);
@@ -151,7 +161,7 @@ public class ProductDialog extends JDialog {
 				if (img != null) {
 					try {
 						String filename = img.getImg_filename();
-						String imageUrl = "http://192.168.45.78:8282/public/" + filename;
+						String imageUrl = imgServerIp + "/public/" + filename;
 						System.out.println(imageUrl);
 
 						// URL로 이미지 읽기
@@ -310,7 +320,7 @@ public class ProductDialog extends JDialog {
 					productImgDAO.insert(img, con);
 
 					String fileName = img.getImg_filename();
-					String imgUrl = "http://192.168.45.78:8282/public/" + fileName;
+					String imgUrl = imgServerIp + "/public/" + fileName;
 
 					// 로컬 public 폴더에서 가져오는 방식
 //						File imgFile = new File(Config.IMG_PATH + File.separator + filename); // 경로는 환경에 맞게
@@ -400,7 +410,7 @@ public class ProductDialog extends JDialog {
 			CloseableHttpClient httpClient = HttpClients.createDefault();
 
 			// Post
-			HttpPost post = new HttpPost("http://192.168.45.78:8282/upload/regist");
+			HttpPost post = new HttpPost(imgServerIp + "/upload/regist");
 
 			/* 서버로 전송할 데이터 구성하기 */
 			StringBody titleBody = new StringBody("post", ContentType.create("text/plain", Consts.UTF_8));

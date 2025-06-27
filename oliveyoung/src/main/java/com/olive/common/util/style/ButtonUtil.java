@@ -61,6 +61,27 @@ public class ButtonUtil {
 
 		return bt; 
 	}
+	public static JButton grayButtonUtil(String title) {
+		JButton bt = new JButton(title);
+		
+		bt.setFont(new Font("SansSerif", Font.BOLD, 13));
+        bt.setForeground(Color.black);
+        bt.setBackground(Color.LIGHT_GRAY);
+        bt.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        bt.setFocusPainted(false);
+		
+		bt.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				bt.setBackground(Color.GRAY);
+			}
+			public void mouseExited(MouseEvent e) {
+			    bt.setBackground(Color.LIGHT_GRAY);
+			}
+		});
+
+		return bt; 
+	}
+	
 	
 	public static JButton pinkButtonUtil(String title) {
 		JButton bt = new JButton(title);
