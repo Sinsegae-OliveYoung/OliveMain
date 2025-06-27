@@ -60,60 +60,66 @@ public class BranchDAO {
 		return list;
 	};
 	
-	// 한 개의 레코드 삽입 (branch, member에 insert)
+	// 한 개의 레코드 삽입 (branch, member에 insert)	
 	public void insert(Branch branch) throws BranchException {
-		Connection con = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
+	    Connection con = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
 
-		// insert 대상이 둘이므로 insert문도 각각 생성
-		StringBuffer branchSql = new StringBuffer();
-		branchSql.append("INSERT INTO"
-				+ " branch(br_name, br_address, br_tel, user_id)"
-				+ " VALUES(?, ?, ?, ?)");
-		StringBuffer memberSql = new StringBuffer();
-		memberSql.append("INSERT INTO"
-				+ " member(br_id, user_id)"
-				+ " VALUES(?, ?)");
-		
-		try {
-			con = dbManager.getConnection();
-			con.setAutoCommit(false);
-	        
-			// Branch 테이블에 등록
-	        // branch 테이블에 등록 후 그 값으로 member 테이블에 등록하기 위해서 pk값 반환 옵션 추가
-			pstmt = con.prepareStatement(branchSql.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
-			pstmt.setString(1, branch.getBr_name());
-			pstmt.setString(2, branch.getBr_address());
-			pstmt.setString(3, branch.getBr_tel());
-			pstmt.setInt(4, branch.getUser().getUser_id());
-			int brResult = pstmt.executeUpdate();
+	    StringBuffer branchSql = new StringBuffer();
+	    branchSql.append("INSERT INTO"
+	        + " branch(br_name, br_address, br_tel, user_id)"
+	        + " VALUES(?, ?, ?, ?)");
 
-			// branch insert 후 그 키 값 다시 받아와 변수에 저장
-			rs = pstmt.getGeneratedKeys();	
-			int br_id = 0;
-			if (rs.next())	
-				br_id = rs.getInt(1);	// 첫번째 컬럼(br_id) 가져오기
-			// branch에서 사용한 rs, pstmt 닫기
-			rs.close();
-			pstmt.close();
-			
-			// Member 테이블에 등록
-			pstmt = con.prepareStatement(memberSql.toString());
-			pstmt.setInt(1, br_id);
-			pstmt.setInt(2, branch.getUser().getUser_id());
-			int mbResult = pstmt.executeUpdate();
-			
-			if (brResult < 1 || mbResult < 1) throw new BranchException("지점 등록에 실패하였습니다");
-			else	con.commit();
-		} catch (SQLException e) {
-			try { if (con != null) con.rollback();} catch (SQLException e1) {e1.printStackTrace();	}
-			e.printStackTrace();
-			throw new BranchException("지점 등록에 실패하였습니다", e);
-		} finally {
-			try { if (con != null) con.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
-			dbManager.release(pstmt, rs);
-		}
+	    StringBuffer memberSql = new StringBuffer();
+	    memberSql.append("INSERT INTO"
+	        + " member(br_id, user_id)"
+	        + " VALUES(?, ?)");
+
+	    try {
+	        con = dbManager.getConnection();
+	        con.setAutoCommit(false);
+
+	        // 1. Branch 테이블에 등록 + 키 값 반환
+	        pstmt = con.prepareStatement(branchSql.toString(), PreparedStatement.RETURN_GENERATED_KEYS);
+	        pstmt.setString(1, branch.getBr_name());
+	        pstmt.setString(2, branch.getBr_address());
+	        pstmt.setString(3, branch.getBr_tel());
+	        pstmt.setInt(4, branch.getUser().getUser_id());
+
+	        int brResult = pstmt.executeUpdate();
+
+	        // 2. 생성된 br_id 추출
+	        rs = pstmt.getGeneratedKeys();
+	        int br_id = 0;
+	        if (rs.next()) {
+	            br_id = rs.getInt(1);
+	            branch.setBr_id(br_id); // ✅ 외부에서 사용할 수 있도록 설정
+	        }
+
+	        rs.close();
+	        pstmt.close();
+
+	        // 3. Member 테이블에 등록
+	        pstmt = con.prepareStatement(memberSql.toString());
+	        pstmt.setInt(1, br_id);
+	        pstmt.setInt(2, branch.getUser().getUser_id());
+	        int mbResult = pstmt.executeUpdate();
+
+	        if (brResult < 1 || mbResult < 1) {
+	            throw new BranchException("지점 등록에 실패하였습니다");
+	        } else {
+	            con.commit();
+	        }
+
+	    } catch (SQLException e) {
+	        try { if (con != null) con.rollback(); } catch (SQLException e1) { e1.printStackTrace(); }
+	        e.printStackTrace();
+	        throw new BranchException("지점 등록에 실패하였습니다", e);
+	    } finally {
+	        try { if (con != null) con.setAutoCommit(true); } catch (SQLException e) { e.printStackTrace(); }
+	        dbManager.release(pstmt, rs);
+	    }
 	}
 
 	// 한 개의 레코드 수정 (member, branch)
