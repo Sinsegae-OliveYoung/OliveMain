@@ -61,14 +61,15 @@ public class StockLogDAO {
 				+ " join branch br 			on br.br_id 	= bd.br_id"
 				+ " where br.br_id = ?"
 				+ " and	  bd.bo_state_id IN (2, 3)"
-				+ " and   bd.bound_flag = ?"
+				+ " and ( ? = 'all' or bd.bound_flag = ? )"
 		);
 
 		try {
 			con = dbManager.getConnection();
 			pstmt = con.prepareStatement(sql.toString());
 			pstmt.setInt(1, getBranchID(user));
-			pstmt.setString(2, flag); // "in" 또는 "out" 값 세팅
+			pstmt.setString(2, flag); // "all" 세팅
+			pstmt.setString(3, flag); // "in" 또는 "out" 값 세팅
 			rs = pstmt.executeQuery();
 
 			while (rs.next()) {

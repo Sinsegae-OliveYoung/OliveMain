@@ -45,6 +45,11 @@ public class StockModel extends AbstractTableModel{
     	this.user = user;
     	stockLogDAO = new StockLogDAO();
     	status = str;
+        if ("in".equals(str)) {
+            column[8] = "입고 날짜";
+        } else if ("out".equals(str)) {
+            column[8] = "출고 날짜";
+        }
     	list = stockLogDAO.listBoundDate(str, start, end, user);  	
     }
     
