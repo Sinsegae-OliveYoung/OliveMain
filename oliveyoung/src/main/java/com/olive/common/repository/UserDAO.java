@@ -39,7 +39,7 @@ public class UserDAO {
 			pstmt.setString(7, user.getPwd());
 			
 			int result = pstmt.executeUpdate();
-			if(result < 1)
+			if(result < 1) 
 				throw new UserException("사원 등록에 실패하였습니다");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -266,6 +266,29 @@ public class UserDAO {
 				}
 		}
 	    return user;
+	}
+	
+	public int selectRecentPk() {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int pk = 0; 
+		
+		con = dbManager.getConnection();
+		String sql = "select last_insert_id() as user_id";
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				pk = rs.getInt("user_id");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return pk;
 	}
 	
 }

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
+import com.olive.common.config.SecurityConfig;
 import com.olive.common.exception.EmailException;
 
 import jakarta.mail.Authenticator;
@@ -21,10 +22,10 @@ import jakarta.mail.internet.MimeMessage;
 
 /* 이메일 보내주는 객체 */
 public class MailSender {
-	String account_user = "owhitekitty@gmail.com";
+	String account_user = SecurityConfig.account_user;
 
 	/* 내 앱 비밀번호 넣어주기 - 구글-계정-앱비밀번호 */
-	String app_pwd = "vhah lnhg mcgg kpes";
+	String app_pwd = SecurityConfig.app_pwd;
 	Session session;
 
 	public MailSender() {
