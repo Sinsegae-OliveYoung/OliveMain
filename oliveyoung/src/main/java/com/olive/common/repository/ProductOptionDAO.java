@@ -223,7 +223,6 @@ public class ProductOptionDAO {
 	
 	 // 상품 옵션 삭제
 	 public void delete(int optionId ,Connection con) throws ProductOptionException, SQLException {
-		 System.out.println("optionId : " + optionId);
 	    PreparedStatement pstmt1 = null;
 	    PreparedStatement pstmt2 = null;
 	    PreparedStatement pstmt3 = null;

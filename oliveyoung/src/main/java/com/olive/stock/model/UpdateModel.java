@@ -119,7 +119,6 @@ public class UpdateModel extends AbstractTableModel {
 
 	    // 가격 컬럼인 경우만 처리
 	    if (col == 7) {
-	    	System.out.println(col);
 	        try {
 	            int quantity = Integer.parseInt(value.toString());
 

@@ -384,7 +384,7 @@ public class OutboundShowPanel extends Panel{
                     if (selectedBranch == null || selectedBranch.getBr_id() == 0) return;
 
                     // ✅ 해당 지점의 점장 불러오기
-                    UserDAO userDAO = new UserDAO();
+                    userDAO = new UserDAO();
                     User manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
 
                     // ✅ cb_appuser 초기화 및 업데이트
@@ -582,18 +582,18 @@ public class OutboundShowPanel extends Panel{
     private void deleteBound(BoundProduct boundProduct) {
     	if (boundProduct == null) return;
 
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+        int confirm = JOptionPane.showConfirmDialog(
             null,
             "정말로 선택한 출고 요청서를 삭제하시겠습니까?",
             "삭제 확인",
-            javax.swing.JOptionPane.YES_NO_OPTION
+            JOptionPane.YES_NO_OPTION
         );
 
-        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        if (confirm == JOptionPane.YES_OPTION) {
             int boundId = boundProduct.getBound().getBound_id();
             boundDAO.deleteBound(boundId);
 
-            javax.swing.JOptionPane.showMessageDialog(null, "출고 요청서가 삭제되었습니다.");
+            JOptionPane.showMessageDialog(null, "출고 요청서가 삭제되었습니다.");
 
             // 목록 새로고침
             refresh();
@@ -905,7 +905,10 @@ public class OutboundShowPanel extends Panel{
         }
 
         // 상세내용 초기화
-        model_detail.setBoundProductList(List.of());
+        model_detail = new BoundShowModel(); // 새 모델
+        model_detail.setBoundProductList(List.of()); // ✅ 빈 리스트로 초기화
+        table_detail.setModel(model_detail);
+        
         t_memo.setText("");
         dateChooser.setDate(null);
         cb_branch.setSelectedIndex(-1);

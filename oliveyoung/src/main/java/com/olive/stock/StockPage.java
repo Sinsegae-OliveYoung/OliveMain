@@ -163,7 +163,8 @@ public class StockPage extends Page {
 		
 
 		// listener
-		for (JButton btn : new JButton[] { bt_menu1, bt_menu2, bt_menu3, bt_menu4, bt_menu7, bt_menu8 } ) {
+		for (JButton btn : new JButton[] { bt_menu1, bt_menu2, bt_menu3, bt_menu4, bt_menu7, bt_menu8} ) {
+
 			btn.addMouseListener(new MouseAdapter() {
 				public void mouseEntered(MouseEvent e) {btn.setForeground(Config.DARK_GREEN);}
 				public void mouseExited(MouseEvent e) {btn.setForeground(Color.BLACK);}
