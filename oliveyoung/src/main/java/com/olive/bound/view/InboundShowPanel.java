@@ -581,14 +581,14 @@ public class InboundShowPanel extends Panel{
     private void deleteBound(BoundProduct boundProduct) {
     	if (boundProduct == null) return;
 
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+        int confirm = JOptionPane.showConfirmDialog(
             null,
             "정말로 선택한 입고 요청서를 삭제하시겠습니까?",
             "삭제 확인",
-            javax.swing.JOptionPane.YES_NO_OPTION
+            JOptionPane.YES_NO_OPTION
         );
 
-        if (confirm == javax.swing.JOptionPane.YES_OPTION) {
+        if (confirm == JOptionPane.YES_OPTION) {
             int boundId = boundProduct.getBound().getBound_id();
             boundDAO.deleteBound(boundId);
 
@@ -893,20 +893,31 @@ public class InboundShowPanel extends Panel{
 
     @Override
     public void refresh() {
-    	this.model = new BoundListModel(userBranches, "in");
+        // 좌측 목록 테이블 새로 모델 할당 및 렌더링
+        this.model = new BoundListModel(userBranches, "in");
         table_list.setModel(model);
         table_list.revalidate();
         table_list.repaint();
-        
+
         // 리스트 테이블 셀 가운데 정렬
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         for (int i = 0; i < table_list.getColumnCount(); i++) {
-        	table_list.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            table_list.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
-        // 상세내용 초기화
-        model_detail.setBoundProductList(List.of());
+        // ✅ 우측 상세 테이블 초기화
+        
+        model_detail = new BoundShowModel(); // 새 모델
+        model_detail.setBoundProductList(List.of()); // ✅ 빈 리스트로 초기화
+        table_detail.setModel(model_detail);
+
+        // 상세 테이블 렌더러 재적용
+        for (int i = 0; i < table_detail.getColumnCount(); i++) {
+            table_detail.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // 기타 입력 필드 초기화
         t_memo.setText("");
         dateChooser.setDate(null);
         cb_branch.setSelectedIndex(-1);

@@ -39,7 +39,7 @@ public class ProductDAO {
                 + "		, p.product_id"
                 + "		, p.product_name"
                 + "		, po.option_id"
-                + "		, CASE 	WHEN option_no = 99"
+                + "		, CASE 	WHEN po.option_no = 99"
                 + "		  		THEN '-' "
                 + "		  		ELSE option_name"
                 + "   	  END 	AS option_name"
