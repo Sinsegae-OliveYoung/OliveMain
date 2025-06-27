@@ -9,6 +9,7 @@ import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDate;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -18,6 +19,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
@@ -32,6 +38,7 @@ import com.olive.mainlayout.MainLayout;
 import com.olive.manage.BasePanel;
 import com.olive.manage.DatePickerPanel;
 import com.olive.manage.ManagePage;
+import com.olive.manage.user.MemberModel;
 
 public class ApprovalListPanel extends BasePanel{
 	
@@ -50,6 +57,7 @@ public class ApprovalListPanel extends BasePanel{
 	// 센터 : 테이블 
 	JPanel p_center;
 	JScrollPane scroll;
+	JTableHeader header;
 	JTable table;
 	
 	JPanel p_south;
@@ -125,6 +133,30 @@ public class ApprovalListPanel extends BasePanel{
 		
 		// 페이징 패널 (south)  구현할지 말지.?
 		
+		// 테이블 헤더 컬럼 정렬
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
+		table.setRowSorter(sorter);
+		
+		header = table.getTableHeader();
+		header.addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mouseClicked(MouseEvent e) {
+		        int columnIndex = header.columnAtPoint(e.getPoint());
+		        String columnName = table.getColumnName(columnIndex);
+		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+		    }
+
+		    private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+		        List<? extends RowSorter.SortKey> sortKeys = sorter.getSortKeys();
+		        for (RowSorter.SortKey key : sortKeys) {
+		            if (key.getColumn() == columnIndex) {
+		                return key.getSortOrder();
+		            }
+		        }
+		        return SortOrder.UNSORTED;
+		    }
+		});
+		
 		//요청자 필드 포커스 이벤트
 		t_submitter.addFocusListener(new FocusListener() {
 			@Override
@@ -151,10 +183,21 @@ public class ApprovalListPanel extends BasePanel{
 		    @Override
 		    public void mouseClicked(MouseEvent e) {
 		        int row = table.getSelectedRow();  // 클릭된 row index
+		        
+		        if (row >= 0) {
+					int modelRow = table.convertRowIndexToModel(row);  // 실제 모델 인덱스
 
-		        // 모델에서 사용자 정보 추출
-		        selectedBound = model.list.get(row);
-		        managePage.showApprovalDetailPanel(selectedBound);
+		            // 모델에서 정확한 데이터 가져오기
+					model = (ApprovalModel) table.getModel();
+
+		            // 모델에서 사용자 정보 추출
+					selectedBound = model.list.get(modelRow);  
+					managePage.showApprovalDetailPanel(selectedBound);
+				}
+
+//		        // 모델에서 사용자 정보 추출
+//		        selectedBound = model.list.get(row);
+//		        managePage.showApprovalDetailPanel(selectedBound);
 		    }
 		});
 		return p_content;
