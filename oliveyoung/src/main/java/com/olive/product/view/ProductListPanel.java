@@ -161,7 +161,7 @@ public class ProductListPanel extends Panel {
 		Color buttonText = new Color(40, 40, 40);
 
 		JButton btnAdd = ButtonUtil.greenButtonUtil("상품 등록");
-		JButton btnEdit = ButtonUtil.greenButtonUtil("상품 수정");
+		JButton btnEdit = ButtonUtil.greenButtonUtil("상품 상세");
 		JButton btnDelete = ButtonUtil.pinkButtonUtil("상품 삭제");
 
 		JButton[] buttons = { btnAdd, btnEdit, btnDelete };
@@ -188,10 +188,10 @@ public class ProductListPanel extends Panel {
 		btnEdit.addActionListener(new ActionListener() {
 		    @Override
 		    public void actionPerformed(ActionEvent e) {
-		        if (mainLayout.user.getRole().getRole_id() != 2) {
-		            JOptionPane.showMessageDialog(ProductListPanel.this, "상품 수정은 점장만 가능합니다");
-		            return;
-		        }
+//		        if (mainLayout.user.getRole().getRole_id() != 1) {
+//		            JOptionPane.showMessageDialog(ProductListPanel.this, "상품 수정 권한 없음");
+//		            return;
+//		        }
 
 		        int row = table.getSelectedRow();
 		        if (row == -1) {

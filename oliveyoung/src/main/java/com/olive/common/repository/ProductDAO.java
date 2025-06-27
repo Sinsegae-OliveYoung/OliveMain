@@ -220,12 +220,9 @@ public class ProductDAO {
         return list;
     }
     
-    public void insert(Product product) throws ProductException{
-    	Connection con=null;
+    public void insert(Product product, Connection con) throws ProductException{
 		PreparedStatement pstmt=null;
 		int result=0; //쿼리 실행 성공 여부 결정짓는 변수 
-		
-		con=dbManager.getConnection();
 		
 		StringBuffer sql=new StringBuffer();
 		sql.append("insert into product(product_name, ct_id, ct_dt_id, bd_id)");

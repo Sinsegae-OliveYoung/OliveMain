@@ -10,6 +10,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
@@ -25,6 +26,7 @@ import com.olive.common.model.ProductImg;
 import com.olive.common.model.ProductOption;
 import com.olive.common.repository.BrandDAO;
 import com.olive.common.repository.CategoryDAO;
+import com.olive.common.repository.CategoryDetailDAO;
 import com.olive.common.repository.ProductDAO;
 import com.olive.common.repository.ProductImgDAO;
 import com.olive.common.repository.ProductOptionDAO;
@@ -75,6 +77,10 @@ public class ProductDialog extends JDialog {
 		form.addButtons(btnPanel);
 
 		btnSave.addActionListener(e -> {
+	        if (mainLayout.user.getRole().getRole_id() == 3) {
+	            JOptionPane.showMessageDialog(ProductDialog.this, "상품 수정 권한 없음");
+	            return;
+	        }
 			if (isEditMode) {
 				if (form.updateProduct()) { // 성공 시에만 닫기
 					mainLayout.setDataDirty(true);
@@ -110,6 +116,7 @@ public class ProductDialog extends JDialog {
 		MainLayout mainLayout;
 		ProductOption option;
 		Product product;
+		ProductDAO productDAO;
 		ProductOptionDAO productOptionDAO;
 		ProductImgDAO productImgDAO;
 
@@ -123,6 +130,7 @@ public class ProductDialog extends JDialog {
 			gbc.insets = new Insets(10, 10, 10, 10);
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 
+			productDAO = new ProductDAO();
 			productOptionDAO = new ProductOptionDAO();
 			productImgDAO = new ProductImgDAO();
 
@@ -147,6 +155,8 @@ public class ProductDialog extends JDialog {
 				cbBrand.addItem(b);
 			for (Category c : new CategoryDAO().selectAll())
 				cbCategory.addItem(c);
+			for (CategoryDetail c : new CategoryDetailDAO().selectAll())
+				cbCategoryDetail.addItem(c);
 
 			// 수정 시 기존 값 세팅
 			if (option != null) {
@@ -274,7 +284,7 @@ public class ProductDialog extends JDialog {
 				product.setCategory((Category) cbCategory.getSelectedItem());
 				product.setCategory_detail((CategoryDetail) cbCategoryDetail.getSelectedItem());
 
-				new ProductDAO().insert(product);
+				productDAO.insert(product, con);
 				int productId = new ProductDAO().selectRecentPk();
 				product.setProduct_id(productId);
 
@@ -306,7 +316,7 @@ public class ProductDialog extends JDialog {
 
 				po.setOption_code(codeMaker.toString());
 
-				productOptionDAO.insert(po);
+				productOptionDAO.insert(po, con);
 
 				// 생성된 PK 가져와서 설정
 				int optionId = productOptionDAO.selectRecentPk();
@@ -338,6 +348,12 @@ public class ProductDialog extends JDialog {
 				return true;
 			} catch (Exception e) {
 				e.printStackTrace();
+				try {
+					con.rollback();
+					System.out.println("rollback() 완료");
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}
 				return false;
 			} finally {
 				try {
@@ -411,7 +427,7 @@ public class ProductDialog extends JDialog {
 
 			// Post
 			HttpPost post = new HttpPost(imgServerIp + "/upload/regist");
-
+			
 			/* 서버로 전송할 데이터 구성하기 */
 			StringBody titleBody = new StringBody("post", ContentType.create("text/plain", Consts.UTF_8));
 
