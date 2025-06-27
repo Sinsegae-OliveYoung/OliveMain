@@ -268,4 +268,45 @@ public class UserDAO {
 	    return user;
 	}
 	
+
+	// 지점이 할당되지 않은 점장들의 데이터만 불러옴
+	public List<User> selectMgr() {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		List<User> list = new ArrayList();
+		
+		con = dbManager.getConnection();
+		
+		StringBuffer sql = new StringBuffer();
+		sql.append("SELECT u.user_no   AS '사원 번호',"
+				+ " 	   u.user_name AS '이름'"
+				+ " FROM   user u"
+				+ " WHERE  role_id=2"
+				+ " 	   AND u.user_id"
+				+ "			   NOT IN   (SELECT b.user_id"
+				+ "				 	     FROM   branch b"
+				+ "				 	     WHERE  b.user_id)"
+		);
+		
+		try {
+			pstmt = con.prepareStatement(sql.toString());
+			rs = pstmt.executeQuery();
+			list = new ArrayList();
+			
+			while (rs.next()) {
+				User user = new User();
+				user.setUser_no(rs.getInt("사원 번호"));
+				user.setUser_name(rs.getString("이름"));
+				list.add(user);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			dbManager.release(pstmt, rs);
+		}
+		return list;
+	}
+	
+	
 }

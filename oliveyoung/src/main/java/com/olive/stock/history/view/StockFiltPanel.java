@@ -99,7 +99,7 @@ public class StockFiltPanel extends Panel {
 
 
         // 테이블 생성 및 스타일
-        model = new StockModel("all", mainLayout.user); // 처음에는 모든 목록
+        model = new StockModel("all", mainLayout.user);	// 처음에는 모든 목록
         table = new JTable(model);
         // 테이블 스타일 적용
         TableUtil.applyStyle(table);

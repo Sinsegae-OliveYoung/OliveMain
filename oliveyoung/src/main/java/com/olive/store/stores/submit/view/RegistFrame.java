@@ -49,8 +49,8 @@ public class RegistFrame extends JFrame {
 
 	DBManager dbManager = DBManager.getInstance();
 	BranchDAO branchDAO;
-	UserDAO userDAO;
 	StockDAO stockDAO;
+	UserDAO userDAO;
 
 	StorePage storePage;
 	StoreConfigMenu storeConfigMenu;
@@ -74,8 +74,8 @@ public class RegistFrame extends JFrame {
 		bt_regist = ButtonUtil.anotherButtonUtil("등록", 15);
 
 		branchDAO = new BranchDAO();
-		userDAO = new UserDAO();
 		stockDAO = new StockDAO();
+		userDAO = new UserDAO();
 
 		// style
 		Dimension d1 = new Dimension(140, 30);
@@ -150,7 +150,7 @@ public class RegistFrame extends JFrame {
 	}
 
 	public void setCombobox() {
-		List<User> userList = userDAO.selectAll(); // 모든 유저 불러오기
+		List<User> userList = userDAO.selectMgr(); // 점장 설정이 가능한 유저만 불러옴
 
 		// 콤보박스 미선택 시 보여줄 더미 객체 생성 및 배치
 		User dummy = new User();
@@ -186,8 +186,8 @@ public class RegistFrame extends JFrame {
 		branch.setBr_tel(t_tel.getText());
 		branch.setUser(user);
 
-		branchDAO.insert(branch);	// 쿼리문 날리기
-		
+		branchDAO.insert(branch, storePage.mainLayout.user);	// 쿼리문 날리기
+
 		stockDAO.insertStock(branch.getBr_id()); // 생성된 지점의 재고 0으로 세팅하기
 
 		JOptionPane.showMessageDialog(this, "지점이 등록되었습니다");
