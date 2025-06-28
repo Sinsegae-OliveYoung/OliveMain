@@ -122,10 +122,14 @@ public class UserDAO {
 			pstmt.setDate(6, user.getHiredate());
 			pstmt.setInt(7, user.getUser_id());
 			
-			pstmt.executeUpdate();
+			int result = pstmt.executeUpdate();
+			
+			if(result < 1) 
+				throw new UserException("사원 수정에 실패하였습니다");
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new UserException("사원 수정에 실패하였습니다", e);
 		} finally {
 			dbManager.release(pstmt);
 		}
