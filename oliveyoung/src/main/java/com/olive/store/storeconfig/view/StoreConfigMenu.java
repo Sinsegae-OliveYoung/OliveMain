@@ -63,7 +63,7 @@ public class StoreConfigMenu extends Panel {
 		bt_edit = ButtonUtil.greenButtonUtil("수정");
 		bt_delete = ButtonUtil.pinkButtonUtil("삭제");
 
-		table = new JTable(storeConfigModel = new StoreConfigModel());
+		table = new JTable(storeConfigModel = new StoreConfigModel(mainLayout.user));
 		scroll = new JScrollPane(table);
 
 		branchDAO = new BranchDAO();
@@ -118,7 +118,7 @@ public class StoreConfigMenu extends Panel {
 						registFrame = new RegistFrame(storePage, StoreConfigMenu.this);
 					else if (source == bt_edit) {
 						if (selectedBranch != null)
-							editFrame = new EditFrame(mainLayout, storePage, StoreConfigMenu.this, selectedBranch);
+							editFrame = new EditFrame(storePage, StoreConfigMenu.this, selectedBranch);
 						else
 							JOptionPane.showMessageDialog(StoreConfigMenu.this, "수정할 지점을 선택해주세요");
 					} else if (source == bt_delete) {
@@ -138,7 +138,7 @@ public class StoreConfigMenu extends Panel {
 	
 	// 테이블 로드 및 출력
 	public void refresh() {
-		storeConfigModel.list = storeConfigModel.branchDAO.selectBranch();
+		storeConfigModel.list = branchDAO.getBranchList(mainLayout.user.getUser_id());
 		storeConfigModel.fireTableDataChanged();
 		table.revalidate();
 		table.repaint();

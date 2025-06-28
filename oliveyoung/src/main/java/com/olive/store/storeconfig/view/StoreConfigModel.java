@@ -1,12 +1,11 @@
 package com.olive.store.storeconfig.view;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
 import com.olive.common.model.Branch;
-import com.olive.common.model.Stock;
+import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
 
 public class StoreConfigModel extends AbstractTableModel {
@@ -16,9 +15,9 @@ public class StoreConfigModel extends AbstractTableModel {
 	
 	String[] column = { "등록 번호", "지점명", "담당자", "주소", "연락처" };
 	
-	public StoreConfigModel() {
+	public StoreConfigModel(User user) {
 		branchDAO = new BranchDAO();
-		list = branchDAO.selectBranch();
+		list = branchDAO.getBranchList(user.getUser_id());
 	}
 
 	public int getRowCount() {
@@ -40,7 +39,7 @@ public class StoreConfigModel extends AbstractTableModel {
 	public Object getValueAt(int row, int col) {
 		Branch branch = list.get(row);
 		String value = null;
-		
+		System.out.println(branch.getUser().getUser_id());
 		switch (col) {
 		case 0: value = Integer.toString(branch.getBr_id()); break;
 		case 1: value = branch.getBr_name(); break;

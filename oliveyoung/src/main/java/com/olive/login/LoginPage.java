@@ -62,7 +62,7 @@ public class LoginPage extends JFrame {
 		// create
 		p_bg = new JPanel();
 		p_login = new JPanel();
-		img = img_title.getImage(Config.LOGO_PATH, 300, 35);
+		img = img_title.getImage("images/logo2.png", 300, 35);
 
 		p_title = new JPanel() {
 			protected void paintComponent(Graphics g) {
@@ -80,8 +80,8 @@ public class LoginPage extends JFrame {
 		t_pwd = new JPasswordField(16);
 		
 		// 임시 로그인 패스 -> 추후 제거
-		t_id.setText("2107");
-		t_pwd.setText("2345");
+		t_id.setText("1021");
+		t_pwd.setText("1234");
 
 		bt_login = new JButton("로그인");
 
@@ -179,8 +179,9 @@ public class LoginPage extends JFrame {
 		
 		// 해당되는 유저가 있다면
 		if (user != null) {
-			JOptionPane.showMessageDialog(this, "반갑습니다 올리브영 입니다!\n" + user.getUser_name() + "님 안녕하세요◠‿◠");
 			mainLayout = new MainLayout(user); // 메인 페이지로 유저 정보를 갖고 이동
+			if (mainLayout.isVisible())
+				JOptionPane.showMessageDialog(this, "반갑습니다 올리브영 입니다!\n" + user.getUser_name() + "님 안녕하세요◠‿◠");
 			dispose(); // 현재 창 닫기
 			// 해당되는 유저가 없다면
 		} else {
