@@ -279,23 +279,27 @@ public class ProductListPanel extends Panel {
 			table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
 			table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
 		}
-
+		
 		scroll = new JScrollPane(table);
-		scroll.setBackground(Config.WHITE); // scroll 자체도 같은 배경색으로
-		scroll.getViewport().setBackground(Config.WHITE);
 
-		// scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
-		JPanel scrollWrapper = new JPanel(new BorderLayout());
-		scrollWrapper.setBackground(Config.WHITE);
-		scrollWrapper.setBorder(BorderFactory.createEmptyBorder(25, 25, 10, 15));
+		// ② scroll 강제 크기 지정
+		scroll.setPreferredSize(new Dimension(Config.CONTENT_W - 150, 500));
+		scroll.setMaximumSize(new Dimension(Config.CONTENT_W - 150, 500));
+		scroll.setMinimumSize(new Dimension(Config.CONTENT_W - 150, 500));
 
-		scrollWrapper.add(scroll, BorderLayout.CENTER);
+		// ③ dummy 패널 생성
+		JPanel dummyPanel = new JPanel(null);  // ← absolute layout
+		dummyPanel.setPreferredSize(new Dimension(Config.CONTENT_W - 150, 500));
+		dummyPanel.setBackground(Config.WHITE);
 
-		TableUtil.tableStyleUtil(table, scroll, 700, true);
+		// ④ scroll 위치 강제 배치
+		scroll.setBounds(0, 0, Config.CONTENT_W - 150, 500);
+		dummyPanel.add(scroll);
 
+		// ⑤ dummyPanel을 CENTER에 넣기
 		add(titlePanel, BorderLayout.NORTH);
 		add(buttonPanel, BorderLayout.EAST);
-		add(scrollWrapper, BorderLayout.CENTER);
+		add(dummyPanel, BorderLayout.CENTER);
 
 
 		// 1. 정렬 기능 설정

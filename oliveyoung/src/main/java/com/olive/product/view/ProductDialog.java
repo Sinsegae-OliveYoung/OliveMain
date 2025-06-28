@@ -51,7 +51,7 @@ public class ProductDialog extends JDialog {
 	private ProductForm form;
 	private boolean isEditMode;
 	// imageCloud 웹서버 가동시 ip + 톰캣포트번호
-	String imgServerIp = "http://192.168.60.36:8282"; 
+	String imgServerIp = "http://192.168.45.78:8282"; 
 
 	public ProductDialog(MainLayout mainLayout, ProductOption option, Product product) {
 		setTitle(option == null ? "상품 등록" : "상품 수정");
