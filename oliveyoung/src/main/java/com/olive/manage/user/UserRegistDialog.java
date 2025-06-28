@@ -28,6 +28,7 @@ import com.olive.common.model.Branch;
 import com.olive.common.model.Member;
 import com.olive.common.model.Role;
 import com.olive.common.model.User;
+import com.olive.common.repository.BranchDAO;
 import com.olive.common.repository.MemberDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
@@ -44,18 +45,26 @@ public class UserRegistDialog extends JDialog{
 	JTextField t_no = new JTextField(tf_size);
 	JTextField t_email = new JTextField(tf_size);
 	JTextField t_tel = new JTextField(tf_size);
+	
+	// 팀장이 사용자를 등록할때 용
 	JComboBox<Role> cb_role;
 	JComboBox<Branch> cb_br;
 	
+	//점장이 사용자를 등록할때는 지점/직급이 고정되어있으므로 라벨로 표시
+	JLabel lb_br = new JLabel();
+	JLabel lb_role = new JLabel();
+	
 	UserDAO userDAO = new UserDAO();
 	MemberDAO memberDAO = new MemberDAO();
+	BranchDAO branchDAO = new BranchDAO();
 	DBManager dbManager = DBManager.getInstance();
 	
 	public UserRegistDialog(UserListPanel userListPanel) {		
 		this.userListPanel = userListPanel;
+		User u = userListPanel.getMainLayout().user;
 		
-		cb_role = ComboBoxUtil.createRoleComboBox();
-		cb_br = ComboBoxUtil.createBranchComboBoxWithNoDummy(userListPanel.getMainLayout().user.getUser_id());
+		cb_role = ComboBoxUtil.createRoleComboBoxWithNoDummy(2);
+		cb_br = ComboBoxUtil.createBranchComboBoxWithNoDummy(u.getUser_id());
 		
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
@@ -74,6 +83,7 @@ public class UserRegistDialog extends JDialog{
 		
 		JButton bt_regist = ButtonUtil.greenButtonUtil("등록");
 		p_south.add(bt_regist);
+		
 		
 		// 전화번호: 숫자만 입력 가능, 13자리 제한 (xxx-xxxx-xxxx 형식)
 		t_tel.addKeyListener(new KeyAdapter() {
@@ -110,6 +120,15 @@ public class UserRegistDialog extends JDialog{
 		});
 		
 		bt_regist.addActionListener(e -> {
+			
+			// 팀장이 직급 콤보박스에서 점장을 선택하면 지점이 자동으로 임시지점(br_id=99)로 세팅
+			
+			
+			
+			// 스태프를 선택하면 지점 선택 가능, 임시지점이 선택된 경우 지점 선택하라고 알림 
+			
+			
+			
 			// 입력값 유효성 체크 
 			if(isFormValid()) {
 				insert();
@@ -144,7 +163,7 @@ public class UserRegistDialog extends JDialog{
 		if(t_name.getText().length() < 1) {
 			JOptionPane.showMessageDialog(this, "사원명을 입력하세요");
 			flag = false;
-		} 
+		}
 		else if(t_no.getText().length() < 1) {
 			JOptionPane.showMessageDialog(this, "사원번호 4자리를 입력하세요");
 			flag = false;
@@ -179,6 +198,11 @@ public class UserRegistDialog extends JDialog{
 	}
 	
 	public void insert() {
+		
+		
+		
+		
+		
 		// 트랜잭션 : user가 등록 실패 시, memeber 등록도 안돼야 한다.
 		Connection con = dbManager.getConnection();
 		try {
@@ -220,6 +244,9 @@ public class UserRegistDialog extends JDialog{
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
 		JOptionPane.showMessageDialog(this, "사원 등록이 완료되었습니다. 임시 비밀번호가 발급되었으니 메일을 확인해주세요.");
+		// 나중에 함수로 묶기 
+		userListPanel.getMainLayout().setDataDirty(true);
+		userListPanel.getMainLayout().refreshIfDirty();
 		dispose();
 		} catch (UserException e) {
 			try {
@@ -240,4 +267,5 @@ public class UserRegistDialog extends JDialog{
 			}
 		}
 	}
+	
 }

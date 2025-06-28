@@ -176,7 +176,7 @@ public class ApprovalListPanel extends BasePanel{
 		bt_search.addActionListener(e -> {
 			setFilter();
 			model.list = boundDAO.select(filter);
-			table.updateUI();
+			model.fireTableDataChanged();
 		});
 		
 		table.addMouseListener(new MouseAdapter() {
@@ -229,6 +229,6 @@ public class ApprovalListPanel extends BasePanel{
 	public void refresh() {
 		clearFilter();
 		model.list = boundDAO.select(filter);
-		table.updateUI();
+		model.fireTableDataChanged();
 	}
 }

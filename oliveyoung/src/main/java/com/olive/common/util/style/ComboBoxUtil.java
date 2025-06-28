@@ -71,7 +71,7 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 		JComboBox<Role> cb = new JComboBox<Role>();
 		cb.setUI(new ComboBoxUtil());
 
-		for (int i = roleId; i < list.size(); i++) {
+		for (int i = list.size() - 1; i >= roleId; i--) {
 			cb.addItem(list.get(i));
 		}
 		return cb;

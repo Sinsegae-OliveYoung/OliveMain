@@ -233,7 +233,7 @@ public class UserListPanel extends BasePanel{
 			public void actionPerformed(ActionEvent e) {
 				setFilter();
 				memberModel.list = memberDAO.select(filter, currentPage, pageSize);
-				table.updateUI();
+				memberModel.fireTableDataChanged();
 			}
 		});
 		
@@ -341,5 +341,12 @@ public class UserListPanel extends BasePanel{
 		}
 		filter.setEnd_date(DateUtil.stringToDate(p_enddate.lb_date.getText()));
 	}
+	
+	public void refreshAll() {
+		setFilter();
+		memberModel.list = memberDAO.select(filter, 0, 0);
+		memberModel.fireTableDataChanged();
+	}
+	
 	
 }
