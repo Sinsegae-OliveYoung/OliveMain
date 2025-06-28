@@ -247,7 +247,6 @@ public class UserRegistDialog extends JDialog{
 		// 나중에 함수로 묶기 
 		userListPanel.getMainLayout().setDataDirty(true);
 		userListPanel.getMainLayout().refreshIfDirty();
-		dispose();
 		} catch (UserException e) {
 			try {
 				con.rollback();
@@ -265,6 +264,7 @@ public class UserRegistDialog extends JDialog{
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
+			dispose();
 		}
 	}
 	

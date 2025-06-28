@@ -58,7 +58,7 @@ public class UserDetailPanel extends BasePanel{
 			bt_change.setVisible(true);
 		}
 	}
-
+	
 	@Override
 	public JPanel createContent() {
 		JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 30)); // 중앙 배치
@@ -70,7 +70,6 @@ public class UserDetailPanel extends BasePanel{
 		p_content.setBackground(Config.WHITE);
 		p_content.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 		p_content.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 20)); // top, left, bottom, right
-		
 		
 		// 부모인 BasePanel의 생성자에서 createContent가 호출되므로, 자식 생성자에서 JLabel 인스턴스를 생성하면 
 		// createContent에서 사용하는 lb_name 등은 아직 인스턴스 할당이 안되어 있어서 NPE가 발생한다. 
@@ -90,13 +89,10 @@ public class UserDetailPanel extends BasePanel{
 		wrapper.add(p);
 		
 		bt_change = ButtonUtil.greenButtonUtil("수정");
-		
 		bt_change.addActionListener(e -> {
 			new UserUpdateDialog(this);
 			
 		});
-		
-		
 		p.add(bt_change);
 		
 		return wrapper;
@@ -122,5 +118,12 @@ public class UserDetailPanel extends BasePanel{
 		return p;		
 	}
 	
+	public void refresh() {
+		//초기에 mainlayout을 생성할 때, 관리 페이지가 마지막에 생성되기 때문에 다른 페이지에서 refreshDirty()를 호출하면 
+		// member가 생성이 안돼있기 때문에 null 처리 
+		if(this.member != null) {
+			setMember(member); 
+		}
+	}
 
 }

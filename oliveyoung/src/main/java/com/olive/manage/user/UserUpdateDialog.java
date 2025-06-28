@@ -1,15 +1,11 @@
 package com.olive.manage.user;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.security.SecureRandom;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.SQLException;
-import java.time.LocalDate;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -20,20 +16,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
 
 import com.olive.common.config.Config;
-import com.olive.common.exception.EmailException;
 import com.olive.common.exception.UserException;
 import com.olive.common.model.Branch;
-import com.olive.common.model.Member;
 import com.olive.common.model.Role;
 import com.olive.common.model.User;
 import com.olive.common.repository.MemberDAO;
 import com.olive.common.repository.UserDAO;
 import com.olive.common.util.DBManager;
-import com.olive.common.util.MailSender;
-import com.olive.common.util.StringUtil;
 import com.olive.common.util.style.ButtonUtil;
 import com.olive.common.util.style.ComboBoxUtil;
 
@@ -59,6 +50,12 @@ public class UserUpdateDialog extends JDialog{
 		
 		cb_role = ComboBoxUtil.createRoleComboBoxWithNoDummy(userDetailPanel.getMainLayout().user.getRole().getRole_id());
 		
+		// 수정할 직원이 점장인 경우 직급 수정 불가하게 콤보박스 비활성화
+		if(u.getRole().getRole_id() == 2) {
+			cb_role.setSelectedIndex(0);
+			cb_role.setEnabled(false);
+		}
+		
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		
@@ -76,7 +73,6 @@ public class UserUpdateDialog extends JDialog{
 		p.add(createRow(" 지점", lb_br));
 		lb_br.setPreferredSize(new Dimension(170, 30));
 		
-		// 로그인한 사용자가 팀장이면 콤보박스 
 		p.add(createRow("직급", cb_role));
 		p.add(createRow("   이메일",  t_email = new JTextField(u.getEmail(), tf_size)));		
 		p.add(createRow("   연락처",  t_tel = new JTextField(u.getTel(), tf_size)));		
@@ -166,8 +162,11 @@ public class UserUpdateDialog extends JDialog{
 	
 	public void update() {
 		
-		try {
+		Connection con = dbManager.getConnection();
 		
+		try {
+			con.setAutoCommit(false);
+			
 			User user = userDetailPanel.member.getUser();
 			user.setUser_name(t_name.getText());
 			user.setEmail(t_email.getText());
@@ -176,19 +175,40 @@ public class UserUpdateDialog extends JDialog{
 		
 			userDAO.update(user);
 			
-			// 점장 -> 스태프 
-//			Branch branch = userDetailPanel.member.getBranch();
-//			branch.setUser();
-//			branch.setBr_name(getName());
-			
+			if(((Role)cb_role.getSelectedItem()).getRole_id() == 2) {
+				Branch branch = new Branch();
+				branch.setBr_id(99);
+				branch.setBr_name("미지정");
+				userDetailPanel.member.setBranch(branch);
+				
+				memberDAO.update(userDetailPanel.member);
+			}
 			
 			JOptionPane.showMessageDialog(this, "정보 수정이 완료되었습니다.");
-			dispose();
+			// 상세정보 페이지 업데이트
+			userDetailPanel.getMainLayout().setDataDirty(true);			
+			userDetailPanel.getMainLayout().refreshIfDirty();
+			con.commit();
 			
-		} catch(UserException e) {
+		} catch (UserException e) {
+			try {
+				con.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
 			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				con.setAutoCommit(true);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			dispose();
 		}
+	
 	}
 	
 }

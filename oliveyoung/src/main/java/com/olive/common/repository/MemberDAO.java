@@ -45,7 +45,32 @@ public class MemberDAO {
 		}		
 	}
 	
-	
+	public void update(Member member) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		con = dbManager.getConnection();
+		
+		String sql = "update member set user_id = ?, br_id = ? where mem_id = ?";
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, member.getUser().getUser_id());
+			pstmt.setInt(2, member.getBranch().getBr_id());
+			pstmt.setInt(3, member.getMem_id());
+			
+			int result = pstmt.executeUpdate();
+			
+			if(result < 1) {
+				throw new UserException("사원 수정에 실패하였습니다");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new UserException("사원 수정에 실패하였습니다", e);
+		} finally {
+			dbManager.release(pstmt);
+		}		
+	}
 	
 	//로그인한 사용자가 관리하는 지점에 속한 member 조회 
 	//동적 쿼리: UserListPanel에서 조건 걸고 검색 

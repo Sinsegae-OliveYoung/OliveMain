@@ -168,6 +168,7 @@ public class ManagePage extends Page{
 		 approvalListPanel.refresh();
 		 
 		 userListPanel.refreshAll();		 
+		 userDetailPanel.refresh();
 	 }
 	 
 
