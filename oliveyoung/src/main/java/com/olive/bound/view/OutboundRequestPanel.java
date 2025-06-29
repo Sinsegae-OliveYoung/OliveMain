@@ -714,36 +714,10 @@ public class OutboundRequestPanel extends Panel{
             setTableWidth(table); // 컬럼 너비 재설정
         }
 
-        // 우측 요청 상품 테이블 초기화
-        boundProductModel.clear();
-        table_re.setModel(boundProductModel);
-
-        // 메모 입력 필드 초기화
-        tf_memo.setText("");
-
-        // 출고일: 내일로 재설정
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.DATE, 1); // 내일
-        dateChooser.setDate(cal.getTime());
-
-        // 결재자 이름 재설정
-        manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
-        if (manager != null) {
-            tf_approver.setText(manager.getUser_name());
-            tf_approver.setToolTipText(manager.getUser_id() + " / " + manager.getUser_name());
-        } else {
-            tf_approver.setText("점장 없음");
-            tf_approver.setToolTipText(null);
-        }
-
         // 테이블 다시 그리기
         table.revalidate();
         table.repaint();
-        table_re.revalidate();
-        table_re.repaint();
         
         table.updateUI();
-    	table_re.updateUI();
     }
 }

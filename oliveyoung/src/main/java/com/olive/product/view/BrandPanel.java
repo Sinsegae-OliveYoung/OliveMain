@@ -674,15 +674,15 @@ public class BrandPanel extends Panel {
     
     @Override
     public void refresh() {
-    	// 콤보박스 초기화
-        cb_cate.setSelectedIndex(0); // 첫 번째 선택
-
-        // 입력 필드 초기화
-        tf_ca1.setText("");
-        tf_ca2.setText("");
-        tf_ca3.setText("");
-        tf_br1.setText("");
-        tf_br2.setText("");
+//    	// 콤보박스 초기화
+//        cb_cate.setSelectedIndex(0); // 첫 번째 선택
+//
+//        // 입력 필드 초기화
+//        tf_ca1.setText("");
+//        tf_ca2.setText("");
+//        tf_ca3.setText("");
+//        tf_br1.setText("");
+//        tf_br2.setText("");
 
         // 좌측 카테고리 테이블 데이터 리로드
         categoryModel.clear();

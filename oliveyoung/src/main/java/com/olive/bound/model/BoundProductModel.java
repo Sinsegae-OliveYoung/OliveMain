@@ -62,6 +62,14 @@ public class BoundProductModel extends AbstractTableModel {
             default: return "";
         }
     }
+    
+    @Override
+	public Class<?> getColumnClass(int columnIndex) {
+	    switch (columnIndex) {
+	        case 2: return Integer.class; // 수량
+	        default: return String.class;
+	    }
+	}
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
