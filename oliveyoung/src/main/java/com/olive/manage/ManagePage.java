@@ -165,6 +165,11 @@ public class ManagePage extends Page{
 	
 	 public void back() {
         if (previousKey != null) {
+        	if(previousKey == ManageConfig.USER_LIST_KEY ) {
+        		userListPanel.refreshAll();
+        	} else if (previousKey == ManageConfig.APPROVAL_LIST_KEY) {
+        		approvalListPanel.refresh();
+        	}
 	        showPanel(previousKey);
         }
 	 }	 

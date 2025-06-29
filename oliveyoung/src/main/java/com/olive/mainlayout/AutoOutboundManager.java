@@ -110,7 +110,10 @@ public class AutoOutboundManager {
             panel.add(scrollPane, BorderLayout.CENTER);
 
             JButton btnClose = new JButton("닫기");
-            btnClose.addActionListener(ev -> dialog.dispose());
+            btnClose.addActionListener(ev -> {
+            	dialog.dispose();
+            	autoOutboundLog.clear();
+            });
             panel.add(btnClose, BorderLayout.SOUTH);
 
             dialog.add(panel);

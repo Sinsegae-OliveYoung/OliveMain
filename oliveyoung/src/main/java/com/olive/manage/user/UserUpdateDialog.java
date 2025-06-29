@@ -49,11 +49,12 @@ public class UserUpdateDialog extends JDialog{
 		User u = userDetailPanel.member.getUser();
 		
 		cb_role = ComboBoxUtil.createRoleComboBoxWithNoDummy(userDetailPanel.getMainLayout().user.getRole().getRole_id());
-		
 		// 수정할 직원이 점장인 경우 직급 수정 불가하게 콤보박스 비활성화
 		if(u.getRole().getRole_id() == 2) {
 			cb_role.setSelectedIndex(0);
 			cb_role.setEnabled(false);
+		}else {
+			cb_role.setSelectedIndex(1);
 		}
 		
 		JPanel p = new JPanel();
@@ -164,6 +165,9 @@ public class UserUpdateDialog extends JDialog{
 		
 		Connection con = dbManager.getConnection();
 		
+		Role originRole = userDetailPanel.member.getUser().getRole();
+		
+		
 		try {
 			con.setAutoCommit(false);
 			
@@ -175,7 +179,9 @@ public class UserUpdateDialog extends JDialog{
 		
 			userDAO.update(user);
 			
-			if(((Role)cb_role.getSelectedItem()).getRole_id() == 2) {
+			
+			// 스태프에서 점장으로 바꿀때만!!
+			if( originRole.getRole_id() == 3 && ((Role)cb_role.getSelectedItem()).getRole_id() == 2) {
 				Branch branch = new Branch();
 				branch.setBr_id(99);
 				branch.setBr_name("미지정");
@@ -186,8 +192,11 @@ public class UserUpdateDialog extends JDialog{
 			
 			JOptionPane.showMessageDialog(this, "정보 수정이 완료되었습니다.");
 			// 상세정보 페이지 업데이트
+			userDetailPanel.refresh();
+			
 			userDetailPanel.getMainLayout().setDataDirty(true);			
 			userDetailPanel.getMainLayout().refreshIfDirty();
+			
 			con.commit();
 			
 		} catch (UserException e) {
