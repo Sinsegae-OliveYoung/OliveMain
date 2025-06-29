@@ -267,9 +267,8 @@ public class UserRegistDialog extends JDialog{
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
 		JOptionPane.showMessageDialog(this, "사원 등록이 완료되었습니다. 임시 비밀번호가 발급되었으니 메일을 확인해주세요.");
-		// 나중에 함수로 묶기 
-		userListPanel.getMainLayout().setDataDirty(true);
-		userListPanel.getMainLayout().refreshIfDirty();
+		userListPanel.refreshAll(); 
+		
 		} catch (UserException e) {
 			try {
 				con.rollback();

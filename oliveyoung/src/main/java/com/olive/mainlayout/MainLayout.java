@@ -62,7 +62,6 @@ public class MainLayout extends JFrame {
 
 	JPanel p_content;
 	
-	
 	JPanel p_float;
 	JButton bt_float;
 	Image img_float_default;
