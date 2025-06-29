@@ -39,7 +39,7 @@ public class UserDAO {
 			pstmt.setString(7, user.getPwd());
 			
 			int result = pstmt.executeUpdate();
-			if(result < 1)
+			if(result < 1) 
 				throw new UserException("사원 등록에 실패하였습니다");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -122,10 +122,14 @@ public class UserDAO {
 			pstmt.setDate(6, user.getHiredate());
 			pstmt.setInt(7, user.getUser_id());
 			
-			pstmt.executeUpdate();
+			int result = pstmt.executeUpdate();
+			
+			if(result < 1) 
+				throw new UserException("사원 수정에 실패하였습니다");
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new UserException("사원 수정에 실패하였습니다", e);
 		} finally {
 			dbManager.release(pstmt);
 		}
@@ -268,7 +272,6 @@ public class UserDAO {
 	    return user;
 	}
 	
-
 	// 지점이 할당되지 않은 점장들의 데이터만 불러옴
 	public List<User> selectMgr() {
 		Connection con = null;
@@ -280,13 +283,11 @@ public class UserDAO {
 		
 		StringBuffer sql = new StringBuffer();
 		sql.append("SELECT u.user_no   AS '사원 번호',"
-				+ " 	   u.user_name AS '이름'"
-				+ " FROM   user u"
-				+ " WHERE  role_id=2"
-				+ " 	   AND u.user_id"
-				+ "			   NOT IN   (SELECT b.user_id"
-				+ "				 	     FROM   branch b"
-				+ "				 	     WHERE  b.user_id)"
+				+ "        u.user_name AS '이름'"
+				+ " FROM       user u"
+				+ " INNER JOIN member m"
+				+ "			ON u.user_id=m.user_id"
+				+ " WHERE m.br_id=99"
 		);
 		
 		try {
@@ -308,5 +309,28 @@ public class UserDAO {
 		return list;
 	}
 	
+	
+	public int selectRecentPk() {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		int pk = 0; 
+		
+		con = dbManager.getConnection();
+		String sql = "select last_insert_id() as user_id";
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			
+			if(rs.next()) {
+				pk = rs.getInt("user_id");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return pk;
+	}
 	
 }

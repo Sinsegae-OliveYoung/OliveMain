@@ -2,8 +2,8 @@ package com.olive.chat;
 
 public class Sender {
 	private int branch_id;
-	private String user_name;
 	private int user_id;
+	private String user_name;
 	
 	public int getUser_id() {
 		return user_id;

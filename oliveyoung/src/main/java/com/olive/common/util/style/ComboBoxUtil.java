@@ -63,6 +63,19 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 		}
 		return cb;
 	}
+	
+	public static JComboBox<Role> createRoleComboBoxWithNoDummy(int roleId) {
+		RoleDAO roleDAO = new RoleDAO();
+		List<Role> list = roleDAO.selectAll();
+
+		JComboBox<Role> cb = new JComboBox<Role>();
+		cb.setUI(new ComboBoxUtil());
+
+		for (int i = roleId; i < list.size(); i++) {
+			cb.addItem(list.get(i));
+		}
+		return cb;
+	}
 
 	public static JComboBox<BoundState> createBoundStateComboBox() {
 		BoundStateDAO boundStateDAO = new BoundStateDAO();
@@ -98,6 +111,21 @@ public class ComboBoxUtil extends BasicComboBoxUI {
 
 		return cb;
 	}
+	
+	public static JComboBox<Branch> createBranchComboBoxWithNoDummy(int userId){
+		BranchDAO branchDAO = new BranchDAO();
+		List<Branch> list = branchDAO.getBranchList(userId);
+	
+		JComboBox<Branch> cb = new JComboBox<>();
+		cb.setUI(new ComboBoxUtil());
+
+		for (int i = 0; i < list.size(); i++) {
+			cb.addItem(list.get(i));
+		}
+
+		return cb;
+	}
+	
 	
 	public static JComboBox<Category> createCategoryComboBox() {
 	    CategoryDAO categoryDAO = new CategoryDAO();

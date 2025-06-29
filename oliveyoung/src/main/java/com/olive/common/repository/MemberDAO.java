@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.olive.common.exception.UserException;
 import com.olive.common.model.Branch;
 import com.olive.common.model.Member;
 import com.olive.common.model.Role;
@@ -17,6 +18,59 @@ import com.olive.manage.user.MemberFilterDTO;
 public class MemberDAO {
 
 	DBManager dbManager = DBManager.getInstance();
+	
+	public void insert(Member member) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		con = dbManager.getConnection();
+		
+		String sql = "insert into member(user_id, br_id) values(?, ?)";
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, member.getUser().getUser_id());
+			pstmt.setInt(2, member.getBranch().getBr_id());
+			
+			int result = pstmt.executeUpdate();
+			
+			if(result < 1) {
+				throw new UserException("사원 등록에 실패하였습니다");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new UserException("사원 등록에 실패하였습니다", e);
+		} finally {
+			dbManager.release(pstmt);
+		}		
+	}
+	
+	public void update(Member member) {
+		Connection con = null;
+		PreparedStatement pstmt = null;
+		
+		con = dbManager.getConnection();
+		
+		String sql = "update member set user_id = ?, br_id = ? where mem_id = ?";
+		
+		try {
+			pstmt = con.prepareStatement(sql);
+			pstmt.setInt(1, member.getUser().getUser_id());
+			pstmt.setInt(2, member.getBranch().getBr_id());
+			pstmt.setInt(3, member.getMem_id());
+			
+			int result = pstmt.executeUpdate();
+			
+			if(result < 1) {
+				throw new UserException("사원 수정에 실패하였습니다");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new UserException("사원 수정에 실패하였습니다", e);
+		} finally {
+			dbManager.release(pstmt);
+		}		
+	}
 	
 	//로그인한 사용자가 관리하는 지점에 속한 member 조회 
 	//동적 쿼리: UserListPanel에서 조건 걸고 검색 

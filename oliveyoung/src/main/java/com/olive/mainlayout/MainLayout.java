@@ -15,9 +15,9 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
@@ -30,6 +30,7 @@ import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
 import com.olive.login.LoginPage;
+import com.olive.manage.ManageConfig;
 import com.olive.manage.ManagePage;
 import com.olive.product.ProductPage;
 import com.olive.stock.StockPage;
@@ -60,13 +61,19 @@ public class MainLayout extends JFrame {
 	JButton bt_lo;
 
 	JPanel p_content;
+	
+	
+	JPanel p_float;
 	JButton bt_float;
 	Image img_float_default;
 	Image img_float_hover;
 	Image curImg;
 
-	Page[] pages;
-
+	public JLabel lb_chatCount;
+	Page[] pages; // 페이지 담을 배열
+	
+	private int alertCount = 0;
+  
 	private boolean isDataDirty = false;
 
 	ImageUtil imgUtil = new ImageUtil();
@@ -226,7 +233,19 @@ public class MainLayout extends JFrame {
 					} else if (source == bt_sh)
 						showPage(Config.STORE_PAGE);
 					else if (source == bt_ma)
-						showPage(Config.MANAGE_PAGE);
+						if(user.getRole().getRole_id() == 3) {
+							JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
+						} else {
+							//관리 버튼 누르면 항상 사용자 목록 페이지가 보이도록 설정 
+							showPage(Config.MANAGE_PAGE);
+							((ManagePage)(pages[Config.MANAGE_PAGE])).userListPanel.clearFilter();
+							((ManagePage)(pages[Config.MANAGE_PAGE])).userListPanel.refreshAll();
+							((ManagePage)(pages[Config.MANAGE_PAGE])).showPanel(ManageConfig.USER_LIST_KEY);
+							((ManagePage)(pages[Config.MANAGE_PAGE])).currentKey = ManageConfig.USER_LIST_KEY;
+							((ManagePage)(pages[Config.MANAGE_PAGE])).p_content.revalidate();
+							((ManagePage)(pages[Config.MANAGE_PAGE])).p_content.repaint();
+						}
+						
 					else if (source == bt_lo) {
 						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
 								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
@@ -303,18 +322,49 @@ public class MainLayout extends JFrame {
 	}
 
 	public void createFloatButton() {
+		getLayeredPane().setLayout(null);
+		
 		curImg = img_float_hover;
+		
+		p_float = new JPanel();
+		p_float.setLayout(null); // 내부 컴포넌트 위치 수동 지정
+		p_float.setBounds(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100, 70, 50); // 위치+크기 지정
+		p_float.setOpaque(false);
+		getLayeredPane().add(p_float, JLayeredPane.POPUP_LAYER);
+		
 		bt_float = new JButton() {
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				g.drawImage(curImg, 0, 0, 40, 40, bt_float);
 			}
 		};
-		bt_float.setSize(40, 40);
-		bt_float.setContentAreaFilled(false);
-		bt_float.setBorderPainted(false);
+
+		bt_float.setBounds(0, 0, 40, 40);
+		bt_float.setContentAreaFilled(false); // 배경 제거
+		bt_float.setBorderPainted(false);    // 테두리 제거
 		bt_float.setFocusPainted(false);
-		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
+		p_float.add(bt_float);
+		
+		lb_chatCount = new JLabel("0");
+		lb_chatCount.setVisible(false);
+		lb_chatCount.setBounds(40, 0, 20, 20);
+		lb_chatCount.setForeground(Color.RED);
+		p_float.add(lb_chatCount);
+		
+		bt_float.addActionListener(e -> {
+			lb_chatCount.setText("0");
+		    lb_chatCount.setVisible(false);
+		    client.setVisible(true);
+		    
+		});
+		
+
+// 		bt_float.setSize(40, 40);
+// 		bt_float.setContentAreaFilled(false);
+// 		bt_float.setBorderPainted(false);
+// 		bt_float.setFocusPainted(false);
+// 		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
+
 
 		bt_float.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
@@ -332,7 +382,9 @@ public class MainLayout extends JFrame {
 			client.setVisible(true);
 		});
 
+
 		getLayeredPane().add(bt_float, javax.swing.JLayeredPane.POPUP_LAYER);
+
 	}
 
 	public void setDataDirty(boolean dataDirty) {

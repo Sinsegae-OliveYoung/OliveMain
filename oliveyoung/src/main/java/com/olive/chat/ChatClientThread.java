@@ -8,11 +8,12 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-
 import javax.swing.JOptionPane;
+import javax.swing.JLabel;
 import javax.swing.text.BadLocationException;
 
 import com.google.gson.Gson;
+import com.olive.mainlayout.MainLayout;
 
 public class ChatClientThread extends Thread {
 	Client client;
@@ -38,14 +39,14 @@ public class ChatClientThread extends Thread {
 		try {
 			br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-
-			// 초기 방 배정을 위해 서버에 로그인 유저 정보를 송신
+			
+			// 초기 방 배정을 위해 서버에 로그인 유저 정보를 송신 
 			send("connect", sender.getUser_name() + "님이 입장하셨습니다.");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void run() {
 	    try {
