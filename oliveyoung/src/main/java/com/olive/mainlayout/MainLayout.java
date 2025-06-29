@@ -62,6 +62,7 @@ public class MainLayout extends JFrame {
 
 	JPanel p_content;
 	
+	
 	JPanel p_float;
 	JButton bt_float;
 	Image img_float_default;
@@ -86,8 +87,8 @@ public class MainLayout extends JFrame {
 	public MainLayout(User user) {
 		this.user = user;
 
-
 		setVisible(false);
+
 		client = new Client(this); // 채팅 클라이언트 연결
 		client.setVisible(false);
 		client.connect();

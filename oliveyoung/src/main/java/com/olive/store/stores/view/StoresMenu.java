@@ -106,7 +106,6 @@ public class StoresMenu extends Panel {
 		lb_top.setText("담당자 : " + list.get(0).getUser().getUser_name() + "     이메일 : " + list.get(0).getUser().getEmail() + "     연락처 : " + list.get(0).getUser().getTel());
 		lb_bottom.setText("매장 주소 : " + list.get(0).getBr_address() + "     매장 전화 : " + list.get(0).getBr_tel());
 
-		
 		storesModel = new StoresModel(storeName);
 		table.setModel(storesModel);
 		storesModel.fireTableDataChanged();
