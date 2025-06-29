@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -142,7 +144,14 @@ public class RegistFrame extends JFrame {
 
 		bt_regist.addActionListener(e -> {
 			regist();
-		});
+		});		
+		
+//		t_address.addKeyListener(new KeyAdapter() {
+//			public void keyReleased(KeyEvent e) {
+//				if (e.getKeyCode()==KeyEvent.VK_TAB)
+//					t_tel.requestFocus();
+//			}
+//		});
 
 		setBounds(600, 200, 400, 420);
 		setTitle("지점 등록하기");
@@ -154,6 +163,7 @@ public class RegistFrame extends JFrame {
 
 		// 콤보박스 미선택 시 보여줄 더미 객체 생성 및 배치
 		User dummy = new User();
+		dummy.setUser_id(-1);
 		dummy.setUser_name("사원 번호 - 담당자명");
 		cb_userNo.addItem(dummy);
 
@@ -167,7 +177,7 @@ public class RegistFrame extends JFrame {
 					boolean cellHasFocus) {
 				if (value instanceof User) {
 					User user = (User) value;
-					if (user.getUser_id() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
+					if (user.getUser_no() != 0) // 콤보박스 값(value)이 User 타입이고, dummy 값이 아닐 경우
 						value = ((User) value).getNoWithName(); // 사원번호 - 이름 형식으로 표시되도록 설정
 				}
 				return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
@@ -177,15 +187,15 @@ public class RegistFrame extends JFrame {
 
 	// 한 개의 지점 등록
 	public void insert() {
-		User user = (User) cb_userNo.getSelectedItem();		// 선택된 유저를 User로 캐스팅
+		User getUser = (User) cb_userNo.getSelectedItem();		// 선택된 유저를 User로 캐스팅
 
 		// 지점 정보 세팅
 		Branch branch = new Branch();
 		branch.setBr_name(t_name.getText());
 		branch.setBr_address(t_address.getText());
 		branch.setBr_tel(t_tel.getText());
-		branch.setUser(user);
-
+		branch.setUser(getUser);
+		
 		branchDAO.insert(branch, storePage.mainLayout.user);	// 쿼리문 날리기
 
 		stockDAO.insertStock(branch.getBr_id()); // 생성된 지점의 재고 0으로 세팅하기
@@ -204,7 +214,7 @@ public class RegistFrame extends JFrame {
 			JOptionPane.showMessageDialog(this, "매장 주소를 입력하세요");
 		else if (t_tel.getText().length() < 1)
 			JOptionPane.showMessageDialog(this, "매장 번호를 입력하세요");
-		else if (cb_userNo.getSelectedIndex() < 1)
+		else if (cb_userNo.getSelectedIndex() < 1 || ((User) cb_userNo.getSelectedItem()).getUser_id() <= 0)
 			JOptionPane.showMessageDialog(this, "담당자를 선택하세요");
 		else {
 			for (int i = 0; i < storeConfigMenu.storeConfigModel.getRowCount(); i++)

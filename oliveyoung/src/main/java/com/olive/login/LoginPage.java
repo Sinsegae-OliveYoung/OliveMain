@@ -77,7 +77,7 @@ public class LoginPage extends JFrame {
 		p_pwd = new JPanel();
 		lb_pwd = new JLabel("패스워드");
 		t_pwd = new JPasswordField(16);
-		
+
 		// 임시 로그인 패스 -> 추후 제거
 		t_id.setText("1021");
 		t_pwd.setText("1234");
@@ -117,11 +117,12 @@ public class LoginPage extends JFrame {
 		bt_login.setBackground(Config.LIGHT_GRAY);
 		bt_login.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
 		bt_login.setPreferredSize(new Dimension(120, 30));
-		bt_login.setFocusPainted(false);		
+		bt_login.setFocusPainted(false);
 		bt_login.addMouseListener(new MouseAdapter() {
 			public void mouseEntered(MouseEvent e) {
 				bt_login.setBackground(Config.GREEN);
 			}
+
 			public void mouseExited(MouseEvent e) {
 				bt_login.setBackground(Config.LIGHT_GRAY);
 			}
@@ -172,16 +173,15 @@ public class LoginPage extends JFrame {
 		// 모든 유저 정보에 입력받은 아이디와 패스워드 대입, 해당되는 유저 추출
 		try {
 			user = userDAO.checkLogin(Integer.parseInt(t_id.getText()), new String(t_pwd.getPassword()));
-		} catch (NumberFormatException e) {	// 넣은 값이 숫자가 아닐 경우 예외처리
+		} catch (NumberFormatException e) { // 넣은 값이 숫자가 아닐 경우 예외처리
 			e.printStackTrace();
 		}
-		
+
 		// 해당되는 유저가 있다면
 		if (user != null) {
 			mainLayout = new MainLayout(user); // 메인 페이지로 유저 정보를 갖고 이동
 			if (mainLayout.isVisible()) {
 				JOptionPane.showMessageDialog(this, "반갑습니다 올리브영 입니다!\n" + user.getUser_name() + "님 안녕하세요◠‿◠");
-				mainLayout.setVisible(true);
 				dispose(); // 현재 창 닫기
 			}
 			// 해당되는 유저가 없다면
@@ -190,18 +190,18 @@ public class LoginPage extends JFrame {
 			Boolean exist = false; // 아이디 존재 여부를 결정 짓는 변수
 			// 모든 유저 정보를 가져와서 비교
 			for (User users : userList)
-				try { 
+				try {
 					if (Integer.toString(users.getUser_no()).equals(t_id.getText()))
 						exist = true;// 아이디 존재 여부 변수 true값으로 변경
 				} catch (NumberFormatException e) { // 넣은 값이 숫자가 아닐 경우 예외처리
 					e.printStackTrace();
-				} 
+				}
 			// 아이디가 존재하면
 			if (exist)
-				JOptionPane.showMessageDialog(this, "비밀번호를 확인해주세요");	// 비밀번호 여부만 묻기
+				JOptionPane.showMessageDialog(this, "비밀번호를 확인해주세요"); // 비밀번호 여부만 묻기
 			// 아이디가 존재하지 않으면
 			else
-				JOptionPane.showMessageDialog(this, "존재하지 않는 아이디입니다");	// 아이디 없다고 반환
+				JOptionPane.showMessageDialog(this, "존재하지 않는 아이디입니다"); // 아이디 없다고 반환
 		}
 	}
 
