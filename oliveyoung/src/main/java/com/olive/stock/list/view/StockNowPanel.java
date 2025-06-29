@@ -99,29 +99,34 @@ public class StockNowPanel extends Panel {
         header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
         header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 
-        // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
+     // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
         JPanel scrollWrapper = new JPanel(new BorderLayout());
         scrollWrapper.setBackground(Config.WHITE);
 
-        // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
+        // 얇은 테두리 + 내부 여백 적용
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 15));
         scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        
         scrollWrapper.add(scroll, BorderLayout.CENTER);
 
-        
+        // ★ dummyPanel 생성해서 크기 강제
+        JPanel dummyPanel = new JPanel(null);
+        dummyPanel.setPreferredSize(new Dimension(Config.CONTENT_W, 500));
+        dummyPanel.setBackground(Config.WHITE);
+
+        scrollWrapper.setBounds(0, 0, Config.CONTENT_W, 500);
+        dummyPanel.add(scrollWrapper);
+
         // 전체 레이아웃 조립
         JPanel topContainer = new JPanel(new BorderLayout());
         topContainer.setOpaque(false);
         topContainer.add(topPanel, BorderLayout.NORTH);
         topContainer.add(buttonPanel, BorderLayout.CENTER);
 
-        // 레이아웃은 BorderLayout 유지
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
 
         add(topContainer, BorderLayout.NORTH);
-        add(scrollWrapper, BorderLayout.CENTER);
+        add(dummyPanel, BorderLayout.CENTER);
 
 
         // 정렬 기능 연결

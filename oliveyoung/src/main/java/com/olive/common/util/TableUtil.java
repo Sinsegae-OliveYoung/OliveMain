@@ -48,8 +48,13 @@ public class TableUtil{
         
         table.setGridColor(Color.WHITE);
         table.setBorder(BorderFactory.createLineBorder(Color.GRAY,1));
-        table.setCellSelectionEnabled(flag);	// 행 선택 불가
-        table.setRequestFocusEnabled(flag);	// 셀 선택 불가
+        if (flag == true) {
+        	table.setCellSelectionEnabled(false);   // 셀 단위 선택 X
+        	table.setRowSelectionAllowed(true);     // 행 단위 선택 O        	
+        } else {
+        	 table.setCellSelectionEnabled(false);	// 행 선택 불가
+             table.setRequestFocusEnabled(false);	// 셀 선택 불가
+        }
 		table.setBackground(Config.WHITE);	// 셀 배경색
 		table.setFont(new Font("Noto Sans KR", Font.PLAIN, 13));
 		

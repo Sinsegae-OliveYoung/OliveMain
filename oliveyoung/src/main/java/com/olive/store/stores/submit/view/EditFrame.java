@@ -52,14 +52,12 @@ public class EditFrame extends JFrame {
 	BranchDAO branchDAO;
 	UserDAO userDAO;
 
-	MainLayout mainLayout;
 	private StorePage storePage;
 	private StoreConfigMenu storeConfigMenu;
 	private Branch branch;
 	int br_id;
 
-	public EditFrame(MainLayout mainLayout, StorePage storePage, StoreConfigMenu storeConfigMenu, Branch branch) {
-		this.mainLayout = mainLayout;
+	public EditFrame(StorePage storePage, StoreConfigMenu storeConfigMenu, Branch branch) {
 		this.storePage = storePage;
 		this.storeConfigMenu = storeConfigMenu;
 		this.branch = branch;
@@ -153,7 +151,7 @@ public class EditFrame extends JFrame {
 	}
 
 	public void setCombobox() {
-		List<User> userList = userDAO.selectAll();
+		List<User> userList = userDAO.selectMgr(); // 점장 설정이 가능한 유저만 불러옴
 
 		// 콤보박스 미선택 시 보여줄 더미 객체 생성 및 배치
 		User dummy = new User();
@@ -198,7 +196,7 @@ public class EditFrame extends JFrame {
 		branch.setBr_id(br_id);
 		branch.setUser(user);
 
-		branchDAO.update(branch, mainLayout.user);	// 쿼리문 날리기
+		branchDAO.update(branch, storePage.mainLayout.user);	// 쿼리문 날리기
 		
 		JOptionPane.showMessageDialog(this, "지점이 수정되었습니다");
 		storeConfigMenu.refresh();	// 테이블 재출력

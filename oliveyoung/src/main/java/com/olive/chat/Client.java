@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -35,7 +37,9 @@ public class Client extends JFrame{
 	
 	// 전송 영역
 	JTextField tf = new JTextField(15);
+	
 	String ip = "192.168.10.101";
+
 	Sender sender;
 	MainLayout mainLayout;
 	public ChatClientThread clientThread;
@@ -48,25 +52,6 @@ public class Client extends JFrame{
 		this.mainLayout = mainLayout;
 		now = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
 		
-		try {
-			Socket socket = new Socket(ip, 9999);   //이 클라이언트를 서버에 접속시킴 (서버 ip 주소)
-			sender = new Sender();
-			
-			sender.setUser_name(mainLayout.user.getUser_name());
-			sender.setBranch_id(branchDAO.getBranchList(mainLayout.user.getUser_id()).get(0).getBr_id());
-			
-			// 애초에 클라이언트 정보를 만들어서 넘겨주고 통신은 클라이언트스레드가 하니까 클라이언트 스레드가 payload를 만드는게 낫겠다. 
-			clientThread = new ChatClientThread(this, socket, sender);
-			System.out.println("스레드 생성햇당");
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-
-			clientThread.start();
-		}
-
 		tp.setBackground(Config.WHITE);
 		tp.setEditable(false);     // 키보드 입력 막기
 		tp.setFocusable(false);    // 포커스도 못 가게
@@ -120,12 +105,46 @@ public class Client extends JFrame{
 			}
 		});
 
+		// 대화창 종료 시 접속 종료
+		addWindowListener(new WindowAdapter() {
+		public void windowClosing(WindowEvent e) {
+	        if (clientThread != null) {
+		        try {
+					doc.setParagraphAttributes(doc.getLength(), 1, centerAlign, false);
+					doc.insertString(doc.getLength(), sender.getUser_name() + "님이 퇴장하셨습니다.\n", centerAlign);	// 내가 보낸 텍스트 창
+					clientThread.send("disconnect", sender.getUser_name() + "님이 퇴장하셨습니다.");
+					clientThread.interrupt(); // 스레드 안전 종료
+				} catch (BadLocationException e1) {
+					e1.printStackTrace();
+				}
+	        }
+		}
+		});
 		
 		setTitle(branchDAO.getBranchList(mainLayout.user.getUser_id()).get(0).getBr_name());
 		setBounds(1300, 300, 400, 600);
 		setVisible(false);
 	}
 	
+	public void connect() {
+		try {
+			Socket socket = new Socket(ip, 9999);   //이 클라이언트를 서버에 접속시킴 (서버 ip 주소)
+			sender = new Sender();
+			
+			sender.setUser_id(mainLayout.user.getUser_id());
+			sender.setUser_name(mainLayout.user.getUser_name());
+			sender.setBranch_id(branchDAO.getBranchList(mainLayout.user.getUser_id()).get(0).getBr_id());
+			
+			// 애초에 클라이언트 정보를 만들어서 넘겨주고 통신은 클라이언트스레드가 하니까 클라이언트 스레드가 payload를 만드는게 낫겠다. 
+			clientThread = new ChatClientThread(this, socket, sender);
+			clientThread.start();
+			System.out.println(" 클라이언트 쓰레드 생성");
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	
 
 }

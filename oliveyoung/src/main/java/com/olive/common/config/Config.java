@@ -15,8 +15,11 @@ public class Config {
 	public static final String pass = "1234";
 	
 	public static final String LOGO_PATH = "images/logo2.png";
-	public static final String ALERT_IMAGE = "images/auto_alert.png";
+	public static final String ALERT_DEF = "images/auto_alert_def.png";
+	public static final String ALERT_HOVER = "images/auto_alert_hover.png";
 	public static final String IMG_PATH = "C:\\public";
+	public static final String FLOAT_DEF = "images/chat.png";
+	public static final String FLOAT_HOVER = "images/chat_hover.png";
 	
 	/*--------------------------------------------
 	 *  페이지 정의
