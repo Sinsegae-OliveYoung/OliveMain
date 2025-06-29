@@ -3,18 +3,13 @@ package com.olive.mainlayout;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -23,20 +18,14 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 
 import com.olive.bound.BoundPage;
 import com.olive.chat.Client;
 import com.olive.common.config.Config;
-import com.olive.common.model.Stock;
 import com.olive.common.model.User;
 import com.olive.common.repository.BranchDAO;
-import com.olive.common.repository.StockDAO;
 import com.olive.common.util.ImageUtil;
 import com.olive.common.view.MainPage;
 import com.olive.common.view.Page;
@@ -47,42 +36,29 @@ import com.olive.product.ProductPage;
 import com.olive.stock.StockPage;
 import com.olive.store.StorePage;
 
-/*----------------------------------------------
- * 
- *  이것은 빨아쓰는 액자임니다.
- *  액자 속 당신의 사진은 따로 파일 만들어야 해요!
- *  - 각 페이지명은 createPage() 메서드 보고 참고해주세요
- *  - JFrame 상속 받아야 함
- *  - setPreferredSize(new Dimension(Config.CONTENT_W, Config.CONTENT_H));
- * 
- *---------------------------------------------- */
-
 public class MainLayout extends JFrame {
 
 	JPanel p_navi;
-
-	JPanel p_left; // p_menu, p_title을 담을 패널
-	
+	JPanel p_left;
 	JPanel p_title;
 	Image img;
 	ImageUtil img_title = new ImageUtil();
 	JButton bt_title;
 
 	JPanel p_menu;
-	JButton bt_pd; // 상품 product
-	JButton bt_io; // 입출고 in,out
-	JButton bt_st; // 재고 stock
-	JButton bt_sh; // 지점 store(shop)
-	JButton bt_ma; // 관리 manage
+	JButton bt_pd;
+	JButton bt_io;
+	JButton bt_st;
+	JButton bt_sh;
+	JButton bt_ma;
 
 	JPanel p_my;
 	JButton bt_alert;
 	ImageIcon img_alert_default;
 	ImageIcon img_alert_hover;
-	Image alertImg;
-	JLabel lb_alertCount; // 알람 숫자 label
-	JLabel lb_me; // ooo지점 oo님
-	JButton bt_lo; // logout
+	JLabel lb_alertCount;
+	JLabel lb_me;
+	JButton bt_lo;
 
 	JPanel p_content;
 	
@@ -92,39 +68,38 @@ public class MainLayout extends JFrame {
 	Image img_float_default;
 	Image img_float_hover;
 	Image curImg;
+
 	public JLabel lb_chatCount;
 	Page[] pages; // 페이지 담을 배열
 	
 	private int alertCount = 0;
+  
 	private boolean isDataDirty = false;
-    private boolean running = true;
-    
-    private List<String> autoOutboundLog = Collections.synchronizedList(new ArrayList<>());
-    
+
 	ImageUtil imgUtil = new ImageUtil();
 
 	public User user;
 	BranchDAO branchDAO;
 	Client client;
 
-	Thread autoOutboundThread;
-	
+	private AutoOutboundManager autoOutboundManager;
+
 	public MainLayout(User user) {
 		this.user = user;
 
-		setVisible(false);
-		
-		client = new Client(this);  //채팅 클라이언트 연결
+		setVisible(true);
+
+		client = new Client(this); // 채팅 클라이언트 연결
 		client.setVisible(false);
 		client.connect();
-		
+
 		branchDAO = new BranchDAO();
 
 		// create
 		p_navi = new JPanel();
 
 		p_left = new JPanel();
-		
+
 		p_title = new JPanel();
 		img = img_title.getImage(Config.LOGO_PATH, 180, 20);
 		bt_title = new JButton() {
@@ -142,7 +117,7 @@ public class MainLayout extends JFrame {
 		bt_ma = new JButton("관리");
 
 		p_my = new JPanel();
-		
+
 		img_alert_default = new ImageIcon(imgUtil.getImage(Config.ALERT_DEF, 30, 30));
 		img_alert_hover = new ImageIcon(imgUtil.getImage(Config.ALERT_HOVER, 30, 30));
 		bt_alert = new JButton(img_alert_default);
@@ -155,7 +130,6 @@ public class MainLayout extends JFrame {
 		img_float_default = img_title.getImage(Config.FLOAT_DEF, 40, 40);
 		img_float_hover = img_title.getImage(Config.FLOAT_HOVER, 40, 40);
 
-
 		// style
 		p_navi.setBackground(Config.GREEN);
 		p_navi.setPreferredSize(new Dimension(Config.NAVI_W, Config.NAVI_H));
@@ -164,7 +138,7 @@ public class MainLayout extends JFrame {
 
 		p_left.setBackground(Config.GREEN);
 
-		p_title.setOpaque(false); // 배경 투명
+		p_title.setOpaque(false);
 		p_title.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 15));
 
 		bt_title.setPreferredSize(new Dimension(180, 20));
@@ -174,7 +148,7 @@ public class MainLayout extends JFrame {
 
 		p_menu.setOpaque(false);
 
-		for (JButton button : new JButton[] {bt_pd, bt_io, bt_st, bt_sh, bt_ma}) {
+		for (JButton button : new JButton[] { bt_pd, bt_io, bt_st, bt_sh, bt_ma }) {
 			button.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
 			button.setHorizontalAlignment(JButton.LEFT);
 			button.setBackground(Config.GREEN);
@@ -185,14 +159,14 @@ public class MainLayout extends JFrame {
 		p_my.setOpaque(false);
 		p_my.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 0));
 
-		for (JButton button : new JButton[] {bt_alert, bt_lo}) {
+		for (JButton button : new JButton[] { bt_alert, bt_lo }) {
 			button.setBackground(Config.GREEN);
 			button.setFocusPainted(false);
 			button.setBorder(null);
 		}
-		
-		bt_alert.setPreferredSize(new Dimension(30, 30)); // 이미지보다 살짝 여유
-		
+
+		bt_alert.setPreferredSize(new Dimension(30, 30));
+
 		lb_me.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
 		lb_me.setHorizontalAlignment(JLabel.RIGHT);
 
@@ -205,21 +179,19 @@ public class MainLayout extends JFrame {
 		p_title.add(bt_title);
 		p_left.add(p_title);
 
-		for (JButton button : new JButton[] {bt_pd, bt_io, bt_st, bt_sh}) {
+		for (JButton button : new JButton[] { bt_pd, bt_io, bt_st, bt_sh }) {
 			p_menu.add(button);
 			p_menu.add(Box.createHorizontalStrut(50));
 		}
 		p_menu.add(bt_ma);
-		
+
 		p_left.add(p_menu);
 		p_navi.add(p_left, BorderLayout.WEST);
-		
-		// 숫자 라벨 (초기값 0)
+
 		lb_alertCount = new JLabel("0");
 		lb_alertCount.setFont(new Font("Noto Sans KR", Font.BOLD, 13));
 		lb_alertCount.setForeground(Color.RED);
 
-		// 기존 패널에 붙이기
 		p_my.add(bt_alert);
 		p_my.add(lb_alertCount);
 		p_my.add(Box.createHorizontalStrut(10));
@@ -232,8 +204,7 @@ public class MainLayout extends JFrame {
 		add(p_content, BorderLayout.CENTER);
 
 		createPage();
-		
-		// listener
+
 		for (JButton btn : new JButton[] { bt_pd, bt_title, bt_io, bt_st, bt_sh, bt_ma, bt_lo }) {
 			btn.addMouseListener(new MouseAdapter() {
 				public void mouseEntered(MouseEvent e) {
@@ -247,7 +218,6 @@ public class MainLayout extends JFrame {
 				public void mouseClicked(MouseEvent e) {
 					JButton source = (JButton) e.getSource();
 
-
 					if (source == bt_title)
 						showPage(Config.MAIN_PAGE);
 					else if (source == bt_pd)
@@ -255,13 +225,12 @@ public class MainLayout extends JFrame {
 					else if (source == bt_io)
 						showPage(Config.BOUND_PAGE);
 					else if (source == bt_st) {
-						if(user.getRole().getRole_id() == 1) {
+						if (user.getRole().getRole_id() == 1) {
 							JOptionPane.showMessageDialog(MainLayout.this, "팀장은 지점 관리에서 볼 수 있습니다");
 						} else {
 							showPage(Config.STOCK_PAGE);
 						}
-					}
-					else if (source == bt_sh)
+					} else if (source == bt_sh)
 						showPage(Config.STORE_PAGE);
 					else if (source == bt_ma)
 						if(user.getRole().getRole_id() == 3) {
@@ -278,12 +247,14 @@ public class MainLayout extends JFrame {
 						}
 						
 					else if (source == bt_lo) {
-						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요", JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
-							if(client != null) {
+						if ((JOptionPane.showConfirmDialog(MainLayout.this, "로그아웃 하시겠습니까?", "중요",
+								JOptionPane.OK_CANCEL_OPTION)) == JOptionPane.OK_OPTION) {
+							if (client != null) {
 								System.out.println(" 로그아웃, 클라이언트 끊기");
-			    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
-			    				client.dispose();
+								client.clientThread.send("disconnect", null);
+								client.dispose();
 							}
+							autoOutboundManager.stop();
 							dispose();
 							new LoginPage();
 						}
@@ -291,58 +262,48 @@ public class MainLayout extends JFrame {
 				}
 			});
 		}
-		
-		bt_alert.addActionListener(e -> {
-			showAutoOutboundLogDialog();
-		    alertCount = 0;
-		    lb_alertCount.setText("0");
-		});
-		
-		bt_alert.addMouseListener(new MouseAdapter() {
-		    public void mouseEntered(MouseEvent e) {
-		        bt_alert.setIcon(img_alert_hover);
-		    }
 
-		    public void mouseExited(MouseEvent e) {
-		        bt_alert.setIcon(img_alert_default);
-		    }
+		bt_alert.addActionListener(e -> {
+			autoOutboundManager.showAutoOutboundLogDialog();
+			autoOutboundManager.resetAlertCount();
 		});
-		
-		// 팀장인 경우 채팅 버튼을 생성하지 않음
+
+		bt_alert.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				bt_alert.setIcon(img_alert_hover);
+			}
+
+			public void mouseExited(MouseEvent e) {
+				bt_alert.setIcon(img_alert_default);
+			}
+		});
+
 		if (user.getRole().getRole_id() != 1)
 			createFloatButton();
 
 		showPage(Config.MAIN_PAGE);
 
-		//채팅 서버와 연결 끊기
 		addWindowListener(new WindowAdapter() {
-			
 			@Override
 			public void windowClosing(WindowEvent e) {
-				if(client != null) {
+				if (client != null) {
 					System.out.println(" 윈도우 종료, 클라이언트 끊기");
-    				client.clientThread.send("disconnect", null);  // loginpage의 main 스레드가 clientThread의 send를 호출하여 실행 
-    				client.dispose();
+					client.clientThread.send("disconnect", null);
+					client.dispose();
 				}
-                System.exit(0);
-			}	
+				autoOutboundManager.stop();
+				System.out.println("메인 창 종료 → 자동 출고 스레드 종료 요청됨");
+				System.exit(0);
+			}
 		});
-			
-		
+
 		getContentPane().setBackground(Config.WHITE);
 		setSize(Config.LAYOUT_W, Config.LAYOUT_H);
 		setLocationRelativeTo(null);
-		// 윈도우 닫으면 쓰레드 종료
-		addWindowListener(new WindowAdapter() {
-		    @Override
-		    public void windowClosing(WindowEvent e) {
-		        running = false; // 스레드 종료 플래그 설정
-		        System.out.println("메인 창 종료 → 자동 출고 스레드 종료 요청됨");
-		    }
-		});
-		
-		// 자동 출고 쓰레드 초기화 작업 <- 페이지 생성 후에 run
-		startAutoOutboundThread();	
+
+		// 자동 출고 매니저 시작
+		autoOutboundManager = new AutoOutboundManager(this, user, lb_alertCount);
+		autoOutboundManager.start();
 	}
 
 	public void createPage() {
@@ -360,7 +321,6 @@ public class MainLayout extends JFrame {
 		}
 	}
 
-
 	public void createFloatButton() {
 		getLayeredPane().setLayout(null);
 		
@@ -375,10 +335,10 @@ public class MainLayout extends JFrame {
 		bt_float = new JButton() {
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
-				
 				g.drawImage(curImg, 0, 0, 40, 40, bt_float);
 			}
 		};
+
 		bt_float.setBounds(0, 0, 40, 40);
 		bt_float.setContentAreaFilled(false); // 배경 제거
 		bt_float.setBorderPainted(false);    // 테두리 제거
@@ -398,28 +358,34 @@ public class MainLayout extends JFrame {
 		    
 		});
 		
-		bt_float.addMouseListener(new MouseAdapter() {
-		    public void mouseEntered(MouseEvent e) {
-		        curImg = img_float_default;
-		        bt_float.repaint();
-		    }
 
-		    public void mouseExited(MouseEvent e) {
-		    	curImg = img_float_hover;
-		        bt_float.repaint();
-		    }
+// 		bt_float.setSize(40, 40);
+// 		bt_float.setContentAreaFilled(false);
+// 		bt_float.setBorderPainted(false);
+// 		bt_float.setFocusPainted(false);
+// 		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
+
+
+		bt_float.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				curImg = img_float_default;
+				bt_float.repaint();
+			}
+
+			public void mouseExited(MouseEvent e) {
+				curImg = img_float_hover;
+				bt_float.repaint();
+			}
 		});
-		
+
 		bt_float.addActionListener(e -> {
 			client.setVisible(true);
 		});
 
+
+		getLayeredPane().add(bt_float, javax.swing.JLayeredPane.POPUP_LAYER);
+
 	}
-	
-	
-	/* 
-	 * 데이터 수정 시 모든 패널 업데이트 코드
-	 */
 
 	public void setDataDirty(boolean dataDirty) {
 		this.isDataDirty = dataDirty;
@@ -429,7 +395,6 @@ public class MainLayout extends JFrame {
 		return isDataDirty;
 	}
 
-	/** 데이터 변경 시 필요한 페이지들을 새로고침 */
 	public void refreshIfDirty() {
 		if (isDataDirty) {
 			for (Page page : pages) {
@@ -440,92 +405,17 @@ public class MainLayout extends JFrame {
 	}
 
 	public void showPage(int target) {
-		refreshIfDirty(); // ← 새로고침 시점은 페이지 전환 직전
-		for (int i = 0; i < pages.length; i++)
+		refreshIfDirty();
+		for (int i = 0; i < pages.length; i++) {
 			pages[i].setVisible((i == target) ? true : false);
-	}
-	
-	// 자동 출고 쓰레드 메서드
-	
-   private void startAutoOutboundThread() {
-        autoOutboundThread = new Thread(() -> {
-            StockDAO stockDAO = new StockDAO();
-
-            // 현재 Thread.sleep이 while문 안에 존재하여 프로그램 종료 후에도 for문이 반복 실행중 (자동 출고중)
-            while (running) { 
-                try {
-                    // 1. 재고 수량이 1 이상인 재고 리스트 조회
-                    List<Stock> stockList = stockDAO.selectAllStockWithQuantity(user);
-
-                    for (Stock stock : stockList) {
-                        if (stock.getSt_quantity() > 0) {
-                        	if(!running) break;
-                            // 2. 수량 감소 처리
-                            int newQty = stock.getSt_quantity() - 1;
-                            stock.setSt_quantity(newQty);
-                            stockDAO.updateQuantity(stock.getSt_id(), newQty, user);
-                            
-                            String logEntry = "- 재고 ID: " + stock.getSt_id() + ", 남은 수량: " + newQty;
-                            autoOutboundLog.add(logEntry);
-                            System.out.println("자동 출고 - " + logEntry);
-
-                    	   	alertCount++;
-                    	    lb_alertCount.setText(String.valueOf(alertCount));
-                            // 패널 업데이트
-                            setDataDirty(true); 
-                            refreshIfDirty();
-                        }
-                        // 3. 60초 대기
-                        Thread.sleep(60 * 1000);
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        autoOutboundThread.setDaemon(true); // 창 종료 시 스레드도 종료되도록
-        autoOutboundThread.start();
-    }
-   private void showAutoOutboundLogDialog() {
-	   
-	    SwingUtilities.invokeLater(() -> {
-	        JDialog dialog = new JDialog();
-	        dialog.setTitle("자동 출고 기록");
-	        dialog.setSize(400, 300);
-	        dialog.setLocationRelativeTo(null);
-	        dialog.setModal(true);
-
-	        JPanel panel = new JPanel(new BorderLayout(10, 10));
-	        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-	        JTextArea textArea = new JTextArea();
-	        textArea.setEditable(false);
-	        for (String log : autoOutboundLog) {
-	            textArea.append(log + "\n");
-	        }
-
-	        JScrollPane scrollPane = new JScrollPane(textArea);
-	        panel.add(scrollPane, BorderLayout.CENTER);
-
-	        JButton btnClose = new JButton("닫기");
-	        btnClose.addActionListener(ev -> dialog.dispose());
-	        panel.add(btnClose, BorderLayout.SOUTH);
-
-	        dialog.add(panel);
-	        dialog.setVisible(true);
-	    });
+		}
 	}
 
 	public String setProfile() {
 		String profile = null;
-		
-		profile = user.getUser_name()  
-				+ " "
-				+ user.getRole().getRole_name()
-				+ "님 *´︶`*";
-		
+
+		profile = user.getUser_name() + " " + user.getRole().getRole_name() + "님 *´︶`*";
+
 		if (user.getRole().getRole_id() != 1) {
 			profile = branchDAO.getBranchList(user.getUser_id()) + " " + profile;
 		}

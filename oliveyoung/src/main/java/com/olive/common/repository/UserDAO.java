@@ -283,13 +283,11 @@ public class UserDAO {
 		
 		StringBuffer sql = new StringBuffer();
 		sql.append("SELECT u.user_no   AS '사원 번호',"
-				+ " 	   u.user_name AS '이름'"
-				+ " FROM   user u"
-				+ " WHERE  role_id=2"
-				+ " 	   AND u.user_id"
-				+ "			   NOT IN   (SELECT b.user_id"
-				+ "				 	     FROM   branch b"
-				+ "				 	     WHERE  b.user_id)"
+				+ "        u.user_name AS '이름'"
+				+ " FROM       user u"
+				+ " INNER JOIN member m"
+				+ "			ON u.user_id=m.user_id"
+				+ " WHERE m.br_id=99"
 		);
 		
 		try {

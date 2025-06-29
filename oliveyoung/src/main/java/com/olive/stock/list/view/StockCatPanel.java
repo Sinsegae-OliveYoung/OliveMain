@@ -126,10 +126,18 @@ public class StockCatPanel extends Panel {
         
         scrollWrapper.add(scroll, BorderLayout.CENTER);
         
+        // ★ dummyPanel 생성해서 크기 강제
+        JPanel dummyPanel = new JPanel(null);
+        dummyPanel.setPreferredSize(new Dimension(Config.CONTENT_W - 250, 550));
+        dummyPanel.setBackground(Config.WHITE);
+
+        scrollWrapper.setBounds(0, 0, Config.CONTENT_W - 250, 550);
+        dummyPanel.add(scrollWrapper);
+        
         // 전체 레이아웃 구성
         add(topPanel, BorderLayout.NORTH);
         add(comboPanel, BorderLayout.EAST);
-        add(scrollWrapper, BorderLayout.CENTER);
+        add(dummyPanel, BorderLayout.CENTER);
 
         // 콤보박스 이벤트 연결
         cb_category.addItemListener(new ItemListener() {

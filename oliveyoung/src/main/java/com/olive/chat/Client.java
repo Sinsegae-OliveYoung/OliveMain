@@ -39,6 +39,7 @@ public class Client extends JFrame{
 	JTextField tf = new JTextField(15);
 	
 	String ip = "192.168.10.100";
+
 	Sender sender;
 	MainLayout mainLayout;
 	public ChatClientThread clientThread;
