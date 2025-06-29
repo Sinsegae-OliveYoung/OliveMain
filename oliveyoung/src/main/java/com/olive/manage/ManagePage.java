@@ -34,14 +34,14 @@ public class ManagePage extends Page{
 	JButton bt_user_list;
 	JLabel la_approval;
 	JButton bt_approval_list;
-	JPanel p_content;
+	public JPanel p_content;
 	Panel[] panels;
 	
 	CardLayout cardLayout;
 	String previousKey;  //이전 페이지 기억하기 위한 키(cardlayout의 key)
-	String currentKey = ManageConfig.USER_LIST_KEY;
+	public String currentKey = ManageConfig.USER_LIST_KEY;
 	
-	UserListPanel userListPanel;
+	public UserListPanel userListPanel;
 	UserDetailPanel userDetailPanel;
 	ApprovalListPanel approvalListPanel;
 	ApprovalDetailPanel approvalDetailPanel;
@@ -112,6 +112,8 @@ public class ManagePage extends Page{
 				      JButton source = (JButton) e.getSource();
 				      
 				      if (source == bt_user_list) {
+				    	  userListPanel.clearFilter();
+				    	  userListPanel.refreshAll();
 				    	  showPanel(ManageConfig.USER_LIST_KEY);
 				    	  currentKey = ManageConfig.USER_LIST_KEY;
 				      }

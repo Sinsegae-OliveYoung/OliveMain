@@ -330,6 +330,18 @@ public class UserListPanel extends BasePanel{
 //		
 	}
 	
+	public void clearFilter() {
+		cb_branch.setSelectedIndex(0);
+		cb_role.setSelectedIndex(0);
+		t_name.setText("이름");
+		p_startdate.lb_date.setText("yyyy.mm.dd");
+		
+		LocalDate ld = LocalDate.now();
+		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
+		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
+		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
+		p_enddate.lb_date.setText(today);
+	}
 	public void setFilter() {
 		filter.setBr_id(((Branch)cb_branch.getSelectedItem()).getBr_id());
 		filter.setRole_id(((Role)cb_role.getSelectedItem()).getRole_id());
@@ -348,5 +360,9 @@ public class UserListPanel extends BasePanel{
 		memberModel.fireTableDataChanged();
 	}
 	
+	public static void main(String[] args) {
+		
+		
+	}
 	
 }
