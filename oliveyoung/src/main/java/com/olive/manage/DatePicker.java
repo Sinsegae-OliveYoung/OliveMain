@@ -76,7 +76,6 @@ public class DatePicker extends JFrame{
 			lb_dates[i].setHorizontalAlignment(SwingConstants.CENTER);   
 		}
 		
-		
 		// 스타일 
 		setBackground(Config.WHITE);
 	
@@ -174,9 +173,7 @@ public class DatePicker extends JFrame{
 			if(lb_selected != null) {
 				lb_selected.setBackground(Color.white);
 			}
-			
 		});
-		
 		
 		for(int i = 0; i < lb_dates.length; i++) {
 			final int idx = i;

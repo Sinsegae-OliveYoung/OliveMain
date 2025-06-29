@@ -106,22 +106,6 @@ public class Client extends JFrame{
 				}
 			}
 		});
-
-		// 대화창 종료 시 접속 종료
-		addWindowListener(new WindowAdapter() {
-		public void windowClosing(WindowEvent e) {
-	        if (clientThread != null) {
-		        try {
-					doc.setParagraphAttributes(doc.getLength(), 1, centerAlign, false);
-					doc.insertString(doc.getLength(), sender.getUser_name() + "님이 퇴장하셨습니다.\n", centerAlign);	// 내가 보낸 텍스트 창
-					clientThread.send("disconnect", sender.getUser_name() + "님이 퇴장하셨습니다.");
-					clientThread.interrupt(); // 스레드 안전 종료
-				} catch (BadLocationException e1) {
-					e1.printStackTrace();
-				}
-	        }
-		}
-		});
 		
 		setTitle(branchDAO.getBranchList(mainLayout.user.getUser_id()).get(0).getBr_name());
 		setBounds(1300, 300, 400, 600);
