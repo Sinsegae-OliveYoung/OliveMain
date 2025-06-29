@@ -82,9 +82,9 @@ public class MainLayout extends JFrame {
 
 		setVisible(true);
 
-//		client = new Client(this);
-//		client.setVisible(false);
-//		client.connect();
+		client = new Client(this); // 채팅 클라이언트 연결
+		client.setVisible(false);
+		client.connect();
 
 		branchDAO = new BranchDAO();
 
