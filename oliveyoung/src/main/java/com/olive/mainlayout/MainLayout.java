@@ -225,13 +225,22 @@ public class MainLayout extends JFrame {
 					else if (source == bt_io)
 						showPage(Config.BOUND_PAGE);
 					else if (source == bt_st) {
+						
+						
+						
+						
 						if (user.getRole().getRole_id() == 1) {
 							JOptionPane.showMessageDialog(MainLayout.this, "팀장은 지점 관리에서 볼 수 있습니다");
 						} else {
 							showPage(Config.STOCK_PAGE);
 						}
-					} else if (source == bt_sh)
-						showPage(Config.STORE_PAGE);
+					} else if (source == bt_sh) {
+		                  showPage(Config.STORE_PAGE);
+		                  if (user.getRole().getRole_id()==1)
+		                     ((StorePage)pages[4]).showPanel(0);
+		                  else 
+		                     ((StorePage)pages[4]).showPanel(1);
+		               }
 					else if (source == bt_ma)
 						if(user.getRole().getRole_id() == 3) {
 							JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
