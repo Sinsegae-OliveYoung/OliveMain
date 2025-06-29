@@ -87,7 +87,6 @@ public class MainLayout extends JFrame {
 	public MainLayout(User user) {
 		this.user = user;
 
-
 		setVisible(false);
 		client = new Client(this); // 채팅 클라이언트 연결
 		client.setVisible(false);
