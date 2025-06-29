@@ -283,7 +283,8 @@ public class UserDAO {
 		
 		StringBuffer sql = new StringBuffer();
 		sql.append("SELECT u.user_no   AS '사원 번호',"
-				+ "        u.user_name AS '이름'"
+				+ "        u.user_name AS '이름',"
+				+ "		 u.user_id AS '아이디'"
 				+ " FROM       user u"
 				+ " INNER JOIN member m"
 				+ "			ON u.user_id=m.user_id"
@@ -299,6 +300,7 @@ public class UserDAO {
 				User user = new User();
 				user.setUser_no(rs.getInt("사원 번호"));
 				user.setUser_name(rs.getString("이름"));
+				user.setUser_id(rs.getInt("아이디"));
 				list.add(user);
 			}
 		} catch (SQLException e) {

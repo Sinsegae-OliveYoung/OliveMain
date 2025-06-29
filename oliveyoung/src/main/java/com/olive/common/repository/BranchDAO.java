@@ -72,9 +72,11 @@ public class BranchDAO {
 				+ " branch(br_name, br_address, br_tel, user_id)"
 				+ " VALUES(?, ?, ?, ?)");
 		StringBuffer member1Sql = new StringBuffer();
-		member1Sql.append("INSERT INTO"
-				+ " member(br_id, user_id)"
-				+ " VALUES(?, ?)");
+		member1Sql.append("UPDATE member"
+				+ " SET br_id = ?"
+				+ " , user_id = ?"
+				+ " WHERE br_id = ?"
+				+ " AND user_id = ?");
 		StringBuffer member2Sql = new StringBuffer();
 		member2Sql.append("INSERT INTO"
 				+ " member(br_id, user_id)"
@@ -106,8 +108,10 @@ public class BranchDAO {
 
 			// Member 테이블에 지점 담당자(점장) 등록
 			pstmt = con.prepareStatement(member1Sql.toString());
-			pstmt.setInt(1, br_id);
+			pstmt.setInt(1, br_id);	
 			pstmt.setInt(2, branch.getUser().getUser_id());
+			pstmt.setInt(3, getBranchList(branch.getUser().getUser_id()).get(0).getBr_id());	
+			pstmt.setInt(4, branch.getUser().getUser_id());
 			int mb1Result = pstmt.executeUpdate();
 			pstmt.close();
 			
@@ -131,7 +135,7 @@ public class BranchDAO {
 	
 
 	// 한 개의 레코드 수정 (member, branch)
-	public void update(Branch branch, User user) throws BranchException {
+	public void update(int getUser_id, Branch branch, User user) throws BranchException {
 		Connection con = null;
 		PreparedStatement pstmt = null;
 		
@@ -143,9 +147,18 @@ public class BranchDAO {
 				+ " br_tel = ?,"
 				+ " user_id = ?"
 				+ " WHERE br_id = ?");
+
+		// 기존 점장 대기 발령
+		StringBuffer member1Sql = new StringBuffer();
+		member1Sql.append("UPDATE member"
+				+ " SET br_id = 99"
+				+ " , user_id = ?"
+				+ " WHERE br_id = ?"
+				+ " AND user_id = ?");
 		
-		StringBuffer memberSql = new StringBuffer();
-		memberSql.append("UPDATE member"
+		// 새로운 점장 등록
+		StringBuffer member2Sql = new StringBuffer();
+		member2Sql.append("UPDATE member"
 				+ " SET br_id = ?"
 				+ " , user_id = ?"
 				+ " WHERE br_id = ?"
@@ -163,19 +176,29 @@ public class BranchDAO {
 			pstmt.setInt(4, branch.getUser().getUser_id());
 			pstmt.setInt(5, branch.getBr_id());	
 			int brResult = pstmt.executeUpdate();
-			
-			// branch에서 사용한 rs, pstmt 닫기
+
+			// branch에서 사용한 pstmt 닫기
 			pstmt.close();
 			
-			// Member 테이블에서 수정			
-			pstmt = con.prepareStatement(memberSql.toString());
+			// Member 테이블에서 기존 점장 br_id 99로 저장		
+			pstmt = con.prepareStatement(member1Sql.toString());
+			pstmt.setInt(1, getUser_id);
+			pstmt.setInt(2, branch.getBr_id());	
+			pstmt.setInt(3, getUser_id);
+			int mbResult1 = pstmt.executeUpdate();
+
+			// Member에서 사용한 pstmt 닫기
+			pstmt.close();
+			
+			// Member 테이블에서 새로운 점장 등록
+			pstmt = con.prepareStatement(member2Sql.toString());
 			pstmt.setInt(1, branch.getBr_id());	
 			pstmt.setInt(2, branch.getUser().getUser_id());
-			pstmt.setInt(3, branch.getBr_id());	
-			pstmt.setInt(4, user.getUser_id());
-			int mbResult = pstmt.executeUpdate();
+			pstmt.setInt(3, getBranchList(branch.getUser().getUser_id()).get(0).getBr_id());	
+			pstmt.setInt(4, branch.getUser().getUser_id());
+			int mbResult2 = pstmt.executeUpdate();
 						
-			if(mbResult < 1 || brResult < 1) throw new BranchException("지점 수정에 실패하였습니다");
+			if(mbResult1 < 1 || mbResult2 < 1 || brResult < 1) throw new BranchException("지점 수정에 실패하였습니다");
 			else con.commit();
 		} catch (SQLException e) {
 			try { if (con != null) con.rollback();} catch (SQLException e1) {e1.printStackTrace();	}
@@ -194,6 +217,10 @@ public class BranchDAO {
 		ResultSet rs = null;
 
 		// member, branch 데이터 삭제를 위한 각각의 sql문 작성
+		StringBuffer stockSql = new StringBuffer();
+		stockSql.append("DELETE"
+				+ " FROM stock"
+				+ " WHERE br_id = ?");
 		StringBuffer memberSql = new StringBuffer();
 		memberSql.append("DELETE"
 				+ " FROM member"
@@ -206,7 +233,15 @@ public class BranchDAO {
 		try {
 			con = dbManager.getConnection();
 			con.setAutoCommit(false);
+
+			// Stock 테이블에서 삭제
+			pstmt = con.prepareStatement(stockSql.toString());
+			pstmt.setInt(1, branch.getBr_id());	
+			int stResult = pstmt.executeUpdate();
 			
+			// Stock에서 사용한 pstmt 닫기
+			pstmt.close();
+
 			// Member 테이블에서 삭제
 			pstmt = con.prepareStatement(memberSql.toString());
 			pstmt.setInt(1, branch.getBr_id());	
@@ -220,7 +255,7 @@ public class BranchDAO {
 			pstmt.setInt(1, branch.getBr_id());
 			int brResult = pstmt.executeUpdate();
 			
-			if(brResult < 1) throw new BranchException("지점 삭제에 실패하였습니다");
+			if(stResult < 1 || mbResult < 1 || brResult < 1) throw new BranchException("지점 삭제에 실패하였습니다");
 			else con.commit();
 		} catch (SQLException e) {
 			try { if (con != null) con.rollback();} catch (SQLException e1) {e1.printStackTrace();	}
@@ -421,6 +456,7 @@ public class BranchDAO {
 				+ "    b.br_tel,\r\n"
 				+ "    b.user_id,\r\n"
 				+ "    u2.user_name,\r\n"
+				+ "	 u2.user_no,"
 				+ "    u.tel,\r\n"
 				+ "    u.hiredate,\r\n"
 				+ "    u.email,\r\n"
@@ -449,6 +485,7 @@ public class BranchDAO {
 				User user = new User();
 				user.setUser_id(rs.getInt("b.user_id"));
 				user.setUser_name(rs.getString("user_name"));
+				user.setUser_no(rs.getInt("user_no"));
 				user.setTel(rs.getString("tel"));
 				user.setHiredate(rs.getDate("hiredate"));
 				user.setEmail(rs.getString("email"));
