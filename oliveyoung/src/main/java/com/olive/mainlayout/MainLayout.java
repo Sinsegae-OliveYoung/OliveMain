@@ -225,13 +225,22 @@ public class MainLayout extends JFrame {
 					else if (source == bt_io)
 						showPage(Config.BOUND_PAGE);
 					else if (source == bt_st) {
+						
+						
+						
+						
 						if (user.getRole().getRole_id() == 1) {
 							JOptionPane.showMessageDialog(MainLayout.this, "팀장은 지점 관리에서 볼 수 있습니다");
 						} else {
 							showPage(Config.STOCK_PAGE);
 						}
-					} else if (source == bt_sh)
-						showPage(Config.STORE_PAGE);
+					} else if (source == bt_sh) {
+		                  showPage(Config.STORE_PAGE);
+		                  if (user.getRole().getRole_id()==1)
+		                     ((StorePage)pages[4]).showPanel(0);
+		                  else 
+		                     ((StorePage)pages[4]).showPanel(1);
+		               }
 					else if (source == bt_ma)
 						if(user.getRole().getRole_id() == 3) {
 							JOptionPane.showMessageDialog(MainLayout.this, "권한이 없습니다");
@@ -339,7 +348,9 @@ public class MainLayout extends JFrame {
 			}
 		};
 
-		bt_float.setBounds(0, 0, 40, 40);
+		bt_float.setSize(40, 40);
+		//bt_float.setBounds(0, 0, 40, 40);
+		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
 		bt_float.setContentAreaFilled(false); // 배경 제거
 		bt_float.setBorderPainted(false);    // 테두리 제거
 		bt_float.setFocusPainted(false);
