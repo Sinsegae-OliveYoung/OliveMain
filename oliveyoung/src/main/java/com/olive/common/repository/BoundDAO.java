@@ -764,7 +764,7 @@ public class BoundDAO {
 			params.add(filter.getEnd_date());
 		}
 		
-		sql.append(" order by request_date desc");   //최신순 
+		sql.append(" order by request_date desc, bo.bo_state_id asc");   //최신순 
 		
 		
 		try {

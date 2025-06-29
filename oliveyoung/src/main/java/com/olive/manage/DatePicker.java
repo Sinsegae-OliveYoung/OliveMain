@@ -28,11 +28,11 @@ public class DatePicker extends JFrame{
 	
 	Container contentPane;
 	JPanel p_north;   //   | <  year  month  > |
-	JButton bt_next;
+	public JButton bt_next;
 	JButton bt_prev;
 	JComboBox<Integer> cb_year;
 	JComboBox<Integer> cb_month;
-	
+	public boolean showAlert = true; 
 	//더블클릭 이벤트 혹은 선택완료 버튼 만들어서 날짜 지정 
 	
 	JPanel p_day;
@@ -44,6 +44,11 @@ public class DatePicker extends JFrame{
 	
 	LocalDate date = LocalDate.now();
 	JLabel lb_selected = null;  // 클릭한 date 기억하기 위한 용도
+	
+	public DatePicker(JLabel lb, boolean flag) {
+		this(lb);
+		this.showAlert = flag;
+	}
 	
 	public DatePicker(JLabel lb) {
 		contentPane = this.getContentPane();
@@ -127,10 +132,12 @@ public class DatePicker extends JFrame{
 		
 		// 이벤트 연결
 		bt_next.addActionListener(e -> {
-			// 알림으로 띄우기 
-			if(date.getYear() == LocalDate.now().getYear() && date.getMonthValue() == LocalDate.now().getMonthValue()) {
-				JOptionPane.showMessageDialog(this, "현재 월까지만 조회할 수 있습니다.");
-				return;
+			// 알림으로 띄우기
+			if(showAlert) {
+				if(date.getYear() == LocalDate.now().getYear() && date.getMonthValue() == LocalDate.now().getMonthValue()) {
+					JOptionPane.showMessageDialog(this, "현재 월까지만 조회할 수 있습니다.");
+					return;
+				}
 			}
 			
 			date = date.plusMonths(1);
@@ -265,6 +272,15 @@ public class DatePicker extends JFrame{
 		}
 	}
 
+	public void addEventToBtNext() {
+		date = date.plusMonths(1);
+		cb_month.setSelectedItem(date.getMonthValue());
+		cb_year.setSelectedItem(date.getYear());
+		printNum();
+		if(lb_selected != null) {
+			lb_selected.setBackground(Color.white);
+		}
+	}
 	
 	public static void main(String[] args) {
 		DatePicker d = new DatePicker(new JLabel());

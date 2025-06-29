@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
@@ -38,7 +39,6 @@ import com.olive.mainlayout.MainLayout;
 import com.olive.manage.BasePanel;
 import com.olive.manage.DatePickerPanel;
 import com.olive.manage.ManagePage;
-import com.olive.manage.user.MemberModel;
 
 public class ApprovalListPanel extends BasePanel{
 	
@@ -85,15 +85,19 @@ public class ApprovalListPanel extends BasePanel{
 		
 		p_filter.add(new JLabel("필터"));    //필터 라벨 추가(단순 텍스트라 멤버변수 X)
 		
-		p_startdate = new DatePickerPanel("yyyy.mm.dd");
+		p_startdate = new DatePickerPanel("yyyy.mm.dd");		
+		p_startdate.flag = false;
+		
 		p_filter.add(p_startdate);
 		
 		LocalDate ld = LocalDate.now();
 		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
 		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
 		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
-		p_enddate = new DatePickerPanel(today);   
+		p_enddate = new DatePickerPanel(today);
+		p_enddate.flag = false;
 		p_filter.add(p_enddate);
+		
 		
 		cb_branch = ComboBoxUtil.createBranchComboBox(mainLayout.user.getUser_id());
 		cb_branch.setPreferredSize(new Dimension(100, 30));
@@ -108,11 +112,11 @@ public class ApprovalListPanel extends BasePanel{
 		p_filter.add(t_submitter);
 		
 		bt_search = ButtonUtil.greenButtonUtil("검색");
-		bt_search.setPreferredSize(new Dimension(200, 30));
+		bt_search.setPreferredSize(new Dimension(60, 30));
 		
 		p_filter.add(bt_search);
 		
-		
+	
 
 		
 		//센터 패널 (center)
@@ -131,8 +135,7 @@ public class ApprovalListPanel extends BasePanel{
 		scroll.setPreferredSize(new Dimension(1000, 550));
 		p_center.add(scroll);
 		
-		// 페이징 패널 (south)  구현할지 말지.?
-		
+
 		// 테이블 헤더 컬럼 정렬
 		TableRowSorter<TableModel> sorter = new TableRowSorter<>(table.getModel());
 		table.setRowSorter(sorter);
@@ -194,12 +197,9 @@ public class ApprovalListPanel extends BasePanel{
 					selectedBound = model.list.get(modelRow);  
 					managePage.showApprovalDetailPanel(selectedBound);
 				}
-
-//		        // 모델에서 사용자 정보 추출
-//		        selectedBound = model.list.get(row);
-//		        managePage.showApprovalDetailPanel(selectedBound);
 		    }
 		});
+		
 		return p_content;
 	}	
 	

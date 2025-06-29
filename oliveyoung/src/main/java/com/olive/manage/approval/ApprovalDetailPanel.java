@@ -25,6 +25,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+import javax.swing.BorderFactory; 
 
 import com.olive.common.config.Config;
 import com.olive.common.model.Bound;
@@ -100,7 +101,7 @@ public class ApprovalDetailPanel extends BasePanel {
 		lb_requester.setPreferredSize(d);
 		p_north.add(lb_requester);
 
-		lb_requestDate = new JLabel("요청일:    ");
+		lb_requestDate = new JLabel("희망일:    ");
 		lb_requestDate.setFont(f);
 		lb_requestDate.setPreferredSize(d);
 		p_north.add(lb_requestDate);
@@ -155,6 +156,7 @@ public class ApprovalDetailPanel extends BasePanel {
 
 		p_button = new JPanel();
 		p_button.setBackground(Color.white);
+		
 		bt_approve = ButtonUtil.greenButtonUtil("승인");
 		p_button.add(bt_approve);
 		bt_reject = ButtonUtil.pinkButtonUtil("반려");
@@ -163,14 +165,14 @@ public class ApprovalDetailPanel extends BasePanel {
 		p_button.setVisible(false);
 
 		Dimension d2 = new Dimension(200, 30);
-		//p_confirmed.setBackground(Color.white);
 		p_confirmed = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		p_confirmed.setBorder(new EmptyBorder(0, 0, 0, 50)); // top, left, bottom, right
+		p_confirmed.setBorder(new EmptyBorder(0, 0, 0, 100)); // top, left, bottom, right
 
 		bt_print = ButtonUtil.greenButtonUtil("출력하기");
 		p_confirmed.add(bt_print);
-		p_confirmed.add(Box.createHorizontalStrut(500));
-
+		p_confirmed.add(Box.createHorizontalStrut(400));
+		p_confirmed.setBackground(Config.WHITE);
+		
 		lb_approver = new JLabel("결재자: ");
 		lb_approver.setFont(f);
 		lb_approver.setPreferredSize(d2);
@@ -195,11 +197,7 @@ public class ApprovalDetailPanel extends BasePanel {
 				g2.dispose();
 			}
 		};
-//		lb_confirm.setPreferredSize(new Dimension(70, 70));
-//		lb_confirm.setHorizontalAlignment(SwingConstants.CENTER);
-//
-//		lb_confirm.setOpaque(true);
-//		lb_confirm.setBackground(Color.yellow);
+
 		p_confirmed.add(lb_confirm);
 		p_content.add(p_confirmed);
 
@@ -326,10 +324,15 @@ public class ApprovalDetailPanel extends BasePanel {
 		this.bound = bound;
 
 		// 라벨 텍스트 업데이트
-		lb_boundId.setText("요청서 번호          " + bound.getBound_id());
-		lb_requester.setText("요청자                " + bound.getUser().getUser_name());
-		lb_requestDate.setText("요청일                " + bound.getRequest_date().toString());
-		lb_status.setText("요청 상태            " + bound.getBoundState().getBo_state_name());
+		lb_boundId.setText("요청서 번호                " + bound.getBound_id());
+		lb_requester.setText("요청자                          " + bound.getUser().getUser_name());
+		  
+		if(bound.getBound_flag().equals("in")) {
+			lb_requestDate.setText("입고 요청일                " + bound.getRequest_date().toString());
+		} else {
+			lb_requestDate.setText("출고 요청일                " + bound.getRequest_date().toString());
+		}
+		lb_status.setText("요청 상태                    " + bound.getBoundState().getBo_state_name());
 		// 테이블 모델 갱신
 		model = new ApprovalDetailModel(bound.getBound_id());
 		table.setModel(model); // 모델만 교체
@@ -341,6 +344,12 @@ public class ApprovalDetailPanel extends BasePanel {
 			p_confirmed.setVisible(true);
 			p_button.setVisible(false);
 		}
+		
+
+		if(mainLayout.user.getRole().getRole_id() == 1) {
+			p_button.setVisible(false);
+		}
+		
 
 		lb_approveDate.setText("결재일: " + LocalDate.now().toString());
 		lb_approver.setText("결재자: " + mainLayout.user.getUser_name());
@@ -351,5 +360,4 @@ public class ApprovalDetailPanel extends BasePanel {
 			lb_confirm.setText("승인됨");
 		}
 	}
-
 }
