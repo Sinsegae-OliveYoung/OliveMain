@@ -19,7 +19,7 @@ public class DatePickerPanel extends JPanel{
 	
 	public JLabel lb_date;
 	JButton bt_img;
-	
+	public boolean flag = true;
 	public DatePickerPanel(String date) {
 		// 전체 패널 설정 
 		setLayout(new BorderLayout());
@@ -44,7 +44,11 @@ public class DatePickerPanel extends JPanel{
 		add(bt_img, BorderLayout.EAST);
 		
 		bt_img.addActionListener(e -> {
-			new DatePicker(lb_date);
+			if(flag) {
+				new DatePicker(lb_date);
+			} else {
+				new DatePicker(lb_date, false);
+			}
 		});
 		
 		setPreferredSize(new Dimension(120, 30));

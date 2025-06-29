@@ -193,7 +193,12 @@ public class UserListPanel extends BasePanel{
 		p_bottom.add(lb_regist);
 		
 		JButton bt_regist = ButtonUtil.greenButtonUtil("+");
-		bt_regist.setPreferredSize(new Dimension(40, 30));
+		bt_regist.setPreferredSize(new Dimension(45, 30));
+		
+		bt_regist.addActionListener(e -> {
+			//등록 다이얼로그 띄우기 
+			new UserRegistDialog(this);
+		});
 		
 		p_bottom.add(bt_regist);
 		
@@ -228,7 +233,7 @@ public class UserListPanel extends BasePanel{
 			public void actionPerformed(ActionEvent e) {
 				setFilter();
 				memberModel.list = memberDAO.select(filter, currentPage, pageSize);
-				table.updateUI();
+				memberModel.fireTableDataChanged();
 			}
 		});
 		
@@ -325,6 +330,18 @@ public class UserListPanel extends BasePanel{
 //		
 	}
 	
+	public void clearFilter() {
+		cb_branch.setSelectedIndex(0);
+		cb_role.setSelectedIndex(0);
+		t_name.setText("이름");
+		p_startdate.lb_date.setText("yyyy.mm.dd");
+		
+		LocalDate ld = LocalDate.now();
+		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
+		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
+		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
+		p_enddate.lb_date.setText(today);
+	}
 	public void setFilter() {
 		filter.setBr_id(((Branch)cb_branch.getSelectedItem()).getBr_id());
 		filter.setRole_id(((Role)cb_role.getSelectedItem()).getRole_id());
@@ -335,6 +352,17 @@ public class UserListPanel extends BasePanel{
 			filter.setStart_date(DateUtil.stringToDate(p_startdate.lb_date.getText()));
 		}
 		filter.setEnd_date(DateUtil.stringToDate(p_enddate.lb_date.getText()));
+	}
+	
+	public void refreshAll() {
+		setFilter();
+		memberModel.list = memberDAO.select(filter, 0, 0);
+		memberModel.fireTableDataChanged();
+	}
+	
+	public static void main(String[] args) {
+		
+		
 	}
 	
 }

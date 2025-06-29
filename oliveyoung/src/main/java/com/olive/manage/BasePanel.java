@@ -45,7 +45,6 @@ public abstract class BasePanel extends Panel{
 			//이전에 눌렀던 페이지를 띄우기 
 			managePage.back();
 		});
-		
 	}
 	
 	public abstract JPanel createContent();
