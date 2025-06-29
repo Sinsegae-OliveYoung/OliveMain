@@ -150,9 +150,17 @@ public class CountAlertPanel extends Panel{
 
         scrollWrapper.add(scroll, BorderLayout.CENTER);
         
+        // ★ dummyPanel 생성해서 크기 강제
+        JPanel dummyPanel = new JPanel(null);
+        dummyPanel.setPreferredSize(new Dimension(Config.CONTENT_W, 500));
+        dummyPanel.setBackground(Config.WHITE);
+
+        scrollWrapper.setBounds(0, 0, Config.CONTENT_W, 500);
+        dummyPanel.add(scrollWrapper);
+        
         // 전체 레이아웃 구성
         add(topContainer, BorderLayout.NORTH);
-        add(scrollWrapper, BorderLayout.CENTER);
+        add(dummyPanel, BorderLayout.CENTER);
         
         // 정렬 기능 구현
         btnDateAsc.addActionListener(e -> {

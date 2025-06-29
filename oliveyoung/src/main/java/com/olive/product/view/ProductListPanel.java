@@ -281,6 +281,8 @@ public class ProductListPanel extends Panel {
 		}
 		
 		scroll = new JScrollPane(table);
+		
+		TableUtil.tableStyleUtil(table, scroll, 500, true);
 
 		// ② scroll 강제 크기 지정
 		scroll.setPreferredSize(new Dimension(Config.CONTENT_W - 150, 500));

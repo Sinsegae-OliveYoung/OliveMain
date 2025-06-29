@@ -185,6 +185,14 @@ public class StockFiltPanel extends Panel {
         // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
         JPanel scrollWrapper = new JPanel(new BorderLayout());
         scrollWrapper.setBackground(Config.WHITE);
+        
+        // ★ dummyPanel 생성해서 크기 강제
+        JPanel dummyPanel = new JPanel(null);
+        dummyPanel.setPreferredSize(new Dimension(Config.CONTENT_W, 500));
+        dummyPanel.setBackground(Config.WHITE);
+
+        scrollWrapper.setBounds(0, 0, Config.CONTENT_W, 500);
+        dummyPanel.add(scrollWrapper);
 
         // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
         p_dateArea.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 15));
@@ -194,7 +202,7 @@ public class StockFiltPanel extends Panel {
         
         // 전체 레이아웃 구성
         add(topContainer, BorderLayout.NORTH);
-        add(scrollWrapper, BorderLayout.CENTER);
+        add(dummyPanel, BorderLayout.CENTER);
     }
 
     private JButton createDateButton(String path) {

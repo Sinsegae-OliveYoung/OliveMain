@@ -71,10 +71,16 @@ public class StockUpdatePanel extends Panel{
 	        // 테이블 수정 버튼
 	        JButton bt_update = ButtonUtil.pinkButtonUtil("수정 버튼");
 	        
+	        bt_update.addActionListener(new ActionListener() {
+	        	@Override
+	        	public void actionPerformed(ActionEvent e) {
+	        		table.setCellSelectionEnabled(false);   // 셀 단위 선택 X
+	        		table.setRowSelectionAllowed(true);     // 행 단위 선택 O        
+	        	}
+	        });
 	        // 테이블 생성
 	        model = new UpdateModel(stockPage, mainLayout, mainLayout.user);
 	        table = new JTable(model);
-	        
 
 	        // 테이블 스타일 적용
 	        table.setRowHeight(25);
@@ -96,15 +102,7 @@ public class StockUpdatePanel extends Panel{
 
 	        JScrollPane scroll = new JScrollPane(table);
 	        scroll.getViewport().setBackground(Color.WHITE);
-	        TableUtil.tableStyleUtil(table, scroll, 100, false); // 스타일 유틸 적용
-	        
-	        bt_update.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					table.setCellSelectionEnabled(false);   // 셀 단위 선택 X
-		        	table.setRowSelectionAllowed(true);     // 행 단위 선택 O        
-				}
-			});
+	        TableUtil.tableStyleUtil(table, scroll, 0, false); // 스타일 유틸 적용
 	        
 	        // 테이블 header 스타일 추가적으로 적용 가능
 	        JTableHeader header = table.getTableHeader();
@@ -116,10 +114,18 @@ public class StockUpdatePanel extends Panel{
 	        // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
 	        JPanel scrollWrapper = new JPanel(new BorderLayout());
 	        scrollWrapper.setBackground(Config.WHITE);
-
+	        
 	        // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
 	        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
 	        scrollWrapper.add(scroll, BorderLayout.CENTER);
+
+	        // ★ dummyPanel 생성해서 크기 강제
+	        JPanel dummyPanel = new JPanel(null);
+	        dummyPanel.setPreferredSize(new Dimension(Config.CONTENT_W, 500));
+	        dummyPanel.setBackground(Config.WHITE);
+
+	        scrollWrapper.setBounds(0, 0, Config.CONTENT_W, 500);
+	        dummyPanel.add(scrollWrapper);
 	        
 	        comboPanel.add(bt_update, BorderLayout.EAST);
 	        comboPanel.setBorder(BorderFactory.createEmptyBorder(50, 10, 0, 10));
@@ -128,6 +134,6 @@ public class StockUpdatePanel extends Panel{
 	        topPanel.add(comboPanel, BorderLayout.SOUTH);
 	        
 	        add(topPanel, BorderLayout.NORTH);
-	        add(scrollWrapper, BorderLayout.CENTER);
+	        add(dummyPanel, BorderLayout.CENTER);
 	    }
 }
