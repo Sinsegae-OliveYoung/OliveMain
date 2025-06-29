@@ -2,6 +2,7 @@ package com.olive.manage.user;
 
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.ItemEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.security.SecureRandom;
@@ -63,7 +64,7 @@ public class UserRegistDialog extends JDialog{
 		this.userListPanel = userListPanel;
 		User u = userListPanel.getMainLayout().user;
 		
-		cb_role = ComboBoxUtil.createRoleComboBoxWithNoDummy(2);
+		cb_role = ComboBoxUtil.createRoleComboBoxWithNoDummy(u.getRole().getRole_id());
 		cb_br = ComboBoxUtil.createBranchComboBoxWithNoDummy(u.getUser_id());
 		
 		JPanel p = new JPanel();
@@ -76,6 +77,42 @@ public class UserRegistDialog extends JDialog{
 		p.add(createRow("   이메일",  t_email));		
 		p.add(createRow("   연락처",  t_tel));		
 		add(p);
+
+		// 로그인한 사람이 팀장이다. 
+		// 직급 콤보박스 수정 (점장, 스태프)  
+		if(((Role)cb_role.getSelectedItem()).getRole_id() == 2) {
+			Branch br = new Branch();
+			br.setBr_id(99);
+			br.setBr_name("미지정");
+			
+			cb_br.insertItemAt(br, 0);
+			cb_br.setSelectedIndex(0);
+			cb_br.setEnabled(false);
+		}
+		
+		cb_role.addItemListener(e -> {
+		  if (e.getStateChange() == ItemEvent.SELECTED) {
+		        Role selectedRole = (Role) e.getItem();
+
+		        if (selectedRole.getRole_id() == 2) { // 점장
+		            // 지점을 "임시지점"으로 설정하고 비활성화
+		        	Branch br = new Branch();
+					br.setBr_id(99);
+					br.setBr_name("미지정");
+		            cb_br.insertItemAt(br, 0);
+		            cb_br.setSelectedIndex(0);
+		            cb_br.setEnabled(false);
+
+		        } else { // 스태프
+		            // 지점 목록 다시 세팅 (미지정 없이)
+		            cb_br.removeItemAt(0);
+		            cb_br.setEnabled(true);
+		        } 
+		    }
+		});
+		
+		// 팀장이 사원을 등록할때 점장을 선택하면, 지점이 임시지점으로 세팅 후 변경 불가능 
+		// 스태프를 선택하면, 지점을 선택가능하게 함 (미지정 없는 지점)
 		
 		JPanel p_south = new JPanel();
 		p_south.setBackground(Config.WHITE);
@@ -120,15 +157,6 @@ public class UserRegistDialog extends JDialog{
 		});
 		
 		bt_regist.addActionListener(e -> {
-			
-			// 팀장이 직급 콤보박스에서 점장을 선택하면 지점이 자동으로 임시지점(br_id=99)로 세팅
-			
-			
-			
-			// 스태프를 선택하면 지점 선택 가능, 임시지점이 선택된 경우 지점 선택하라고 알림 
-			
-			
-			
 			// 입력값 유효성 체크 
 			if(isFormValid()) {
 				insert();
@@ -198,11 +226,6 @@ public class UserRegistDialog extends JDialog{
 	}
 	
 	public void insert() {
-		
-		
-		
-		
-		
 		// 트랜잭션 : user가 등록 실패 시, memeber 등록도 안돼야 한다.
 		Connection con = dbManager.getConnection();
 		try {
