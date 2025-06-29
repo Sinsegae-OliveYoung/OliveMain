@@ -222,8 +222,8 @@ public class BranchDAO {
 				+ " FROM stock"
 				+ " WHERE br_id = ?");
 		StringBuffer memberSql = new StringBuffer();
-		memberSql.append("DELETE"
-				+ " FROM member"
+		memberSql.append("UPDATE member"
+				+ " SET br_id = 99"
 				+ " WHERE br_id = ?");
 		StringBuffer branchSql = new StringBuffer();
 		branchSql.append("DELETE"
@@ -242,7 +242,7 @@ public class BranchDAO {
 			// Stock에서 사용한 pstmt 닫기
 			pstmt.close();
 
-			// Member 테이블에서 삭제
+			// Member 테이블에서 99 (대기발령) 지점으로 수정
 			pstmt = con.prepareStatement(memberSql.toString());
 			pstmt.setInt(1, branch.getBr_id());	
 			int mbResult = pstmt.executeUpdate();
@@ -510,18 +510,3 @@ public class BranchDAO {
 	}
 	
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
