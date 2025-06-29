@@ -118,8 +118,12 @@ public class ManagePage extends Page{
 				    	  currentKey = ManageConfig.USER_LIST_KEY;
 				      }
 				      else if (source == bt_approval_list) {
+				    	  approvalListPanel.refresh();
 				    	  showPanel(ManageConfig.APPROVAL_LIST_KEY);
 				    	  currentKey = ManageConfig.APPROVAL_LIST_KEY;
+				    	  p_content.revalidate();
+				    	  p_content.repaint();
+				    	
 				      }
 				}
 			});

@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
@@ -16,6 +15,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -87,14 +87,9 @@ public class ApprovalListPanel extends BasePanel{
 		
 		p_startdate = new DatePickerPanel("yyyy.mm.dd");		
 		p_startdate.flag = false;
-		
 		p_filter.add(p_startdate);
-		
-		LocalDate ld = LocalDate.now();
-		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
-		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
-		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
-		p_enddate = new DatePickerPanel(today);
+
+		p_enddate = new DatePickerPanel("yyyy.mm.dd");
 		p_enddate.flag = false;
 		p_filter.add(p_enddate);
 		
@@ -177,6 +172,20 @@ public class ApprovalListPanel extends BasePanel{
 		});
 		
 		bt_search.addActionListener(e -> {
+			// 둘 다 값이 있는데 시작일이 종료일보다 앞서면 안됨
+			boolean flag1 = p_startdate.lb_date.getText().equals("yyyy.mm.dd");
+			boolean flag2 = p_enddate.lb_date.getText().equals("yyyy.mm.dd");
+			if(!flag1 && !flag2) {
+				// 문자열을 java.sql.Date 또는 LocalDate로 변환
+			    LocalDate start = DateUtil.stringToDate(p_startdate.lb_date.getText()).toLocalDate();
+			    LocalDate end = DateUtil.stringToDate(p_enddate.lb_date.getText()).toLocalDate();
+			    if (start.isAfter(end)) {
+			        JOptionPane.showMessageDialog(this, "시작일이 종료일보다 늦을 수는 없어요!");
+			        p_startdate.lb_date.setText("yyyy.mm.dd");        
+			        return;
+			    }
+			}
+			
 			setFilter();
 			model.list = boundDAO.select(filter);
 			model.fireTableDataChanged();
@@ -208,27 +217,29 @@ public class ApprovalListPanel extends BasePanel{
 		if(!p_startdate.lb_date.getText().equals("yyyy.mm.dd")) {
 			filter.setStart_date(DateUtil.stringToDate(p_startdate.lb_date.getText()));
 		}
-		filter.setEnd_date(DateUtil.stringToDate(p_enddate.lb_date.getText()));
-		filter.setBr_id(0);  //수정 필요 
+		if(!p_enddate.lb_date.getText().equals("yyyy.mm.dd")) {
+			filter.setEnd_date(DateUtil.stringToDate(p_enddate.lb_date.getText()));
+		}
+		filter.setBr_id(((Branch)cb_branch.getSelectedItem()).getBr_id());
 		filter.setSubmitter_name(t_submitter.getText());
 	}
 	
 	public void clearFilter() {
 		t_submitter.setText("이름");
+		filter.setStart_date(null);
+		filter.setEnd_date(null);
+		filter.setSubmitter_name(null);
 		p_startdate.lb_date.setText("yyyy.mm.dd");
-		
-		LocalDate ld = LocalDate.now();
-		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
-		String formattedDay = String.format("%02d", ld.getDayOfMonth());  
-		String today = ld.getYear() + "." + formattedMonth + "." + formattedDay;
-		p_enddate.lb_date.setText(today);
+		p_enddate.lb_date.setText("yyyy.mm.dd");
 		cb_status.setSelectedIndex(0);		
 		cb_branch.setSelectedIndex(0);		
 	}
 	
 	public void refresh() {
 		clearFilter();
+		setFilter();
 		model.list = boundDAO.select(filter);
 		model.fireTableDataChanged();
+		table.updateUI();
 	}
 }

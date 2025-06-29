@@ -740,7 +740,7 @@ public class BoundDAO {
 		params.add(filter.getUser_id());
 		
 		if(filter.getBr_id() != 0) {
-			sql.append(" and b.br_id = ?");
+			sql.append(" and bo.br_id = ?");
 			params.add(filter.getBr_id());
 		}
 		
@@ -776,9 +776,6 @@ public class BoundDAO {
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()) {
-				// 화면 상에서는 bo_id/요청자/요청일/승인상태 정보만 필요한데 이걸 다 채워야 하는지..
-				// 심지어 approver는 채우려면..  
-				
 				User user = new User();
 				user.setUser_id(rs.getInt("bo.user_id"));
 				user.setUser_no(rs.getInt("user_no"));
