@@ -77,7 +77,7 @@ public class InboundRequestPanel extends Panel{
 	JPanel p_bottom;
 	
 	JPanel comboPanel;
-	JComboBox<Branch> cb_branch;
+	public static JComboBox<Branch> cb_branch;
 	JLabel la_approver;
 	JTextField tf_approver;
 	Date selectedDate;

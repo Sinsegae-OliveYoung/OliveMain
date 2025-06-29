@@ -5,8 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -23,6 +21,10 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.LineBorder;
 
+import com.olive.bound.view.InboundRequestPanel;
+import com.olive.bound.view.InboundShowPanel;
+import com.olive.bound.view.OutboundRequestPanel;
+import com.olive.bound.view.OutboundShowPanel;
 import com.olive.common.config.Config;
 import com.olive.common.model.Branch;
 import com.olive.common.model.User;
@@ -204,6 +206,13 @@ public class RegistFrame extends JFrame {
 		storeConfigMenu.refresh();	// 테이블 재출력
 		((StorePage) storePage).createMenus(); // 사이드 메뉴 재생성
 		storePage.showPanel(0);
+		
+		InboundShowPanel.cb_branch.setSelectedIndex(-1);
+		OutboundShowPanel.cb_branch.setSelectedIndex(-1);
+
+		InboundRequestPanel.cb_branch.setSelectedIndex(0);
+		OutboundRequestPanel.cb_branch.setSelectedIndex(0);
+		
 		dispose();		// 현재 창 종료
 	}
 

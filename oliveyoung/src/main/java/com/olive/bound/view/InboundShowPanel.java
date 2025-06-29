@@ -74,7 +74,7 @@ public class InboundShowPanel extends Panel{
 	JPanel topPanel;
 	JPanel rightButtonPanel;
 	JLabel titleLabel;
-	JComboBox<Branch> cb_branch;
+	public static JComboBox<Branch> cb_branch;
 	JComboBox<User> cb_appuser;
 	JButton bt_delete;
 	JButton bt_save;
