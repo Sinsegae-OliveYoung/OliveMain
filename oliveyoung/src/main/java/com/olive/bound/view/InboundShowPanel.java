@@ -353,15 +353,6 @@ public class InboundShowPanel extends Panel{
                 int columnIndex = header_list.columnAtPoint(e.getPoint());
                 String columnName = table_list.getColumnName(columnIndex);
                 System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-
-                SortOrder order = getSortOrder(sorter_list, columnIndex);
-                if (order == SortOrder.ASCENDING) {
-                    System.out.println("정렬 방향: 오름차순");
-                } else if (order == SortOrder.DESCENDING) {
-                    System.out.println("정렬 방향: 내림차순");
-                } else {
-                    System.out.println("정렬 방향 없음");
-                }
             }
 
             private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
@@ -905,22 +896,5 @@ public class InboundShowPanel extends Panel{
         for (int i = 0; i < table_list.getColumnCount(); i++) {
             table_list.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
-
-        // ✅ 우측 상세 테이블 초기화
-        
-        model_detail = new BoundShowModel(); // 새 모델
-        model_detail.setBoundProductList(List.of()); // ✅ 빈 리스트로 초기화
-        table_detail.setModel(model_detail);
-
-        // 상세 테이블 렌더러 재적용
-        for (int i = 0; i < table_detail.getColumnCount(); i++) {
-            table_detail.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
-
-        // 기타 입력 필드 초기화
-        t_memo.setText("");
-        dateChooser.setDate(null);
-        cb_branch.setSelectedIndex(-1);
-        cb_appuser.setSelectedIndex(-1);
     }
 }

@@ -40,6 +40,7 @@ public class Client extends JFrame{
 	JTextField tf = new JTextField(15);
 	
 	String ip = SecurityConfig.IP;
+    
 
 	Sender sender;
 	MainLayout mainLayout;

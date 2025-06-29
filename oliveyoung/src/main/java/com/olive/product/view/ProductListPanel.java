@@ -123,6 +123,8 @@ public class ProductListPanel extends Panel {
 	public void refresh() {
 		model.reload(); // ListModel에서 최신 데이터 로드
 		TableUtil.tableStyleUtil(table, scroll, 700, true);
+		table.revalidate();
+		table.repaint();
 	}
 
 	public ProductListPanel(MainLayout mainLayout) {

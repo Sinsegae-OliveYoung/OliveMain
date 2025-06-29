@@ -324,15 +324,6 @@ public class InboundRequestPanel extends Panel{
 		        int columnIndex = header.columnAtPoint(e.getPoint());
 		        String columnName = table.getColumnName(columnIndex);
 		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-
-		        SortOrder order = getSortOrder(sorter, columnIndex);
-		        if (order == SortOrder.ASCENDING) {
-		            System.out.println("정렬 방향: 오름차순");
-		        } else if (order == SortOrder.DESCENDING) {
-		            System.out.println("정렬 방향: 내림차순");
-		        } else {
-		            System.out.println("정렬 방향 없음");
-		        }
 		    }
 
 		    private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
@@ -358,15 +349,6 @@ public class InboundRequestPanel extends Panel{
 		        int columnIndex = header_re.columnAtPoint(e.getPoint());
 		        String columnName = table_re.getColumnName(columnIndex);
 		        System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
-
-		        SortOrder order = getSortOrder(sorter_re, columnIndex);
-		        if (order == SortOrder.ASCENDING) {
-		            System.out.println("정렬 방향: 오름차순");
-		        } else if (order == SortOrder.DESCENDING) {
-		            System.out.println("정렬 방향: 내림차순");
-		        } else {
-		            System.out.println("정렬 방향 없음");
-		        }
 		    }
 
 		    private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
@@ -672,36 +654,10 @@ public class InboundRequestPanel extends Panel{
             setTableWidth(table); // 컬럼 너비 재설정
         }
 
-        // 우측 요청 상품 테이블 초기화
-        boundProductModel.clear();
-        table_re.setModel(boundProductModel);
-
-        // 메모 입력 필드 초기화
-        tf_memo.setText("");
-
-        // 입고일: 내일로 재설정
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
-        cal.add(Calendar.DATE, 1); // 내일
-        dateChooser.setDate(cal.getTime());
-
-        // 결재자 이름 재설정
-        manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
-        if (manager != null) {
-            tf_approver.setText(manager.getUser_name());
-            tf_approver.setToolTipText(manager.getUser_id() + " / " + manager.getUser_name());
-        } else {
-            tf_approver.setText("점장 없음");
-            tf_approver.setToolTipText(null);
-        }
-
         // 테이블 다시 그리기
         table.revalidate();
         table.repaint();
-        table_re.revalidate();
-        table_re.repaint();
-    	
+
     	table.updateUI();
-    	table_re.updateUI();
     }
 }
