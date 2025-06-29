@@ -208,20 +208,15 @@ public class OutboundRequestPanel extends Panel{
         dateChooser = new JDateChooser();
         dateChooser.setPreferredSize(new Dimension(200, 30));
         
-        // 오늘 날짜 기준으로 내일 날짜 설정
+        // 오늘 날짜
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
-        cal.add(Calendar.DATE, 1); // 내일
+        cal.add(Calendar.DATE, 0); // 오늘
         Date tomorrow = cal.getTime();
         
-        // 내일로 설정
+        // 오늘로 설정
         dateChooser.setMinSelectableDate(tomorrow);
-        dateChooser.setDate(tomorrow); // 기본값도 내일로
-        
-        // 입력 필드 스타일
-        JTextField editor = (JTextField) dateChooser.getDateEditor().getUiComponent();
-        editor.setBackground(Config.WHITE);
-        editor.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        dateChooser.setDate(tomorrow); // 기본값도 오늘로
 
         // 달력 버튼 스타일
         JButton calendarButton = dateChooser.getCalendarButton();

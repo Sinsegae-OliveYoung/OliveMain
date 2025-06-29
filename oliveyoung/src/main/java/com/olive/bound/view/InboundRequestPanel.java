@@ -216,11 +216,6 @@ public class InboundRequestPanel extends Panel{
         // 내일로 설정
         dateChooser.setMinSelectableDate(tomorrow);
         dateChooser.setDate(tomorrow); // 기본값도 내일로
-        
-        // 입력 필드 스타일
-        JTextField editor = (JTextField) dateChooser.getDateEditor().getUiComponent();
-        editor.setBackground(Config.WHITE);
-        editor.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
         // 달력 버튼 스타일
         JButton calendarButton = dateChooser.getCalendarButton();
