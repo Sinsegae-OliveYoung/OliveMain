@@ -167,15 +167,6 @@ public class ManagePage extends Page{
         if (previousKey != null) {
 	        showPanel(previousKey);
         }
-	 }
-	 
-	 public void refreshAll() {
-		 approvalListPanel.clearFilter();
-		 approvalListPanel.refresh();
-		 
-		 userListPanel.refreshAll();		 
-		 userDetailPanel.refresh();
-	 }
-	 
+	 }	 
 
 }

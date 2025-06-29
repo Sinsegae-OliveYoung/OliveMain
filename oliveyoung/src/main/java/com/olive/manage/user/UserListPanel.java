@@ -18,6 +18,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -231,6 +232,20 @@ public class UserListPanel extends BasePanel{
 		bt_search.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
+				boolean flag1 = p_startdate.lb_date.getText().equals("yyyy.mm.dd");
+				boolean flag2 = p_enddate.lb_date.getText().equals("yyyy.mm.dd");
+				if(!flag1 && !flag2) {
+					// 문자열을 java.sql.Date 또는 LocalDate로 변환
+				    LocalDate start = DateUtil.stringToDate(p_startdate.lb_date.getText()).toLocalDate();
+				    LocalDate end = DateUtil.stringToDate(p_enddate.lb_date.getText()).toLocalDate();
+				    if (start.isAfter(end)) {
+				        JOptionPane.showMessageDialog(UserListPanel.this, "시작일이 종료일보다 늦을 수는 없어요!");
+				        p_startdate.lb_date.setText("yyyy.mm.dd");        
+				        return;
+				    }
+				}
+				
 				setFilter();
 				memberModel.list = memberDAO.select(filter, currentPage, pageSize);
 				memberModel.fireTableDataChanged();
@@ -335,6 +350,8 @@ public class UserListPanel extends BasePanel{
 		cb_role.setSelectedIndex(0);
 		t_name.setText("이름");
 		p_startdate.lb_date.setText("yyyy.mm.dd");
+		filter.setStart_date(null);
+		filter.setEnd_date(null);		
 		
 		LocalDate ld = LocalDate.now();
 		String formattedMonth = String.format("%02d", ld.getMonthValue());  //0붙여서 나오기   
@@ -358,11 +375,6 @@ public class UserListPanel extends BasePanel{
 		setFilter();
 		memberModel.list = memberDAO.select(filter, 0, 0);
 		memberModel.fireTableDataChanged();
-	}
-	
-	public static void main(String[] args) {
-		
-		
 	}
 	
 }

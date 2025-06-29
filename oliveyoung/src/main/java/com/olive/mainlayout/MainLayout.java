@@ -339,7 +339,9 @@ public class MainLayout extends JFrame {
 			}
 		};
 
-		bt_float.setBounds(0, 0, 40, 40);
+		bt_float.setSize(40, 40);
+		//bt_float.setBounds(0, 0, 40, 40);
+		bt_float.setLocation(Config.LAYOUT_W - 80, Config.LAYOUT_H - 100);
 		bt_float.setContentAreaFilled(false); // 배경 제거
 		bt_float.setBorderPainted(false);    // 테두리 제거
 		bt_float.setFocusPainted(false);

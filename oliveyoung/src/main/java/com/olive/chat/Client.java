@@ -23,6 +23,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import com.olive.common.config.Config;
+import com.olive.common.config.SecurityConfig;
 import com.olive.common.repository.BranchDAO;
 import com.olive.mainlayout.MainLayout;
 
@@ -38,7 +39,7 @@ public class Client extends JFrame{
 	// 전송 영역
 	JTextField tf = new JTextField(15);
 	
-	String ip = "192.168.10.101";
+	String ip = SecurityConfig.IP;
 
 	Sender sender;
 	MainLayout mainLayout;
