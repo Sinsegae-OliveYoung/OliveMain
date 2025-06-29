@@ -182,6 +182,9 @@ public class ProductListPanel extends Panel {
 				}
 
 				new ProductDialog(mainLayout, null, null).setVisible(true);
+	            
+	            mainLayout.setDataDirty(true); 
+	            mainLayout.refreshIfDirty();
 			}
 		});
 
@@ -203,6 +206,9 @@ public class ProductListPanel extends Panel {
 		            Product selectedProduct = selectedOption.getProduct();
 
 		            new ProductDialog(mainLayout, selectedOption, selectedProduct).setVisible(true);
+
+		            mainLayout.setDataDirty(true); 
+		            mainLayout.refreshIfDirty();
 		        }
 		    }
 		});
@@ -238,7 +244,11 @@ public class ProductListPanel extends Panel {
 						productDAO.delete(selectedProduct.getProduct_id(), con1);
 
 						con1.commit(); // 모든 delete가 성공하면 커밋
+						
 						refresh();
+			            
+			            mainLayout.setDataDirty(true); 
+			            mainLayout.refreshIfDirty();
 						JOptionPane.showMessageDialog(ProductListPanel.this, "삭제가 완료되었습니다.");
 					} catch (Exception ex) {
 						ex.printStackTrace();

@@ -38,7 +38,7 @@ public class Client extends JFrame{
 	// 전송 영역
 	JTextField tf = new JTextField(15);
 	
-	String ip = "192.168.10.100";
+	String ip = "192.168.10.101";
 
 	Sender sender;
 	MainLayout mainLayout;

@@ -54,6 +54,3 @@ Thumbs.db
 # --- 빌드 툴 자동 생성 파일 ---
 bin/
 gen/
-
-# 보안 관련 파일
-/oliveyoung/src/main/java/com/olive/common/config/SecurityConfig.java
