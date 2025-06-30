@@ -53,8 +53,6 @@ public class UserUpdateDialog extends JDialog{
 		if(u.getRole().getRole_id() == 2) {
 			cb_role.setSelectedIndex(0);
 			cb_role.setEnabled(false);
-		}else {
-			cb_role.setSelectedIndex(1);
 		}
 		
 		JPanel p = new JPanel();

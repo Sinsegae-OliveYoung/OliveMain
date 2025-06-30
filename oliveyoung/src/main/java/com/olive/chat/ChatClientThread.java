@@ -63,7 +63,8 @@ public class ChatClientThread extends Thread {
 	// 서버에서 오는 json 메시지 수신 대기
 	public void listen() {
 		while (true) {
-			try {
+			try {				
+				
 				jsonStr = br.readLine(); // json문자열을 서버로부터 수신
 				p = gson.fromJson(jsonStr, Payload.class); // json -> Payload
 				String msg;
@@ -79,6 +80,7 @@ public class ChatClientThread extends Thread {
 					System.out.println("[클라이언트] message 수신: " + msg);
 					client.doc.setParagraphAttributes(client.doc.getLength(), 1, client.leftAlign, false);
 					client.doc.insertString(client.doc.getLength(), msg, client.leftAlign);
+					alertReceive();
 				} else if (p.getRequestType().equals("disconnect")) {
 				    System.out.println("[클라이언트] disconnect 수신: " + p.getData());
 				    client.doc.setParagraphAttributes(client.doc.getLength(), 1, client.centerAlign, false);
@@ -95,6 +97,15 @@ public class ChatClientThread extends Thread {
 			} catch (IOException | BadLocationException e) {
 				e.printStackTrace();
 			}
+		}
+	}
+	
+	public void alertReceive() {
+		if(!client.isVisible()) {
+			JLabel lb = client.mainLayout.lb_chatCount; 
+			int chatcount = Integer.parseInt(lb.getText()) + 1;
+			lb.setText(Integer.toString(chatcount));
+			client.mainLayout.lb_chatCount.setVisible(true);
 		}
 	}
 
