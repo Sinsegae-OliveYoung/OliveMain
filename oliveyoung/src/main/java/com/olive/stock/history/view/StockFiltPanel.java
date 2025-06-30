@@ -1,0 +1,229 @@
+package com.olive.stock.history.view;
+import com.olive.common.view.Panel;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Image;
+import java.time.LocalDate;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+
+import com.olive.common.config.Config;
+import com.olive.mainlayout.MainLayout;
+import com.olive.manage.DatePicker;
+import com.olive.stock.StockConfig;
+import com.olive.stock.StockPage;
+import com.olive.stock.StockPanel;
+import com.olive.stock.model.StockModel;
+import com.olive.stock.model.ListModel;
+import com.olive.store.StorePage;
+import com.toedter.calendar.JDateChooser;
+import com.olive.common.util.ImageUtil;
+import com.olive.common.util.TableUtil;
+import com.olive.common.util.style.LabelUtil;
+
+public class StockFiltPanel extends Panel {
+
+    JTable table;
+    JPanel p_dateArea;
+    JLabel lb_start, lb_end, titleLabel;
+    JButton bt_start, bt_end;
+    StockModel model;
+    MainLayout mainLayout;
+    
+    JComboBox<String> categoryBox;
+
+    ImageUtil imgUtil = new ImageUtil();
+
+    public StockFiltPanel(MainLayout mainLayout) {
+        super(mainLayout);
+        this.mainLayout = mainLayout;
+        setLayout(new BorderLayout(0, 10));
+        setBackground(Config.WHITE);
+
+        // 상단 패널
+        JPanel topPanel = new JPanel(new BorderLayout());
+        StockConfig.panelStyle(topPanel);
+        topPanel.setBorder(BorderFactory.createEmptyBorder(30, 27, 10, 20));
+
+        titleLabel = new JLabel("시간대 별 기록");
+        LabelUtil.applyTitleStyle(titleLabel);
+        topPanel.add(titleLabel, BorderLayout.WEST);
+
+        // 날짜 + 버튼 영역
+        p_dateArea = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
+        p_dateArea.setOpaque(false);
+        p_dateArea.setBorder(BorderFactory.createEmptyBorder(0, 20, 10, 20));
+
+        lb_start = new JLabel("yyyy.mm.dd");
+        lb_end = new JLabel(LocalDate.now().toString().replace("-", "."));
+
+        bt_start = createDateButton("images/calendar_icon.png");
+        bt_end = createDateButton("images/calendar_icon.png");
+
+        JPanel pStart = wrapDateField(lb_start, bt_start);
+        JPanel pEnd = wrapDateField(lb_end, bt_end);
+        
+        // 카테고리 콤보박스 추가
+        categoryBox = new JComboBox<>(new String[]{"입고", "출고"});
+        categoryBox.setPreferredSize(new Dimension(80, 30));
+        categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        JButton bt_search = new JButton("검색");
+        bt_search.setFont(new Font("SansSerif", Font.BOLD, 13));
+        bt_search.setBackground(new Color(92, 158, 115));
+        bt_search.setForeground(Color.WHITE);
+        bt_search.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        bt_search.setFocusPainted(false);
+        bt_search.setPreferredSize(new Dimension(80, 30));
+
+        p_dateArea.add(pStart);
+        p_dateArea.add(pEnd);
+        p_dateArea.add(categoryBox);
+        p_dateArea.add(bt_search);
+
+
+        // 테이블 생성 및 스타일
+        model = new StockModel("all", mainLayout.user);	// 처음에는 모든 목록
+        table = new JTable(model);
+        // 테이블 스타일 적용
+        TableUtil.applyStyle(table);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+        int[] columnWidths = { 110, 90, 100, 210, 90, 70, 60, 100, 80, 60, 100};
+
+        for (int i = 0; i < columnWidths.length; i++) {
+            table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // 이벤트 연결
+        bt_start.addActionListener(e -> new DatePicker(lb_start));
+        bt_end.addActionListener(e -> new DatePicker(lb_end));
+        bt_search.addActionListener(e -> {
+        	
+        	String label = categoryBox.getSelectedItem().toString();
+        	String state = label.equals("입고") ? "in" : "out";
+            String start = lb_start.getText();
+            String end = lb_end.getText();
+            
+            // 입력값 유효성 체크
+            if (start.equals("yyyy.mm.dd") || start.isEmpty())  {
+                JOptionPane.showMessageDialog(this, "시작 날짜를 선택해주세요.", "날짜 입력 오류", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+            if (end.equals("yyyy.mm.dd") || end.isEmpty()) {
+            	JOptionPane.showMessageDialog(this, "종료 날짜를 선택해주세요.", "날짜 입력 오류", JOptionPane.WARNING_MESSAGE);
+            	return;
+            }
+            // LocalDate로 파싱
+            LocalDate startDate = LocalDate.parse(start.replace(".", "-"));
+            LocalDate endDate = LocalDate.parse(end.replace(".", "-"));
+            LocalDate today = LocalDate.now();
+
+            // 시작일 > 종료일이면 오류
+            if (startDate.isAfter(endDate)) {
+                JOptionPane.showMessageDialog(this, "시작일은 종료일보다 빠르거나 같아야 합니다.", "날짜 순서 오류", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // 시작일이 오늘보다 미래면 검색 막기
+            if (startDate.isAfter(today)) {
+                JOptionPane.showMessageDialog(this, "시작일은 오늘보다 미래일 수 없습니다.", "날짜 입력 오류", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            // 필터링 로직 추가 가능
+            model = new StockModel(state ,start, end, mainLayout.user);
+            table.setModel(model);
+            
+            // 선택 변경 후 렌더러 다시 설정
+            for (int i = 0; i < table.getColumnCount(); i++) {
+            	table.getColumnModel().getColumn(i).setPreferredWidth(columnWidths[i]);
+                table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
+            
+            // 제목 텍스트만 갱신
+            titleLabel.setText("시간대 별 " + label + " 기록");
+            table.updateUI();
+        });
+        
+        // 전체 조립
+        JPanel topContainer = new JPanel(new BorderLayout());
+        topContainer.setOpaque(false);
+        topContainer.add(topPanel, BorderLayout.NORTH);
+        topContainer.add(p_dateArea, BorderLayout.CENTER);
+        
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.getViewport().setBackground(Color.WHITE);
+        TableUtil.tableStyleUtil(table, scroll, 500, false); // 스타일 유틸 적용
+        
+        // 테이블 header 스타일 추가적으로 적용 가능
+        JTableHeader header = table.getTableHeader();
+        header.setBackground(Config.LIGHT_GREEN);
+        header.setFont(new Font("Noto Sans KR", Font.BOLD, 15));
+        header.setPreferredSize(new Dimension(Integer.MIN_VALUE, 33));
+        header.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+
+        // scroll을 감싸는 패널 생성 (여백 + 테두리 적용)
+        JPanel scrollWrapper = new JPanel(new BorderLayout());
+        scrollWrapper.setBackground(Config.WHITE);
+        
+        // ★ dummyPanel 생성해서 크기 강제
+        JPanel dummyPanel = new JPanel(null);
+        dummyPanel.setPreferredSize(new Dimension(Config.CONTENT_W, 500));
+        dummyPanel.setBackground(Config.WHITE);
+
+        scrollWrapper.setBounds(0, 0, Config.CONTENT_W, 500);
+        dummyPanel.add(scrollWrapper);
+
+        // 얇은 테두리 + 내부 여백 적용 (순서 중요!)
+        p_dateArea.setBorder(BorderFactory.createEmptyBorder(40, 0, 0, 15));
+        scrollWrapper.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        
+        scrollWrapper.add(scroll, BorderLayout.CENTER);
+        
+        // 전체 레이아웃 구성
+        add(topContainer, BorderLayout.NORTH);
+        add(dummyPanel, BorderLayout.CENTER);
+    }
+
+    private JButton createDateButton(String path) {
+        Image img = imgUtil.getImage(path, 20, 20);
+        JButton btn = new JButton(new ImageIcon(img));
+        btn.setBorderPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setOpaque(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    private JPanel wrapDateField(JLabel label, JButton button) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        panel.setPreferredSize(new Dimension(150, 30));
+        panel.setBackground(Color.WHITE);
+        label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        panel.add(label, BorderLayout.WEST);
+        panel.add(button, BorderLayout.EAST);
+        return panel;
+    }
+}
+

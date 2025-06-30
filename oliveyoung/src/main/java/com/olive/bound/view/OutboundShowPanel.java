@@ -1,0 +1,898 @@
+package com.olive.bound.view;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFFont;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import com.olive.bound.dialog.ProductAddDialog;
+import com.olive.bound.model.BoundShowModel;
+import com.olive.bound.model.BoundListModel;
+import com.olive.bound.model.BoundRequestModel;
+import com.olive.common.config.Config;
+import com.olive.common.model.Bound;
+import com.olive.common.model.BoundProduct;
+import com.olive.common.model.Branch;
+import com.olive.common.model.User;
+import com.olive.common.repository.BranchDAO;
+import com.olive.common.repository.BoundDAO;
+import com.olive.common.repository.UserDAO;
+import com.olive.common.view.Panel;
+import com.olive.mainlayout.MainLayout;
+import com.toedter.calendar.JDateChooser;
+
+public class OutboundShowPanel extends Panel{
+	// 상단
+	JPanel topPanel;
+	JPanel rightButtonPanel;
+	JLabel titleLabel;
+	public static JComboBox<Branch> cb_branch;
+	JComboBox<User> cb_appuser;
+	JButton bt_delete;
+	JButton bt_save;
+	
+	//엑셀출력
+	JButton bt_print;
+	
+	// 중앙
+	JPanel p_center;
+	
+	// 좌측 요청서 목록
+	JPanel p_left;
+	JTable table_list;
+	JScrollPane scroll_list;
+	
+	// 우측 요청서 상세 조회
+	JPanel p_detail;
+	JDateChooser dateChooser;
+	JLabel la_branch;
+    JLabel la_appuser;
+    JLabel la_date;
+    JTextField t_memo;
+    JButton bt_add;
+    JTable table_detail;
+    JScrollPane scrollPane;
+	
+    User user;
+	Bound bound;
+	BoundListModel model;
+	BoundShowModel model_detail;
+	
+	UserDAO userDAO;
+    BoundDAO boundDAO = new BoundDAO();
+    BranchDAO branchDAO;
+    List<Branch> branchList; // 지점 목록
+    List<BoundProduct> boundProductList; // 상품 목록
+    List<Branch> userBranches; // 사용자 소유 지점 목록
+    
+    BoundProduct selected; // 선택된 요청서 객체
+    
+    private List<BoundProduct> originalProductList = new ArrayList<>();
+    
+    public OutboundShowPanel(MainLayout mainLayout) {
+        super(mainLayout);
+        setLayout(new BorderLayout());
+        
+        this.mainLayout = mainLayout;
+		this.user = mainLayout.user;
+		int userId = user.getUser_id();
+        
+		// ------------------------------------------------------------
+        // 로그인 계정의 지점 리스트 가져오기
+        branchDAO = new BranchDAO();
+        userBranches = branchDAO.getBranchList(user.getUser_id());
+        
+
+        // 공통 색상 및 폰트
+        Color bgColor = new Color(245, 248, 250);
+        Color comboColor = new Color(100, 149, 237); // Cornflower Blue
+        Font defaultFont = new Font("SansSerif", Font.PLAIN, 13);
+
+        setBackground(Config.WHITE);
+
+        // ------------------------------------------------------------
+        // 상단 패널
+        topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(Config.WHITE);
+        topPanel.setBorder(new EmptyBorder(10, 20, 10, 20));
+        
+        rightButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        rightButtonPanel.setBackground(Config.WHITE);
+
+        // 제목 라벨
+        titleLabel = new JLabel("출고요청서 List");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
+        titleLabel.setForeground(new Color(40, 40, 40));
+        titleLabel.setHorizontalAlignment(SwingConstants.LEFT);
+        
+        // 상단 삭제 버튼
+        bt_delete = new JButton("삭제");
+        bt_delete.setPreferredSize(new Dimension(80, 30));
+        bt_delete.setBackground(Config.LIGHT_GRAY);
+        
+        // 상단 저장 버튼
+        bt_save = new JButton("저장");
+        bt_save.setPreferredSize(new Dimension(80, 30));
+        bt_save.setBackground(Config.LIGHT_GRAY);
+        
+        bt_print = new JButton("엑셀출력");
+        bt_print.setPreferredSize(new Dimension(82, 30));
+        bt_print.setBackground(Config.LIGHT_GRAY);
+        
+        // 상단 패널에 요소 부착
+        rightButtonPanel.add(bt_save);
+        rightButtonPanel.add(bt_delete);
+        rightButtonPanel.add(bt_print);
+        rightButtonPanel.setBorder(new EmptyBorder(0, 0, 0, 40));
+
+        topPanel.add(titleLabel, BorderLayout.WEST);
+        topPanel.add(rightButtonPanel, BorderLayout.EAST);
+
+
+        // ------------------------------------------------------------
+        // 중앙 패널
+        p_center = new JPanel(new BorderLayout());
+        
+        // 리스트 테이블 생성
+        bound = new Bound();
+        
+        model = new BoundListModel(userBranches, "out");
+        table_list = new JTable(model);
+
+        // 리스트 테이블 헤더 스타일
+        table_list.setRowHeight(25);
+        table_list.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        table_list.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+        table_list.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
+        table_list.getTableHeader().setForeground(Color.DARK_GRAY);
+
+        // 리스트 테이블 셀 가운데 정렬
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table_list.getColumnCount(); i++) {
+        	table_list.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        scroll_list = new JScrollPane(table_list);
+        scroll_list.getViewport().setBackground(Config.WHITE);
+        scroll_list.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 120, Config.CONTENT_H - 160));
+        
+        p_left = new JPanel();
+        p_left.setBorder(new EmptyBorder(0, 20, 0, 0)); // 패딩
+        p_left.setBackground(Config.WHITE);
+        p_left.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 100, Config.CONTENT_H - 160));
+        p_left.add(scroll_list);
+        
+        p_center.add(p_left, BorderLayout.WEST);
+        
+        
+        
+        
+        
+        
+        // ------------------------------------------------------------
+        // 오른쪽 패널
+        p_detail = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
+        p_detail.setBackground(Config.WHITE); 
+        p_detail.setBorder(new EmptyBorder(0, 20, 20, 20)); // 패딩
+
+        // 지점 선택
+        cb_branch = new JComboBox<>();
+        cb_branch.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        cb_branch.setBackground(Config.WHITE);
+        
+        la_branch = new JLabel("지점 : "); 
+        la_branch.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_branch);
+        p_detail.add(cb_branch);
+
+        // 결재자 선택
+        cb_appuser = new JComboBox<User>();
+        cb_appuser.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        cb_appuser.setBackground(Config.WHITE);
+        cb_appuser.setEnabled(false); // 비활성화
+        
+        cb_appuser.setToolTipText("지점 변경 시 자동 설정됩니다.");
+        la_appuser = new JLabel("결재자 : ");
+        la_appuser.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_appuser);
+        p_detail.add(cb_appuser);
+
+        // 요청일
+        dateChooser = new JDateChooser();
+        dateChooser.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        la_date = new JLabel("요청일 : ");
+        la_date.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_date);
+        p_detail.add(dateChooser);
+        
+        // 오늘 날짜 기준
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+        cal.add(Calendar.DATE, 0); // 오늘
+        Date tomorrow = cal.getTime();
+        
+        // 오늘로 설정
+        dateChooser.setMinSelectableDate(tomorrow);
+        
+        // 입력 필드 스타일
+        JTextField editor = (JTextField) dateChooser.getDateEditor().getUiComponent();
+        editor.setToolTipText("오늘 이전 날짜는 선택이 불가능 합니다.");
+        editor.setBackground(Config.WHITE);
+        editor.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        // 달력 버튼 스타일
+        JButton calendarButton = dateChooser.getCalendarButton();
+        calendarButton.setBackground(Config.WHITE);
+        calendarButton.setFocusPainted(false);
+        calendarButton.setOpaque(true);
+        calendarButton.setPreferredSize(new Dimension(30, 20));
+        
+        calendarButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(MouseEvent evt) {
+                calendarButton.setBackground(Config.GREEN);
+            }
+            public void mouseExited(MouseEvent evt) {
+                calendarButton.setBackground(Config.WHITE);
+            }
+        });
+
+        // 메모
+        t_memo = new JTextField();
+        t_memo.setPreferredSize(new Dimension(Config.CONTENT_W / 2 - 80, 30));
+        JLabel la_memo = new JLabel("메모:");
+        la_memo.setPreferredSize(new Dimension(80, 30));
+        p_detail.add(la_memo);
+        p_detail.add(t_memo);
+        
+        // ------------------------------------------------------------
+        // 상품 추가 버튼 패널 (오른쪽 정렬)
+        JPanel addButtonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        addButtonPanel.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 10, 35));
+        addButtonPanel.setBackground(Config.WHITE);
+
+        bt_add = new JButton("+");
+        bt_add.setPreferredSize(new Dimension(42, 30));
+        bt_add.setBackground(Config.LIGHT_GRAY);
+        bt_add.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        bt_add.setEnabled(false); // 목록 선택 전에는 비활성화
+
+        addButtonPanel.add(bt_add);
+        p_detail.add(addButtonPanel);
+        
+        // ------------------------------------------------------------
+        // 상품, 상품코드, 요청수량 table
+        
+        model_detail = new BoundShowModel();
+        table_detail = new JTable(model_detail);
+ 		
+ 		// 테이블 헤더 스타일
+ 		table_detail.setRowHeight(25);
+ 		table_detail.setFont(new Font("SansSerif", Font.PLAIN, 13));
+ 		table_detail.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 13));
+ 		table_detail.getTableHeader().setBackground(Config.LIGHT_GREEN); // 테이블 헤더 배경색 설정
+ 		table_detail.getTableHeader().setForeground(Color.DARK_GRAY);
+ 		
+ 		centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table_detail.getColumnCount(); i++) {
+        	table_detail.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+        
+        scrollPane = new JScrollPane(table_detail);
+        scrollPane.getViewport().setBackground(Config.WHITE);
+        
+        scrollPane.setPreferredSize(new Dimension(Config.CONTENT_W / 2 + 10, Config.CONTENT_H / 2- 30));
+        p_detail.add(scrollPane); // 패널에 추가      
+        
+        p_center.add(p_detail);
+        
+        // 전체 레이아웃 구성
+        add(topPanel, BorderLayout.NORTH);
+        add(p_center, BorderLayout.CENTER);
+        
+        
+        
+        // ------------------------------------------------------------
+        // 테이블 헤더 클릭 이벤트 추가
+
+        // 1. 정렬 기능 설정
+        TableRowSorter<TableModel> sorter_list = new TableRowSorter<>(table_list.getModel());
+        table_list.setRowSorter(sorter_list);
+
+        // 2. 헤더 클릭 이벤트로 정렬 상태 출력
+        JTableHeader header_list = table_list.getTableHeader();
+        header_list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int columnIndex = header_list.columnAtPoint(e.getPoint());
+                String columnName = table_list.getColumnName(columnIndex);
+                System.out.println("헤더 클릭됨: " + columnName + " (인덱스: " + columnIndex + ")");
+            }
+
+            private SortOrder getSortOrder(TableRowSorter<?> sorter, int columnIndex) {
+                for (RowSorter.SortKey key : sorter.getSortKeys()) {
+                    if (key.getColumn() == columnIndex) {
+                        return key.getSortOrder();
+                    }
+                }
+                return SortOrder.UNSORTED;
+            }
+        });
+
+        cb_branch.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    Branch selectedBranch = (Branch) cb_branch.getSelectedItem();
+                    if (selectedBranch == null || selectedBranch.getBr_id() == 0) return;
+
+                    // ✅ 해당 지점의 점장 불러오기
+                    userDAO = new UserDAO();
+                    User manager = userDAO.getManagerByBranchId(selectedBranch.getBr_id());
+
+                    // ✅ cb_appuser 초기화 및 업데이트
+                    cb_appuser.removeAllItems();
+                    if (manager != null) {
+                        cb_appuser.addItem(manager);
+                        cb_appuser.setSelectedItem(manager);
+                    } else {
+                        User dummy = new User();
+                        dummy.setUser_name("점장 없음");
+                        cb_appuser.addItem(dummy);
+                        cb_appuser.setSelectedItem(dummy);
+                    }
+                }
+            }
+        });
+        
+        // JTable 클릭 이벤트 처리
+        table_list.addMouseListener(new MouseAdapter() {
+        	@Override
+        	public void mouseClicked(MouseEvent e) {
+        		int viewRow = table_list.getSelectedRow();
+        		
+        		if (viewRow != -1) {
+        			
+        			int modelRow = table_list.convertRowIndexToModel(viewRow);
+    				selected = model.getBoundAt(modelRow);
+    				showDetail(selected);
+    				bt_add.setEnabled(true);
+    				
+    				// setToolTipText를 비활성화 상태에서 동작되도록 설정
+    				UIManager.put("ToolTipManager.enableToolTipOnDisabledComponents", Boolean.TRUE);
+    				
+    				// ✅ 출고 완료 여부 확인 (bo_state_id == 3 or 4, 즉 출고완료 및 승인거부 이면 비활성화)
+    				boolean isCompleted = selected.getBound().getBoundState().getBo_state_id() == 3
+    						|| selected.getBound().getBoundState().getBo_state_id() == 4;
+
+    				cb_branch.setEnabled(!isCompleted);
+				    dateChooser.setEnabled(!isCompleted);
+				    t_memo.setEnabled(!isCompleted);
+				    bt_add.setEnabled(!isCompleted);
+				    bt_save.setEnabled(!isCompleted);
+				    bt_delete.setEnabled(!isCompleted);
+    				
+    				bt_save.setEnabled(!isCompleted);
+					bt_delete.setEnabled(!isCompleted);
+
+					if (isCompleted) {
+					    bt_save.setToolTipText("출고 완료 혹은 승인 거부 상태에서는 저장할 수 없습니다.");
+					    bt_delete.setToolTipText("출고 완료 혹은 승인 거부 상태에서는 삭제할 수 없습니다.");
+					} else {
+					    bt_save.setToolTipText(null);   // ✅ 툴팁 제거
+					    bt_delete.setToolTipText(null); // ✅ 툴팁 제거
+					}
+        			
+        			originalProductList = boundDAO
+        					.selectBoundProductListByBoundId(selected.getBound().getBound_id())
+        					.stream()
+        					.map(bp -> {
+        						BoundProduct copy = new BoundProduct();
+        						copy.setB_count(bp.getB_count());
+        						copy.setProductOption(bp.getProductOption()); // option_id 기반 비교용
+        						return copy;
+        					})
+        					.collect(Collectors.toList());
+        		}
+        		
+        	}
+        });
+
+        bt_add.addActionListener(e -> {
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            ProductAddDialog dialog = new ProductAddDialog(parentFrame, selected);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true); // 다이얼로그 실행
+
+            // ✅ 추가 버튼을 눌러서 확정한 경우에만 반영
+            if (dialog.isConfirmed()) {
+                List<BoundProduct> updatedList = dialog.getSelectedProducts();
+                if (updatedList != null && !updatedList.isEmpty()) {
+                    List<BoundProduct> filteredList = updatedList.stream()
+                        .filter(bp -> bp.getB_count() > 0)
+                        .toList();
+                    model_detail.setBoundProductList(filteredList);
+                }
+            }
+            // ❌ bt_close로 닫았거나 아무것도 선택 안 했으면 기존 데이터 유지
+        });
+        
+        bt_add.addMouseListener(new MouseAdapter() {
+			public void mouseEntered(MouseEvent e) {
+				bt_add.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_add.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+        
+        bt_delete.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (!bt_delete.isEnabled()) return; // ✅ 버튼이 비활성화 상태면 무시
+				deleteBound(selected);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				bt_delete.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_delete.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+        
+        bt_save.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				if (!bt_save.isEnabled()) return; // ✅ 버튼이 비활성화 상태면 무시
+				saveBound(selected);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				bt_save.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_save.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+        
+        bt_print.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				printBound(selected);
+			}
+			
+			public void mouseEntered(MouseEvent e) {
+				bt_print.setBackground(Config.GREEN);
+			};
+
+			public void mouseExited(MouseEvent e) {
+				bt_print.setBackground(Config.LIGHT_GRAY);
+			};
+		});
+
+    }
+    
+    
+    
+    private void showDetail(BoundProduct boundProduct) {
+    	bound = boundProduct.getBound();
+
+        cb_appuser.setSelectedItem(bound.getApprover());
+        dateChooser.setDate(bound.getRequest_date());
+        t_memo.setText(bound.getComment());
+
+        // 상품 리스트 불러오기
+        boundProductList = boundDAO.selectBoundProductListByBoundId(bound.getBound_id());
+        model_detail.setBoundProductList(boundProductList);
+
+        // 요청서에 연결된 지점
+        Branch requestBranch = bound.getBranch();
+
+        // userBranches 중 이름이 같은 지점을 찾아 대체 (정상 br_id 포함된 객체로)
+        for (Branch b : userBranches) {
+            if (b.getBr_name().equals(requestBranch.getBr_name())) {
+                requestBranch = b;
+                break;
+            }
+        }
+
+        cb_branch.removeAllItems();
+        cb_branch.addItem(requestBranch);
+
+        for (Branch userBranch : userBranches) {
+            if (userBranch.getBr_id() != requestBranch.getBr_id()) {
+                cb_branch.addItem(userBranch);
+            }
+        }
+
+        cb_branch.setSelectedItem(requestBranch);
+
+        
+        Branch selectedBranch = (Branch) cb_branch.getSelectedItem();       
+        
+        // 결재자
+        cb_appuser.removeAllItems();
+        User approver = bound.getApprover();
+        if (approver != null) {
+            cb_appuser.addItem(approver);
+            cb_appuser.setSelectedItem(approver);
+        }
+        
+        
+    }
+    
+    private void deleteBound(BoundProduct boundProduct) {
+    	if (boundProduct == null) return;
+
+        int confirm = JOptionPane.showConfirmDialog(
+            null,
+            "정말로 선택한 출고 요청서를 삭제하시겠습니까?",
+            "삭제 확인",
+            JOptionPane.YES_NO_OPTION
+        );
+
+        if (confirm == JOptionPane.YES_OPTION) {
+            int boundId = boundProduct.getBound().getBound_id();
+            boundDAO.deleteBound(boundId);
+
+            JOptionPane.showMessageDialog(null, "출고 요청서가 삭제되었습니다.");
+
+            // 목록 새로고침
+            refresh();
+            
+            mainLayout.setDataDirty(true); 
+            mainLayout.refreshIfDirty();
+        }
+    }
+
+    private void saveBound(BoundProduct boundProduct) {
+        if (selected == null) return;
+
+        // 1. 현재 선택된 요청서 정보 추출
+        
+        // 기존의 요청서
+        Bound currentBound = selected.getBound();
+        
+        // 수정된 요청서
+        User newApprover = (User) cb_appuser.getSelectedItem();
+        Date newRequestDate = dateChooser.getDate();
+        String newMemo = t_memo.getText().trim();
+        List<BoundProduct> newProductList = model_detail.getBoundProductList();
+        
+        Branch newBranch = (Branch) cb_branch.getSelectedItem();
+        if (newBranch == null) {
+            JOptionPane.showMessageDialog(null, "지점을 선택해주세요.");
+            return;
+        }
+
+        boolean isBoundModified = false;
+        boolean isProductModified = false;
+
+        // Bound 정보 비교
+        if (!currentBound.getBranch().equals(newBranch) ||
+            !currentBound.getApprover().equals(newApprover) ||
+            !currentBound.getRequest_date().equals(newRequestDate) ||
+            !currentBound.getComment().equals(newMemo)) {
+            isBoundModified = true;
+        }
+
+        // 상품 리스트 비교
+        if (originalProductList.size() != newProductList.size()) {
+            isProductModified = true;
+        } else {
+            for (BoundProduct newBP : newProductList) {
+                boolean found = false;
+                for (BoundProduct originalBP : originalProductList) {
+                    if (newBP.getProductOption().getOption_id() == originalBP.getProductOption().getOption_id()
+                        && newBP.getB_count() == originalBP.getB_count()) {
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    isProductModified = true;
+                    break;
+                }
+            }
+        }
+
+        // 아무것도 변경 안 됐으면
+        if (!isBoundModified && !isProductModified) {
+            JOptionPane.showMessageDialog(null, "변경된 사항이 없습니다.");
+            return;
+        }
+        
+        for (BoundProduct bp : newProductList) {
+            if (bp.getProductOption() == null) {
+                System.err.println("productOption이 null입니다. bp: " + bp);
+                return;
+            }
+        }
+        // --- 3. 사용자 확인 ---
+        int totalCount = newProductList.stream().mapToInt(BoundProduct::getB_count).sum();
+        int totalPrice = newProductList.stream()
+            .mapToInt(bp -> bp.getB_count() * bp.getProductOption().getPrice())
+            .sum();
+
+        String requesterName = user.getUser_name();
+        String approverName = newApprover.getUser_name();
+        String requestDateStr = new SimpleDateFormat("yyyy-MM-dd").format(newRequestDate);
+
+        boolean confirmed = showConfirmationDialog(requesterName, approverName, totalCount, totalPrice, requestDateStr);
+        if (!confirmed) return;
+
+        // 4. 변경사항이 있으면 저장
+        if (isBoundModified) {
+            currentBound.setBranch(newBranch);
+            currentBound.setApprover(newApprover);
+            currentBound.setRequest_date(newRequestDate);
+            currentBound.setComment(newMemo);
+            
+            // 진짜 저장
+            boundDAO.updateBound(currentBound);
+        }
+
+        if (isProductModified) {
+        	boundDAO.deleteBoundProductsByBoundId(currentBound.getBound_id());
+            for (BoundProduct bp : newProductList) {
+                bp.setBound(currentBound);
+                
+                // 진짜 저장
+                boundDAO.insertBoundProduct(bp);
+            }
+        }
+
+        JOptionPane.showMessageDialog(null, "요청서가 성공적으로 저장되었습니다.");
+
+        // 테이블 새로고침
+        refresh();
+        mainLayout.setDataDirty(true); 
+        mainLayout.refreshIfDirty();
+    }
+    
+    private void printBound(BoundProduct boundProduct) {
+    	if (boundProduct == null) {
+            JOptionPane.showMessageDialog(this, "선택된 요청서가 없습니다.");
+            return;
+        }
+
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("출고 요청서");
+
+        // --- 스타일 정의 ---
+        XSSFCellStyle headerStyle = workbook.createCellStyle();
+        XSSFFont headerFont = workbook.createFont();
+        headerFont.setBold(true);
+        headerFont.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(headerFont);
+        headerStyle.setFillForegroundColor(IndexedColors.GREEN.getIndex());
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        XSSFCellStyle cellStyle = workbook.createCellStyle();
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+        cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        int rowIndex = 1; // 2번째 행부터 (1-indexed)
+        int colIndex = 1; // B열부터 시작
+
+        // --- 제목 추가 ---
+        XSSFRow titleRow = sheet.createRow(rowIndex++);
+        XSSFCell titleCell = titleRow.createCell(colIndex);
+        titleCell.setCellValue("출고 요청서 목록");
+        titleCell.setCellStyle(headerStyle);
+
+        // --- table_list: 선택된 요청서 하나만 출력 ---
+        XSSFRow headerRow1 = sheet.createRow(rowIndex++);
+        String[] listHeaders = {"요청일", "지점", "결재자", "메모"};
+
+        for (int i = 0; i < listHeaders.length; i++) {
+            XSSFCell cell = headerRow1.createCell(colIndex + i);
+            cell.setCellValue(listHeaders[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        XSSFRow dataRow1 = sheet.createRow(rowIndex++);
+        Bound b = boundProduct.getBound();
+
+        String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(b.getRequest_date());
+        String branchName = b.getBranch().getBr_name();
+        String approverName = b.getApprover().getUser_name();
+        String memo = b.getComment();
+
+        String[] listData = {dateStr, branchName, approverName, memo};
+
+        for (int i = 0; i < listData.length; i++) {
+            XSSFCell cell = dataRow1.createCell(colIndex + i);
+            cell.setCellValue(listData[i]);
+            cell.setCellStyle(cellStyle);
+        }
+
+        // --- 공백 2줄 추가 ---
+        rowIndex += 2;
+
+     // 테이블 헤더 생성
+        XSSFRow headerRow = sheet.createRow(rowIndex++);
+        String[] headers = {"상품명", "제품코드", "요청수량", "단가", "총 금액"};
+        for (int i = 0; i < headers.length; i++) {
+            XSSFCell cell = headerRow.createCell(colIndex + i);
+            cell.setCellValue(headers[i]);
+            cell.setCellStyle(headerStyle);
+        }
+
+        // 상품 리스트
+        int totalQuantity = 0;
+        int totalUnitPrice = 0;
+        int totalOrderPrice = 0;
+        
+        // --- 숫자용 스타일 정의 (쉼표 포맷) ---
+        XSSFCellStyle numberStyle = workbook.createCellStyle();
+        DataFormat format = workbook.createDataFormat();
+        numberStyle.setDataFormat(format.getFormat("#,##0"));
+        numberStyle.setAlignment(HorizontalAlignment.CENTER);
+        numberStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        for (int row = 0; row < model_detail.getRowCount(); row++) {
+            XSSFRow dataRow = sheet.createRow(rowIndex++);
+            
+            String productName = model_detail.getValueAt(row, 0).toString();
+            String productCode = model_detail.getValueAt(row, 1).toString();
+            int quantity = Integer.parseInt(model_detail.getValueAt(row, 2).toString());
+            BoundProduct bp = model_detail.getBoundProductList().get(row);
+            int price = bp.getProductOption().getPrice();
+            int orderTotal = quantity * price;
+
+            totalQuantity += quantity;
+            totalUnitPrice += price;
+            totalOrderPrice += orderTotal;
+
+            dataRow.createCell(colIndex + 0).setCellValue(productName);    // B
+            dataRow.createCell(colIndex + 1).setCellValue(productCode);    // C
+            dataRow.createCell(colIndex + 2).setCellValue(quantity);       // D
+            dataRow.createCell(colIndex + 3).setCellValue(price);          // E
+            dataRow.createCell(colIndex + 4).setCellValue(orderTotal);     // F (단가 × 수량)
+            
+            // 내부 반복문에서 가격 및 금액에 스타일 적용
+            XSSFCell quantityCell = dataRow.createCell(colIndex + 2); // D
+            quantityCell.setCellValue(quantity);
+            quantityCell.setCellStyle(cellStyle);
+
+            XSSFCell priceCell = dataRow.createCell(colIndex + 3);    // E
+            priceCell.setCellValue(price);
+            priceCell.setCellStyle(numberStyle);
+
+            XSSFCell orderCell = dataRow.createCell(colIndex + 4);    // F
+            orderCell.setCellValue(orderTotal);
+            orderCell.setCellStyle(numberStyle);
+        }
+        
+        // 합계 행
+        XSSFRow sumRow = sheet.createRow(rowIndex++);
+        XSSFCell totalLabelCell = sumRow.createCell(colIndex);
+        totalLabelCell.setCellValue("합계");
+        totalLabelCell.setCellStyle(headerStyle);
+
+        sumRow.createCell(colIndex + 2).setCellValue(totalQuantity);     // D
+        sumRow.createCell(colIndex + 3).setCellValue("");                // E 
+        sumRow.createCell(colIndex + 4).setCellValue(totalOrderPrice);   // F: 총 주문 금액
+
+        // 열 너비 조정
+        sheet.setColumnWidth(0, 1000); // A (좁게)
+        sheet.setColumnWidth(1, 8000); // B (상품명)
+        sheet.setColumnWidth(2, 6000); // C (제품코드)
+        sheet.setColumnWidth(3, 3000); // D (수량)
+        sheet.setColumnWidth(4, 5000); // E (단가)
+        sheet.setColumnWidth(5, 5000); // F (총금액)
+        
+        XSSFCell totalQtyCell = sumRow.createCell(colIndex + 2);
+        totalQtyCell.setCellValue(totalQuantity);
+        totalQtyCell.setCellStyle(cellStyle);
+
+        XSSFCell totalPriceCell = sumRow.createCell(colIndex + 4);
+        totalPriceCell.setCellValue(totalOrderPrice);
+        totalPriceCell.setCellStyle(numberStyle);
+
+
+        // --- 파일 저장 다이얼로그 ---
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("엑셀 파일로 저장");
+        chooser.setSelectedFile(new File("출고요청서.xlsx"));
+
+        int result = chooser.showSaveDialog(null);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            try (FileOutputStream fos = new FileOutputStream(chooser.getSelectedFile())) {
+                workbook.write(fos);
+                workbook.close();
+                JOptionPane.showMessageDialog(null, "엑셀 파일이 성공적으로 저장되었습니다.");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "엑셀 저장 중 오류 발생");
+            }
+        }
+    }
+    
+    // 요청서 저장 확인 폼
+    private boolean showConfirmationDialog(String requesterName, String approverName, int totalCount, int totalPrice, String requestDate) {
+        String message = String.format(
+            "<html><body>" +
+            "<b>출고 요청 정보를 확인해주세요.</b><br><br>" +
+            "요청자 :&nbsp;&nbsp;&nbsp;%s<br><br>" +
+            "결재자 :&nbsp;&nbsp;&nbsp;%s<br><br>" +
+            "총 상품 수량 :&nbsp;&nbsp;&nbsp;%d개<br><br>" +
+            "총 상품 금액 :&nbsp;&nbsp;&nbsp;%,d원<br><br>" +
+            "출고 요청일 :&nbsp;&nbsp;&nbsp;%s<br><br><br>" +
+            "<b>정말 요청하시겠습니까?</b>" +
+            "</body></html>",
+            requesterName, approverName, totalCount, totalPrice, requestDate
+        );
+
+        int result = JOptionPane.showConfirmDialog(this, message, "출고 요청 확인", JOptionPane.YES_NO_OPTION);
+        return result == JOptionPane.YES_OPTION;
+    }
+
+
+    @Override
+    public void refresh() {
+    	this.model = new BoundListModel(userBranches, "out");
+        table_list.setModel(model);
+        table_list.revalidate();
+        table_list.repaint();
+        
+        // 리스트 테이블 셀 가운데 정렬
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        for (int i = 0; i < table_list.getColumnCount(); i++) {
+        	table_list.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+    }
+}

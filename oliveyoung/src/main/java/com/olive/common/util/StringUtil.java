@@ -27,7 +27,6 @@ public class StringUtil {
 				if (hex.length()<2) sb.append("0");
 				sb.append(hex);				// 스트링 누적
 			}
-			System.out.println(sb.toString());
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {
